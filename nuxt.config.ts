@@ -76,6 +76,7 @@ export default defineNuxtConfig({
         styles: ['normal'],
         subsets: ['latin'],
         global: true,
+        preload: true,
       },
     ],
   },
