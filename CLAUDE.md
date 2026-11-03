@@ -59,7 +59,6 @@ Node imposé : 26.13 (`.nvmrc`), celui de l’image de dev Playwright.
 | ----------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `eslint-plugin-regexp` (résolution) | `3.1.1` | 3.2+ tire `jsdoc-type-pratt-parser` 9, qui exige Node 24.15. 3.1.1 satisfait le `^3.1.1` de `@nuxt/eslint-config`                      |
 | `@vue/test-utils` (résolution)      | `2.4.6` | 2.5 tire `js-beautify` 2, puis `nopt` 10 et `abbrev` 5, qui exigent Node 24.15. Pas de dépendance directe : Testing Library l'embarque |
-| `jsdom`                             | `^29`   | jsdom 30 exige Node 24.15                                                                                                              |
 | `typescript`                        | `~6.0`  | typescript-eslint 8 ne supporte pas TypeScript 7 (`peer <6.1`)                                                                         |
 | `vite`                              | `^8`    | peer de Vitest 5                                                                                                                       |
 | `vee-validate`                      | `^4.15` | dernière stable. La 5 (Standard Schema) est en bêta                                                                                    |
