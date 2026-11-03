@@ -55,12 +55,11 @@ Le conteneur partage le réseau de la machine : ces ports doivent y être libres
 
 Node imposé : 26.13 (`.nvmrc`), celui de l’image de dev Playwright.
 
-| Paquet                         | Version | Raison                                                                                                                                 |
-| ------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `@vue/test-utils` (résolution) | `2.4.6` | 2.5 tire `js-beautify` 2, puis `nopt` 10 et `abbrev` 5, qui exigent Node 24.15. Pas de dépendance directe : Testing Library l'embarque |
-| `typescript`                   | `~6.0`  | typescript-eslint 8 ne supporte pas TypeScript 7 (`peer <6.1`)                                                                         |
-| `vite`                         | `^8`    | peer de Vitest 5                                                                                                                       |
-| `vee-validate`                 | `^4.15` | dernière stable. La 5 (Standard Schema) est en bêta                                                                                    |
+| Paquet         | Version | Raison                                                         |
+| -------------- | ------- | -------------------------------------------------------------- |
+| `typescript`   | `~6.0`  | typescript-eslint 8 ne supporte pas TypeScript 7 (`peer <6.1`) |
+| `vite`         | `^8`    | peer de Vitest 5                                               |
+| `vee-validate` | `^4.15` | dernière stable. La 5 (Standard Schema) est en bêta            |
 
 `openapi-typescript` 7 déclare un peer `typescript@^5` : l'avertissement est sans effet, `make api-types` fonctionne avec TypeScript 6.
 
