@@ -10,7 +10,7 @@ Les pages de démonstration montrent chaque brique en situation :
 | `/taches`           | Chargement côté client avec TanStack Query et ses trois états : chargement, erreur avec relance, liste vide |
 | `/contact`          | Formulaire validé par un schéma zod, erreurs liées aux champs, envoi par mutation TanStack Query            |
 | `/catalogue/...`    | Liste à facettes : filtres, tri, pagination et vue dans l'URL, rendu serveur, fonctionne sans JavaScript    |
-| Pages légales       | Mentions légales, données personnelles, déclaration d'accessibilité calculée depuis la config, plan du site |
+| Pages légales       | Mentions légales, données personnelles, déclaration d'accessibilité lues dans l'API, plan du site           |
 | `/charte-graphique` | Charte graphique vivante (tokens, composants, icônes), en développement uniquement                          |
 
 ## Stack
@@ -106,7 +106,7 @@ app/
       infrastructure/    dépôt (client typé de l'API) et traduction dans http/ (couche anti-corruption)
       ui/                composants, composables, vue rendue par la page
       index.ts           seul export public du module
-    blog/, contact/, task/   même découpage, sans application/
+    blog/, contact/, content/, task/   même découpage, sans application/
   shared/       socle sans métier : config, thème, providers, SEO, formulaires,
                 kit d'interface, layout, carrousel, mode renforcé
 server/         robots.txt, sitemap.xml, maintenance, compression du HTML (routage)
@@ -221,7 +221,7 @@ git cherry-pick <sha>
 | Quoi                             | Fichiers                                                                                                                                                                                                   |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Nom du paquet et titre           | `package.json` (`name`), titre de ce README et du `CLAUDE.md`, titulaire dans `LICENSE`                                                                                                                    |
-| Identité du site                 | `app/shared/config/site.ts` : nom, description, langue, éditeur, hébergeur, résultat d'audit d'accessibilité. Les valeurs fournies sont fictives                                                           |
+| Identité du site                 | `app/shared/config/site.ts` : nom, description, langue, éditeur (SEO), hébergeur, résultat d'audit d'accessibilité (lien du footer). Les valeurs fournies sont fictives                                    |
 | Nom affiché dans les tests       | `tests/e2e/home.e2e.ts` (h1 du hero) et `tests/e2e/layout.e2e.ts` (nom accessible du logo), à aligner sur `SITE.name`                                                                                      |
 | Couleur principale               | jetons de `@kewinmarchand/boilerplates-ui` (`tokens.json`), lus par `app/shared/theme/tokens.ts` (`PRIMARY_COLOR`), repris par la balise `theme-color`. Reporter la valeur dans `theme_color` du manifeste |
 | Manifeste                        | `public/manifest.webmanifest` : `name`, `short_name`, `theme_color`                                                                                                                                        |
@@ -230,8 +230,8 @@ git cherry-pick <sha>
 | Ports de test (3110, 3111, 3210) | `tests/support/ports.ts` pour Playwright, `.lighthouserc.json` pour Lighthouse. À changer seulement s'ils entrent en conflit avec un autre projet                                                          |
 | Logo                             | `public/images/logo-mark.svg`, affiché par le header, le footer et la charte graphique                                                                                                                     |
 | Favicons et partage              | `public/favicon.ico`, `public/favicon.svg`, `public/apple-touch-icon.png`, `public/icon-192.png`, `public/icon-512.png`, `public/og-image.jpg`                                                             |
-| Accueil                          | `app/views/home/` : hero (`HomeHero.vue`) et carrousel (`homeSlides.ts`), images `public/images/hero-*` et `slide-*`                                                                                       |
-| Pages légales                    | `app/views/legal/` : `LegalNoticeView.vue`, `PersonalDataView.vue`, `AccessibilityStatementView.vue`. Les données viennent de `site.ts`, le texte reste à relire                                           |
+| Accueil                          | `app/views/home/` : hero (`HomeHero.vue`), images `public/images/hero-*` et `slide-*`. Les diapositives du carrousel viennent de l'API (`GET /api/slides`), administrées dans son `/admin`                 |
+| Pages légales                    | Texte lu dans l'API (`GET /api/legal_pages/{slug}`), à modifier dans son `/admin` (Pages légales). Restent dans `app/views/legal/` la section « Mesure d'audience » et le bouton d'opposition              |
 | URL Lighthouse                   | `ci.url` de `.lighthouserc.json`, une entrée par route à mesurer                                                                                                                                           |
 | Intégration continue             | `.github/workflows/ci.yml` : branche surveillée (`main`), puis `make qa`, `make test-e2e test-a11y` et `make metrics`                                                                                      |
 

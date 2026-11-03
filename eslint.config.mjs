@@ -274,6 +274,11 @@ export default withNuxt(
     rules: { 'vue/multi-word-component-names': 'off' },
   },
   {
+    // HTML des pages légales : l'API échappe le HTML saisi dans l'admin et retire les liens dangereux
+    files: ['app/modules/content/ui/LegalPageContent.vue'],
+    rules: { 'vue/no-v-html': 'off' },
+  },
+  {
     files: ['tools/icons.ts'],
     rules: {
       'no-restricted-imports': ['error', { patterns: [RELATIVE_DEPTH, API_CLIENT_WRAPPER] }],
