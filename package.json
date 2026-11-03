@@ -36,7 +36,7 @@
     "embla-carousel": "^8.6.0",
     "embla-carousel-vue": "^8.6.0",
     "embla-carousel-wheel-gestures": "^8.1.0",
-    "nuxt": "4.5.2",
+    "nuxt": "4.6.4",
     "openapi-fetch": "^0.17.0",
     "vee-validate": "^4.15.1",
     "vue": "^3.5.43",
