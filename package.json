@@ -24,7 +24,7 @@
   },
   "packageManager": "yarn@1.22.22",
   "engines": {
-    "node": ">=24.14.0"
+    "node": ">=26.13.0"
   },
   "license": "MIT",
   "description": "Boilerplate Nuxt 4, boilerplates-ui, TanStack Query, vee-validate et zod, avec lint, tests unitaires, e2e, accessibilité et Lighthouse",
@@ -59,7 +59,7 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/user-event": "^14.6.7",
     "@testing-library/vue": "^8.1.0",
-    "@types/node": "^24",
+    "@types/node": "^26",
     "@vitejs/plugin-vue": "^6.0.9",
     "eslint": "^10",
     "eslint-import-resolver-typescript": "^4.4.5",
