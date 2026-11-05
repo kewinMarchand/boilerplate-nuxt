@@ -57,6 +57,7 @@ Variables d'environnement (`.env`) :
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `NUXT_PUBLIC_SITE_URL`              | URL publique, utilisée pour les URL canoniques, Open Graph, le sitemap et le JSON-LD                                                 |
 | `API_URL`                           | Origine de l'API : `http://localhost:8090` (API Platform, défaut) ou `http://localhost:8091` (Hono), même contrat. Lue à l'exécution |
+| `NUXT_API_URL`                      | Origine de l'API pour le serveur seul, quand il ne joint pas celle du navigateur (conteneur). Vide : `API_URL`                       |
 | `API_SCHEMA_URL`                    | Schéma OpenAPI de l'API consommée, lu par `make api-types`                                                                           |
 | `MAINTENANCE`                       | `1` pour servir la page de maintenance (503) sur toutes les routes                                                                   |
 | `NUXT_GLITCHTIP_DSN`                | DSN GlitchTip du serveur. Vide : aucun SDK chargé, aucune requête                                                                    |

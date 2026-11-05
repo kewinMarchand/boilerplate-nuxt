@@ -7,13 +7,13 @@ import {
 } from '@/modules/catalog/index.server'
 
 export default defineEventHandler(async (event) => {
-  const { siteUrl, apiUrl } = useRuntimeConfig(event).public
+  const config = useRuntimeConfig(event)
   const catalogLinks = await fetchCatalogLinks(
-    serverCatalogRepository(apiUrl, getHeader(event, 'x-scenario')),
+    serverCatalogRepository(config.apiUrl || config.public.apiUrl, getHeader(event, 'x-scenario')),
   )
   const pages = [...MAIN_NAVIGATION, CATALOG_ROOT, ...catalogLinks, ...LEGAL_NAVIGATION]
   const urls = pages
-    .map(({ href }) => `  <url><loc>${new URL(href, siteUrl).href}</loc></url>`)
+    .map(({ href }) => `  <url><loc>${new URL(href, config.public.siteUrl).href}</loc></url>`)
     .join('\n')
 
   setHeader(event, 'content-type', 'application/xml; charset=utf-8')

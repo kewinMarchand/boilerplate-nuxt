@@ -56,6 +56,7 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    apiUrl: '',
     glitchtipDsn: '',
     public: {
       siteUrl: 'http://localhost:3010',
