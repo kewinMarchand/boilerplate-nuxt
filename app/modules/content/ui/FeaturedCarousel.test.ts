@@ -7,6 +7,14 @@ import FeaturedCarousel from './FeaturedCarousel.vue'
 
 import type { Carousel } from '@/shared/ui/carousel'
 
+const IMAGE = {
+  alt: 'Heliconia en gros plan',
+  width: 1280,
+  height: 720,
+  sources: [{ type: 'image/avif' as const, srcset: 'http://api.test/media/a-640.avif 640w' }],
+  src: 'http://api.test/media/a-640.webp',
+}
+
 const findAll = vi.fn()
 
 vi.mock('@/modules/content/infrastructure/slideRepository', () => ({
@@ -17,7 +25,7 @@ vi.mock('@/shared/ui/carousel', () => ({
     h(
       'ul',
       { 'data-testid': 'home-carousel' },
-      props.slides.map((slide) => h('li', { key: slide.id }, slide.image.src)),
+      props.slides.map((slide) => h('li', { key: slide.id }, slide.image?.src)),
     ),
 }))
 
@@ -58,13 +66,13 @@ describe('FeaturedCarousel', () => {
 
   it('passe les diapositives au carrousel avec leur visuel', async () => {
     findAll.mockResolvedValue([
-      { id: 'heliconia', title: 'Heliconia', text: '', image: 'slide-1' },
-      { id: 'anthurium', title: 'Anthurium', text: '', image: 'slide-2' },
+      { id: 'heliconia', title: 'Heliconia', text: '', image: { ...IMAGE, src: '/media/a.webp' } },
+      { id: 'anthurium', title: 'Anthurium', text: '', image: { ...IMAGE, src: '/media/b.webp' } },
     ])
     renderCarousel()
 
     expect(await screen.findByTestId('home-carousel')).toHaveTextContent(
-      '/images/slide-1-1280.webp/images/slide-2-1280.webp',
+      '/media/a.webp/media/b.webp',
     )
   })
 })

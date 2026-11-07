@@ -12,22 +12,17 @@ const {
   priority = false,
 } = defineProps<{ product: Catalog.Product; eager?: boolean; priority?: boolean }>()
 
-const FORMATS = ['avif', 'webp']
-const PRODUCT_WIDTHS = [400, 640, 800]
 const SIZES = '(min-width: 1024px) 280px, (min-width: 480px) 50vw, calc(100vw - 58px)'
-const srcset = (format: string) =>
-  PRODUCT_WIDTHS.map(
-    (width) => `/images/product-${product.image}-${width}.${format} ${width}w`,
-  ).join(', ')
+const preload = product.image?.sources[0]
 
-if (priority) {
+if (priority && preload) {
   useHead({
     link: [
       {
         rel: 'preload',
         as: 'image',
-        type: 'image/avif',
-        imagesrcset: srcset('avif'),
+        type: preload.type,
+        imagesrcset: preload.srcset,
         imagesizes: SIZES,
         fetchpriority: 'high',
       },
@@ -39,25 +34,26 @@ if (priority) {
 <template>
   <article :id="`produit-${product.slug}`" class="product-card" data-testid="catalog-product">
     <div class="product-card-inner">
-      <picture>
+      <picture v-if="product.image">
         <source
-          v-for="format in FORMATS"
-          :key="format"
-          :type="`image/${format}`"
-          :srcset="srcset(format)"
+          v-for="source in product.image.sources"
+          :key="source.type"
+          :type="source.type"
+          :srcset="source.srcset"
           :sizes="SIZES"
         />
         <img
-          :src="`/images/product-${product.image}-800.webp`"
-          :alt="product.name"
-          width="800"
-          height="800"
+          :src="product.image.src"
+          :alt="product.image.alt"
+          :width="product.image.width"
+          :height="product.image.height"
           :loading="eager ? 'eager' : 'lazy'"
           :fetchpriority="priority ? 'high' : undefined"
           decoding="async"
           class="product-image"
         />
       </picture>
+      <div v-else class="product-placeholder" />
       <div class="product-body">
         <h2 class="product-name">{{ product.name }}</h2>
         <p class="product-price" data-testid="catalog-product-price">
@@ -99,6 +95,12 @@ if (priority) {
   width: 100%;
   height: auto;
   border-radius: var(--bui-radius-md);
+}
+
+.product-placeholder {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--bui-radius-md);
+  background: var(--bui-color-surface-muted);
 }
 
 .product-name {

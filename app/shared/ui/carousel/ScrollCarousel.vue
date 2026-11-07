@@ -43,40 +43,42 @@ const setViewport = (element: unknown) => {
           :aria-label="`${position + 1} sur ${slides.length}`"
           data-testid="carousel-slide"
         >
-          <picture v-if="position === 0 || isReady">
-            <source
-              v-for="source in slide.image.sources"
-              :key="source.type"
-              :type="source.type"
-              :srcset="source.srcset"
-              :sizes="SLIDE_SIZES"
-            />
-            <img
-              :src="slide.image.src"
-              alt=""
-              :width="slide.image.width"
-              :height="slide.image.height"
-              loading="lazy"
-              decoding="async"
-              draggable="false"
-              class="carousel-image"
-            />
-          </picture>
-          <template v-else>
-            <div
-              class="carousel-placeholder"
-              :style="{ aspectRatio: `${slide.image.width} / ${slide.image.height}` }"
-            />
-            <noscript data-allow-mismatch="children">
+          <template v-if="slide.image">
+            <picture v-if="position === 0 || isReady">
+              <source
+                v-for="source in slide.image.sources"
+                :key="source.type"
+                :type="source.type"
+                :srcset="source.srcset"
+                :sizes="SLIDE_SIZES"
+              />
               <img
                 :src="slide.image.src"
-                alt=""
+                :alt="slide.image.alt"
                 :width="slide.image.width"
                 :height="slide.image.height"
                 loading="lazy"
+                decoding="async"
+                draggable="false"
                 class="carousel-image"
               />
-            </noscript>
+            </picture>
+            <template v-else>
+              <div
+                class="carousel-placeholder"
+                :style="{ aspectRatio: `${slide.image.width} / ${slide.image.height}` }"
+              />
+              <noscript data-allow-mismatch="children">
+                <img
+                  :src="slide.image.src"
+                  :alt="slide.image.alt"
+                  :width="slide.image.width"
+                  :height="slide.image.height"
+                  loading="lazy"
+                  class="carousel-image"
+                />
+              </noscript>
+            </template>
           </template>
           <h3 class="carousel-title">{{ slide.title }}</h3>
           <p>{{ slide.text }}</p>

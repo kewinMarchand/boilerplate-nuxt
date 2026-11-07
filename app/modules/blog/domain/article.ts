@@ -1,3 +1,5 @@
+import type { ResponsiveImage } from '@/shared/ui/kit'
+
 export declare namespace Article {
   type Id = string
 
@@ -6,6 +8,6 @@ export declare namespace Article {
     title: string
     excerpt: string
     publishedAt: string
-    illustration: string
+    image: ResponsiveImage | null
   }
 }

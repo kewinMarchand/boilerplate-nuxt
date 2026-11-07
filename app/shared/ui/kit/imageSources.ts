@@ -1,3 +1,12 @@
+/** Forme de l'objet `image` du contrat de l'API : variantes AVIF puis WebP, adresses prêtes à poser. */
+export interface ResponsiveImage {
+  alt: string
+  width: number
+  height: number
+  sources: { type: string; srcset: string }[]
+  src: string
+}
+
 const FORMATS = ['avif', 'webp'] as const
 
 export const buildSrcset = (base: string, widths: number[], format: string) =>

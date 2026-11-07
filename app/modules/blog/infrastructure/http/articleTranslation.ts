@@ -8,5 +8,5 @@ export const toArticle = (dto: ArticleDto): Article.Entity => ({
   title: dto.title,
   excerpt: dto.excerpt,
   publishedAt: dto.publishedAt,
-  illustration: `blog-${dto.id}`,
+  image: dto.image,
 })

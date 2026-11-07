@@ -2,7 +2,6 @@
 import { Alert, Button, Skeleton } from '@kewinmarchand/boilerplates-ui/vue'
 
 import { Icon } from '@/shared/ui/kit'
-import { buildSources } from '@/shared/ui/kit/imageSources'
 
 import { formatPublishedAt } from '@/modules/blog/domain/formatPublishedAt'
 
@@ -16,7 +15,6 @@ defineProps<{
 
 const emit = defineEmits<{ retry: [] }>()
 
-const BLOG_WIDTHS = [480, 960]
 const BLOG_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
 </script>
 
@@ -54,19 +52,19 @@ const BLOG_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
       data-testid="home-blog-card"
     >
       <div class="bui-card blog-card-frame">
-        <picture>
+        <picture v-if="article.image">
           <source
-            v-for="source in buildSources(article.illustration, BLOG_WIDTHS)"
+            v-for="source in article.image.sources"
             :key="source.type"
             :type="source.type"
             :srcset="source.srcset"
             :sizes="BLOG_SIZES"
           />
           <img
-            :src="`/images/${article.illustration}-960.webp`"
-            alt=""
-            width="960"
-            height="540"
+            :src="article.image.src"
+            :alt="article.image.alt"
+            :width="article.image.width"
+            :height="article.image.height"
             loading="lazy"
             decoding="async"
             class="blog-card-image"

@@ -4,27 +4,12 @@ import { computed } from 'vue'
 import { Alert } from '@kewinmarchand/boilerplates-ui/vue'
 
 import { ScrollCarousel } from '@/shared/ui/carousel'
-import { buildSources } from '@/shared/ui/kit/imageSources'
 
 import { useSlides } from './composables/useSlides'
 
-import type { Carousel } from '@/shared/ui/carousel'
-
-const SLIDE_WIDTHS = [640, 750, 960, 1280]
-
 const { status, data, error } = await useSlides()
 
-const slides = computed<Carousel.Slide[]>(() =>
-  (data.value ?? []).map((slide) => ({
-    ...slide,
-    image: {
-      src: `/images/${slide.image}-1280.webp`,
-      sources: buildSources(slide.image, SLIDE_WIDTHS),
-      width: 1280,
-      height: 720,
-    },
-  })),
-)
+const slides = computed(() => data.value ?? [])
 </script>
 
 <template>

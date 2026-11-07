@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { buildSources } from '@/shared/ui/kit/imageSources'
+
 import { BlogGrid } from '@/modules/blog'
 import { eurosToCents, ProductCard } from '@/modules/catalog'
 
@@ -9,7 +11,13 @@ const ARTICLE = {
   title: 'Exemple de carte de blog',
   excerpt: 'Illustration, titre, extrait et date de publication.',
   publishedAt: '2026-10-01',
-  illustration: 'blog-1',
+  image: {
+    alt: '',
+    width: 1280,
+    height: 720,
+    sources: buildSources('hero', [640, 1280]),
+    src: '/images/hero-1280.webp',
+  },
 }
 const PRODUCT: Catalog.Product = {
   id: 'exemple',
@@ -20,7 +28,7 @@ const PRODUCT: Catalog.Product = {
   exposure: 'mi-ombre',
   size: 'M',
   inStock: false,
-  image: 2,
+  image: null,
 }
 </script>
 
@@ -36,7 +44,7 @@ const PRODUCT: Catalog.Product = {
     </div>
     <h3 class="media-title">Image au ratio 16:9</h3>
     <img
-      src="/images/slide-2-640.webp"
+      src="/images/hero-640.webp"
       alt=""
       width="640"
       height="360"

@@ -24,6 +24,16 @@ test.describe('Accueil', () => {
       /^\d{4}-\d{2}-\d{2}$/,
     )
   })
+  test('affiche les illustrations des articles servies par l’API', async ({ page }) => {
+    await gotoHydrated(page, '/')
+    const image = page.getByTestId('home-blog-card').first().locator('img')
+    await image.scrollIntoViewIfNeeded()
+    const apiOrigin = new URL(process.env.NUXT_PUBLIC_API_URL ?? 'http://localhost:8090').origin
+    await expect(image).toHaveAttribute('src', new RegExp(`^${apiOrigin}/media/`))
+    await expect
+      .poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth))
+      .toBeGreaterThan(0)
+  })
 })
 
 test.describe('Carrousel', () => {

@@ -1,18 +1,10 @@
-export declare namespace Carousel {
-  interface ImageSource {
-    type: string
-    srcset: string
-  }
+import type { ResponsiveImage } from '@/shared/ui/kit'
 
+export declare namespace Carousel {
   interface Slide {
     id: string
     title: string
     text: string
-    image: {
-      src: string
-      sources: ImageSource[]
-      width: number
-      height: number
-    }
+    image: ResponsiveImage | null
   }
 }

@@ -1,4 +1,5 @@
 import type { Price } from './price'
+import type { ResponsiveImage } from '@/shared/ui/kit'
 
 export const PAGE_SIZE = 12
 
@@ -32,7 +33,7 @@ export declare namespace Catalog {
     exposure: Exposure
     size: Size
     inStock: boolean
-    image: number
+    image: ResponsiveImage | null
   }
 
   interface Query {
