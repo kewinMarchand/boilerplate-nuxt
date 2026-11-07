@@ -18,13 +18,15 @@ export interface SeoImage {
 export interface PageSeoInput {
   title: MaybeRefOrGetter<string>
   description: MaybeRefOrGetter<string>
-  image?: MaybeRefOrGetter<SeoImage>
+  image?: MaybeRefOrGetter<SeoImage | undefined>
   noindex?: MaybeRefOrGetter<boolean>
   canonicalPath?: MaybeRefOrGetter<string>
   breadcrumbLabel?: string
   breadcrumbTrail?: MaybeRefOrGetter<Breadcrumb.Item[] | null>
   jsonLd?: MaybeRefOrGetter<Record<string, unknown>[]>
   pagination?: MaybeRefOrGetter<{ prev?: string; next?: string }>
+  /** Page d'article : `og:type` article et date de publication (AAAA-MM-JJ). */
+  publishedTime?: MaybeRefOrGetter<string | undefined>
 }
 
 const DEFAULT_IMAGE: SeoImage = {
@@ -70,7 +72,8 @@ export const usePageSeo = (input: PageSeoInput) => {
     title: () => toValue(input.title),
     description: () => toValue(input.description),
     robots: () => (toValue(input.noindex) ? 'noindex, follow' : 'index, follow'),
-    ogType: 'website',
+    ogType: () => (toValue(input.publishedTime) ? 'article' : 'website'),
+    articlePublishedTime: () => toValue(input.publishedTime),
     ogSiteName: SITE.name,
     ogLocale: SITE.locale,
     ogTitle: () => toValue(input.title),

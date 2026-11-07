@@ -1,4 +1,4 @@
-import { toArticle } from './articleTranslation'
+import { toArticle, toArticleDetail } from './articleTranslation'
 
 const IMAGE = {
   alt: 'Heliconia en gros plan',
@@ -21,10 +21,27 @@ describe('toArticle', () => {
       }),
     ).toEqual({
       id: '2',
+      slug: 'un-carrousel-accessible-sans-dependance',
       title: 'Un carrousel accessible sans dépendance',
       excerpt: 'Défilement natif, boutons explicites, pas de lecture automatique.',
       publishedAt: '2026-09-22',
       image: IMAGE,
     })
+  })
+})
+
+describe('toArticleDetail', () => {
+  it('ajoute le texte en HTML de la fiche', () => {
+    expect(
+      toArticleDetail({
+        id: 3,
+        slug: 'le-mode-accessibilite-renforcee',
+        title: 'Le mode accessibilité renforcée',
+        excerpt: '',
+        publishedAt: '2026-10-01',
+        image: null,
+        html: '<p>Texte</p>\n',
+      }),
+    ).toMatchObject({ id: '3', slug: 'le-mode-accessibilite-renforcee', html: '<p>Texte</p>\n' })
   })
 })

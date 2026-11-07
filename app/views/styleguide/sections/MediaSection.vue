@@ -8,6 +8,7 @@ import type { Catalog } from '@/modules/catalog'
 
 const ARTICLE = {
   id: 'exemple',
+  slug: 'exemple',
   title: 'Exemple de carte de blog',
   excerpt: 'Illustration, titre, extrait et date de publication.',
   publishedAt: '2026-10-01',

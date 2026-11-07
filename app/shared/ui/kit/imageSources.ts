@@ -14,3 +14,11 @@ export const buildSrcset = (base: string, widths: number[], format: string) =>
 
 export const buildSources = (base: string, widths: number[]) =>
   FORMATS.map((format) => ({ type: `image/${format}`, srcset: buildSrcset(base, widths, format) }))
+
+/** Plus grande variante WebP, aux dimensions `width` × `height` de l'image (partage social, données structurées). */
+export const largestWebp = (image: ResponsiveImage) =>
+  image.sources
+    .find((source) => source.type === 'image/webp')
+    ?.srcset.split(', ')
+    .at(-1)
+    ?.split(' ')[0] ?? image.src

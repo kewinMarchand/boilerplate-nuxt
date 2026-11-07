@@ -1,5 +1,6 @@
 import { LEGAL_NAVIGATION, MAIN_NAVIGATION } from '@/shared/config'
 
+import { articleHref, serverArticleRepository } from '@/modules/blog/index.server'
 import {
   CATALOG_ROOT,
   fetchCatalogLinks,
@@ -8,10 +9,23 @@ import {
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
-  const catalogLinks = await fetchCatalogLinks(
-    serverCatalogRepository(config.apiUrl || config.public.apiUrl, getHeader(event, 'x-scenario')),
-  )
-  const pages = [...MAIN_NAVIGATION, CATALOG_ROOT, ...catalogLinks, ...LEGAL_NAVIGATION]
+  const apiUrl = config.apiUrl || config.public.apiUrl
+  const scenario = getHeader(event, 'x-scenario')
+  const [catalogLinks, articles] = await Promise.all([
+    fetchCatalogLinks(serverCatalogRepository(apiUrl, scenario)),
+    // API indisponible : le sitemap reste servi, sans les fiches
+    serverArticleRepository(apiUrl, scenario)
+      .findLatest()
+      .catch(() => []),
+  ])
+  const articleLinks = articles.map((article) => ({ href: articleHref(article.slug) }))
+  const pages = [
+    ...MAIN_NAVIGATION,
+    CATALOG_ROOT,
+    ...catalogLinks,
+    ...articleLinks,
+    ...LEGAL_NAVIGATION,
+  ]
   const urls = pages
     .map(({ href }) => `  <url><loc>${new URL(href, config.public.siteUrl).href}</loc></url>`)
     .join('\n')

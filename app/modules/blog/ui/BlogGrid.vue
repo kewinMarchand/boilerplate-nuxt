@@ -3,6 +3,7 @@ import { Alert, Button, Skeleton } from '@kewinmarchand/boilerplates-ui/vue'
 
 import { Icon } from '@/shared/ui/kit'
 
+import { articleHref } from '@/modules/blog/domain/article'
 import { formatPublishedAt } from '@/modules/blog/domain/formatPublishedAt'
 
 import type { Article } from '../domain/article'
@@ -71,7 +72,11 @@ const BLOG_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
           />
         </picture>
         <div class="blog-card-body">
-          <h3>{{ article.title }}</h3>
+          <h3>
+            <NuxtLink :to="articleHref(article.slug)" class="blog-card-link">{{
+              article.title
+            }}</NuxtLink>
+          </h3>
           <p>{{ article.excerpt }}</p>
           <time :datetime="article.publishedAt" class="blog-card-date">
             {{ formatPublishedAt(article.publishedAt) }}
@@ -89,7 +94,15 @@ const BLOG_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
 }
 
 .blog-card-frame {
+  position: relative;
   height: 100%;
+}
+
+/* Lien étiré sur toute la carte : un seul lien, nommé par le titre */
+.blog-card-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
 }
 
 .blog-card-date {

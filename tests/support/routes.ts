@@ -8,6 +8,7 @@ export const ROUTES = [
   '/donnees-personnelles',
   '/accessibilite',
   '/plan-du-site',
+  '/blog/le-mode-accessibilite-renforcee',
 ] as const
 
 export const DEV_ROUTES = ['/charte-graphique'] as const
