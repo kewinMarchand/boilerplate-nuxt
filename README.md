@@ -245,7 +245,6 @@ Le catalogue, le blog et les tâches servent de démonstration. Le module `conta
    - les pages `app/pages/taches.vue` et `app/pages/catalogue/`
    - le menu de catégories du socle : `app/shared/ui/layout/CategoryMenu.vue` et le dossier `app/shared/ui/layout/composables/` (`useCategoryMenu.ts`, `useMenuDrillDown.ts`)
    - les tests `tests/e2e/catalogue.e2e.ts`, `tests/e2e/taches.e2e.ts` et `tests/e2e/category-menu.e2e.ts`
-   - les images `public/images/product-*` et `public/images/blog-*`
 2. **Débrancher le routage**
    - `app/app.vue` : retirer l'import du catalogue et rendre `<AppShell>` sans `category-menu` ni `breadcrumb-trail`
    - `app/error.vue` : retirer `getCategoryMenu` et la mention du catalogue dans la description
