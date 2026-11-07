@@ -9,6 +9,7 @@ export const ROUTES = [
   '/accessibilite',
   '/plan-du-site',
   '/blog/le-mode-accessibilite-renforcee',
+  '/produit/monstera-deliciosa',
 ] as const
 
 export const DEV_ROUTES = ['/charte-graphique'] as const

@@ -4,6 +4,7 @@ import { articleHref, serverArticleRepository } from '@/modules/blog/index.serve
 import {
   CATALOG_ROOT,
   fetchCatalogLinks,
+  fetchProductLinks,
   serverCatalogRepository,
 } from '@/modules/catalog/index.server'
 
@@ -11,8 +12,10 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
   const apiUrl = config.apiUrl || config.public.apiUrl
   const scenario = getHeader(event, 'x-scenario')
-  const [catalogLinks, articles] = await Promise.all([
-    fetchCatalogLinks(serverCatalogRepository(apiUrl, scenario)),
+  const catalog = serverCatalogRepository(apiUrl, scenario)
+  const [catalogLinks, productLinks, articles] = await Promise.all([
+    fetchCatalogLinks(catalog),
+    fetchProductLinks(catalog),
     // API indisponible : le sitemap reste servi, sans les fiches
     serverArticleRepository(apiUrl, scenario)
       .findLatest()
@@ -23,6 +26,7 @@ export default defineEventHandler(async (event) => {
     ...MAIN_NAVIGATION,
     CATALOG_ROOT,
     ...catalogLinks,
+    ...productLinks,
     ...articleLinks,
     ...LEGAL_NAVIGATION,
   ]

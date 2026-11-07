@@ -10,5 +10,7 @@ export const useCatalogUseCases = () => {
     loadCategoryTree: () => repository.findCategoryTree(),
     loadCatalogPage: (slugs: string[], query: Catalog.Query) =>
       loadCatalogPage(repository, slugs, query),
+    loadProduct: (slug: string) => repository.findProduct(slug),
+    loadFeaturedProducts: () => repository.findFeaturedProducts(),
   }
 }

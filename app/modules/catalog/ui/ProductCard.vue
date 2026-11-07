@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useHead } from '#imports'
 
+import { productHref } from '../domain/catalog'
 import { formatPrice } from '../domain/price'
 import { EXPOSURE_LABELS, SIZE_LABELS } from './labels'
 
@@ -55,7 +56,15 @@ if (priority && preload) {
       </picture>
       <div v-else class="product-placeholder" />
       <div class="product-body">
-        <h2 class="product-name">{{ product.name }}</h2>
+        <h2 class="product-name">
+          <NuxtLink
+            :to="productHref(product.slug)"
+            class="bui-link product-link"
+            data-testid="catalog-product-link"
+          >
+            {{ product.name }}
+          </NuxtLink>
+        </h2>
         <p class="product-price" data-testid="catalog-product-price">
           {{ formatPrice(product.price) }}
         </p>
@@ -77,7 +86,15 @@ if (priority && preload) {
 
 <style scoped>
 .product-card {
+  position: relative;
   container-type: inline-size;
+}
+
+/* Lien étiré sur toute la carte : un seul lien, nommé par le nom du produit */
+.product-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
 }
 
 .product-card-inner {

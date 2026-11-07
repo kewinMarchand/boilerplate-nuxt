@@ -1,22 +1,22 @@
 import { useQuery } from '@tanstack/vue-query'
 
-import { useSlideRepository } from '@/modules/content/infrastructure/slideRepository'
-import { SlidesLoadError } from '@/modules/content/infrastructure/SlidesLoadError'
+import { FeaturedProductsLoadError } from '@/modules/catalog/application/FeaturedProductsLoadError'
+import { useCatalogUseCases } from '@/modules/catalog/application/useCatalogUseCases'
 
 /**
  * À attendre dans le `setup` : l'attente remplace `onServerPrefetch`, qui ne crée une frontière
  * asynchrone que côté serveur et décalerait les `useId` du carrousel (`aria-controls` cassés).
  */
-export const useSlides = async () => {
-  const repository = useSlideRepository()
+export const useFeaturedProducts = async () => {
+  const { loadFeaturedProducts } = useCatalogUseCases()
   const query = useQuery({
-    queryKey: ['slides'],
+    queryKey: ['featured-products'],
     queryFn: async () => {
       try {
-        return await repository.findAll()
+        return await loadFeaturedProducts()
       } catch (error) {
         console.error(error)
-        throw new SlidesLoadError({ cause: error })
+        throw new FeaturedProductsLoadError({ cause: error })
       }
     },
   })

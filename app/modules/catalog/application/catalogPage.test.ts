@@ -24,6 +24,9 @@ const PAGE: Catalog.Page = {
 const repository = (findCatalogPage: CatalogRepository['findCatalogPage']): CatalogRepository => ({
   findCategoryTree: async () => TREE,
   findCatalogPage,
+  findProduct: async () => null,
+  findFeaturedProducts: async () => [],
+  findAllProductSlugs: async () => [],
 })
 
 describe('resolveCatalogCategory', () => {

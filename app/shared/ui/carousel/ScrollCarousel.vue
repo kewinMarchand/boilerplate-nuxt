@@ -80,7 +80,19 @@ const setViewport = (element: unknown) => {
               </noscript>
             </template>
           </template>
-          <h3 class="carousel-title">{{ slide.title }}</h3>
+          <h3 class="carousel-title">
+            <!-- Après un glisser, Embla annule le clic : la diapositive ne s'ouvre pas en fin de geste -->
+            <NuxtLink
+              v-if="slide.href"
+              :to="slide.href"
+              draggable="false"
+              class="bui-link carousel-link"
+              data-testid="carousel-slide-link"
+            >
+              {{ slide.title }}
+            </NuxtLink>
+            <template v-else>{{ slide.title }}</template>
+          </h3>
           <p>{{ slide.text }}</p>
         </div>
       </div>
@@ -142,6 +154,7 @@ const setViewport = (element: unknown) => {
 }
 
 .carousel-slide {
+  position: relative;
   flex: 0 0 100%;
   min-width: 0;
   padding-left: 16px;
@@ -166,6 +179,13 @@ const setViewport = (element: unknown) => {
 
 html:not([data-js]) .carousel-placeholder {
   display: none;
+}
+
+/* Lien étiré sur toute la diapositive : un seul lien, nommé par le titre */
+.carousel-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
 }
 
 .carousel-title {

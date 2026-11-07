@@ -3,7 +3,8 @@ import { defineComponent, h, Suspense } from 'vue'
 
 import { renderWithProviders } from '@/shared/testing/renderWithProviders'
 
-import FeaturedCarousel from './FeaturedCarousel.vue'
+import { Price } from '../domain/price'
+import FeaturedProducts from './FeaturedProducts.vue'
 
 import type { Carousel } from '@/shared/ui/carousel'
 
@@ -17,15 +18,17 @@ const IMAGE = {
 
 const findAll = vi.fn()
 
-vi.mock('@/modules/content/infrastructure/slideRepository', () => ({
-  useSlideRepository: () => ({ findAll }),
+vi.mock('@/modules/catalog/application/useCatalogUseCases', () => ({
+  useCatalogUseCases: () => ({ loadFeaturedProducts: findAll }),
 }))
 vi.mock('@/shared/ui/carousel', () => ({
   ScrollCarousel: (props: { slides: Carousel.Slide[] }) =>
     h(
       'ul',
       { 'data-testid': 'home-carousel' },
-      props.slides.map((slide) => h('li', { key: slide.id }, slide.image?.src)),
+      props.slides.map((slide) =>
+        h('li', { key: slide.id }, [h('a', { href: slide.href }, slide.title), slide.image?.src]),
+      ),
     ),
 }))
 
@@ -36,12 +39,12 @@ const renderCarousel = () =>
       () => () =>
         h(
           'div',
-          h(Suspense, null, () => h(FeaturedCarousel)),
+          h(Suspense, null, () => h(FeaturedProducts)),
         ),
     ),
   )
 
-describe('FeaturedCarousel', () => {
+describe('FeaturedProducts', () => {
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
   })
@@ -55,7 +58,7 @@ describe('FeaturedCarousel', () => {
     ).toHaveTextContent('Impossible de charger le carrousel pour le moment.')
   })
 
-  it("n'affiche pas le carrousel sans diapositive", async () => {
+  it("n'affiche pas le carrousel sans produit à la une", async () => {
     findAll.mockResolvedValue([])
     renderCarousel()
 
@@ -64,15 +67,28 @@ describe('FeaturedCarousel', () => {
     expect(screen.queryByTestId('home-carousel-error')).not.toBeInTheDocument()
   })
 
-  it('passe les diapositives au carrousel avec leur visuel', async () => {
+  it('passe chaque produit au carrousel avec son visuel et le lien de sa fiche', async () => {
+    const product = (slug: string, src: string) => ({
+      id: slug,
+      slug,
+      name: slug,
+      categorySlug: 'heliconia',
+      price: Price.fromCents(5490),
+      exposure: 'soleil',
+      size: 'L',
+      inStock: true,
+      image: { ...IMAGE, src },
+    })
     findAll.mockResolvedValue([
-      { id: 'heliconia', title: 'Heliconia', text: '', image: { ...IMAGE, src: '/media/a.webp' } },
-      { id: 'anthurium', title: 'Anthurium', text: '', image: { ...IMAGE, src: '/media/b.webp' } },
+      product('heliconia-rostrata', '/media/a.webp'),
+      product('anthurium-clarinervium', '/media/b.webp'),
     ])
     renderCarousel()
 
-    expect(await screen.findByTestId('home-carousel')).toHaveTextContent(
-      '/media/a.webp/media/b.webp',
+    expect(await screen.findByTestId('home-carousel')).toHaveTextContent('/media/a.webp')
+    expect(screen.getByRole('link', { name: 'heliconia-rostrata' })).toHaveAttribute(
+      'href',
+      '/produit/heliconia-rostrata',
     )
   })
 })

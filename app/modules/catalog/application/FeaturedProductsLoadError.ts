@@ -1,6 +1,6 @@
-export class SlidesLoadError extends Error {
+export class FeaturedProductsLoadError extends Error {
   constructor(options?: ErrorOptions) {
     super('Impossible de charger le carrousel pour le moment.', options)
-    this.name = 'SlidesLoadError'
+    this.name = 'FeaturedProductsLoadError'
   }
 }

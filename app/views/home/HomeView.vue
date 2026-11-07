@@ -5,15 +5,15 @@ import { BlogSection } from '@/modules/blog'
 
 import HomeHero from './HomeHero.vue'
 
-const FeaturedCarousel = defineLazyHydrationComponent('visible', () =>
-  import('@/modules/content').then((content) => content.FeaturedCarousel),
+const FeaturedProducts = defineLazyHydrationComponent('visible', () =>
+  import('@/modules/catalog').then((catalog) => catalog.FeaturedProducts),
 )
 </script>
 
 <template>
   <HomeHero />
   <div class="app-container home-sections">
-    <FeaturedCarousel />
+    <FeaturedProducts />
     <BlogSection />
   </div>
 </template>
