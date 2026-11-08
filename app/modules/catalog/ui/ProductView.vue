@@ -122,7 +122,7 @@ useHead({
   </template>
   <article v-else-if="product" class="product" data-testid="product-page">
     <ProductGallery v-if="galleryImages.length > 0" :images="galleryImages" :sizes="IMAGE_SIZES" />
-    <picture v-else-if="product.image">
+    <picture v-else-if="product.image" class="bui-picture">
       <source
         v-for="source in product.image.sources"
         :key="source.type"

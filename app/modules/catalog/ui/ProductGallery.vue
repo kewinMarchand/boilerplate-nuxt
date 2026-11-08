@@ -26,7 +26,7 @@ const onKeydown = (event: KeyboardEvent, index: number) => {
 
 <template>
   <div class="gallery" data-testid="product-gallery">
-    <picture :key="current">
+    <picture :key="current" class="bui-picture">
       <source
         v-for="source in images[current]?.sources"
         :key="source.type"

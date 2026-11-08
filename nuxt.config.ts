@@ -29,6 +29,7 @@ export default defineNuxtConfig({
     { src: '@/shared/providers/hydrated', mode: 'client' },
     { src: '@/shared/providers/errorReporting', mode: 'client' },
     { src: '@/shared/providers/matomo', mode: 'client' },
+    { src: '@/shared/providers/imageFallback', mode: 'client' },
   ],
   css: [
     '@/shared/theme/layers.css',

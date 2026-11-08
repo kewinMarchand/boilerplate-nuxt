@@ -44,7 +44,7 @@ const setViewport = (element: unknown) => {
           data-testid="carousel-slide"
         >
           <template v-if="slide.image">
-            <picture v-if="position === 0 || isReady">
+            <picture v-if="position === 0 || isReady" class="bui-picture">
               <source
                 v-for="source in slide.image.sources"
                 :key="source.type"

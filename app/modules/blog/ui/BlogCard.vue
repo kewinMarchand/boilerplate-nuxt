@@ -10,7 +10,7 @@ defineProps<{ article: Article.Entity; sizes: string; heading: 'h2' | 'h3' }>()
 <template>
   <article class="blog-card">
     <div class="bui-card blog-card-frame">
-      <picture v-if="article.image">
+      <picture v-if="article.image" class="bui-picture">
         <source
           v-for="source in article.image.sources"
           :key="source.type"

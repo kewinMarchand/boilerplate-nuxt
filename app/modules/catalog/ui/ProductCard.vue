@@ -41,7 +41,7 @@ if (priority && preload) {
 <template>
   <article :id="`produit-${product.slug}`" class="product-card" data-testid="catalog-product">
     <div class="product-card-inner">
-      <picture v-if="product.image">
+      <picture v-if="product.image" class="bui-picture">
         <source
           v-for="source in product.image.sources"
           :key="source.type"

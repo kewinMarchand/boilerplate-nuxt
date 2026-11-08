@@ -101,7 +101,7 @@ useHead({
       Publié le
       <time :datetime="article.publishedAt">{{ formatPublishedAt(article.publishedAt) }}</time>
     </p>
-    <picture v-if="article.image">
+    <picture v-if="article.image" class="bui-picture">
       <source
         v-for="source in article.image.sources"
         :key="source.type"
