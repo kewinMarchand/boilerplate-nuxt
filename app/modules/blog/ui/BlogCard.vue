@@ -29,6 +29,9 @@ defineProps<{ article: Article.Entity; sizes: string; heading: 'h2' | 'h3' }>()
         />
       </picture>
       <div class="blog-card-body">
+        <p v-if="article.section" class="blog-card-section" data-testid="article-section">
+          {{ article.section.name }}
+        </p>
         <component :is="heading" class="type-h3">
           <NuxtLink :to="articleHref(article.slug)" class="blog-card-link">{{
             article.title
@@ -63,6 +66,15 @@ defineProps<{ article: Article.Entity; sizes: string; heading: 'h2' | 'h3' }>()
 .blog-card-date {
   color: var(--bui-color-text-muted);
   font-size: var(--bui-font-size-body-sm);
+}
+
+.blog-card-section {
+  margin-block: 0 var(--bui-space-2);
+  color: var(--bui-color-text-muted);
+  font-size: var(--bui-font-size-body-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .blog-card-image {

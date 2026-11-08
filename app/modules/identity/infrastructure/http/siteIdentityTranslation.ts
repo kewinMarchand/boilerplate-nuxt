@@ -20,6 +20,13 @@ export const toSiteIdentity = (dto: SiteIdentityDto): SiteIdentity.Entity => ({
   name: dto.name,
   tagline: dto.tagline,
   logo: dto.logo,
+  shareImage: dto.shareImage,
+  icon: dto.icon && {
+    png32: dto.icon.png32,
+    png180: dto.icon.png180,
+    png192: dto.icon.png192,
+    png512: dto.icon.png512,
+  },
   defaultColorScheme: dto.defaultColorScheme,
   theme: dto.theme ? { light: toPalette(dto.theme.light), dark: toPalette(dto.theme.dark) } : null,
 })

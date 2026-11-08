@@ -56,6 +56,11 @@ export declare namespace Catalog {
     categoryPath: CategoryPath
     /** Paragraphes de la description, vide si l'admin n'en a pas écrit. */
     description: string[]
+    /** Images supplémentaires, dans l'ordre, vide si aucune. */
+    gallery: ResponsiveImage[]
+    /** Vides si non saisis : la fiche garde son titre et sa description calculés. */
+    metaTitle: string
+    metaDescription: string
   }
 
   interface Query {

@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test'
 import { gotoHydrated } from '../support/page'
 
 const ARTICLE = '/blog/un-carrousel-accessible-sans-dependance'
+const API_URL = process.env.NUXT_PUBLIC_API_URL ?? 'http://localhost:8090'
 
 test.describe('Fiche article', () => {
   test('s’ouvre depuis une carte de l’accueil', async ({ page }) => {
@@ -76,5 +77,43 @@ test.describe('Fiche article', () => {
     const response = await page.goto('/blog/article-inconnu')
 
     expect(response?.status()).toBe(404)
+  })
+})
+
+test.describe('Rubrique, format et audio de la fiche article', () => {
+  test('lecteur audio sans autolecture, avec durée et intervenant', async ({ page, request }) => {
+    const { audio, speaker } = (await (
+      await request.get(`${API_URL}/api/articles/un-carrousel-accessible-sans-dependance`)
+    ).json()) as { audio: { src: string; durationSeconds: number }; speaker: string }
+    await gotoHydrated(page, ARTICLE)
+
+    const player = page.getByTestId('article-audio')
+    await expect(player).toHaveAttribute('controls', '')
+    await expect(player).toHaveAttribute('preload', 'none')
+    await expect(player).not.toHaveAttribute('autoplay')
+    await expect(player.locator('source')).toHaveAttribute('src', audio.src)
+    expect(await player.evaluate((element: HTMLAudioElement) => element.paused)).toBe(true)
+    const block = page.getByTestId('article-audio-block')
+    await expect(block).toContainText(`${audio.durationSeconds} s`)
+    await expect(page.getByTestId('article-speaker')).toHaveText(speaker)
+  })
+
+  test('rubrique et format sous le titre', async ({ page }) => {
+    await page.goto('/blog/pourquoi-rendre-le-contenu-cote-serveur')
+
+    const article = page.getByTestId('article-page')
+    await expect(article.getByTestId('article-section')).toHaveText('Conseils')
+    await expect(article.getByTestId('article-format')).toHaveText('Guide')
+    await expect(page.getByTestId('article-audio')).toHaveCount(0)
+  })
+
+  test('sans audio ni format : ni lecteur ni format', async ({ page }) => {
+    await page.goto('/blog/le-mode-accessibilite-renforcee')
+
+    await expect(page.getByTestId('article-title')).toBeVisible()
+    await expect(page.getByTestId('article-section')).toHaveText('Actualités')
+    await expect(page.getByTestId('article-format')).toHaveCount(0)
+    await expect(page.getByTestId('article-audio-block')).toHaveCount(0)
+    await expect(page.getByTestId('article-audio')).toHaveCount(0)
   })
 })

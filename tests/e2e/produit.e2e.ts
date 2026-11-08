@@ -126,3 +126,72 @@ test.describe('Fiche produit', () => {
     expect(response?.status()).toBe(404)
   })
 })
+
+test.describe('Galerie de la fiche produit', () => {
+  test('vignettes en boutons, image principale comprise, la première affichée', async ({
+    page,
+  }) => {
+    await gotoHydrated(page, PRODUCT)
+
+    const thumbs = page.getByTestId('product-gallery').getByTestId('product-gallery-thumb')
+    await expect(thumbs).toHaveCount(3)
+    await expect(thumbs.first()).toHaveAttribute('aria-current', 'true')
+    await expect(thumbs.nth(1)).not.toHaveAttribute('aria-current')
+    await expect(thumbs.nth(1)).toHaveAccessibleName('Voir l’image 2 sur 3')
+    await expect(thumbs.first().locator('img')).toHaveAttribute('loading', 'lazy')
+    const image = page.getByTestId('product-gallery-image')
+    await expect(image).toHaveAttribute('fetchpriority', 'high')
+    await expect(image).not.toHaveAttribute('loading', 'lazy')
+  })
+
+  test('un clic sur une vignette remplace l’image affichée', async ({ page }) => {
+    await gotoHydrated(page, PRODUCT)
+    const thumbs = page.getByTestId('product-gallery-thumb')
+    const image = page.getByTestId('product-gallery-image')
+    const first = (await image.getAttribute('src')) ?? ''
+
+    await thumbs.nth(2).click()
+
+    await expect(thumbs.nth(2)).toHaveAttribute('aria-current', 'true')
+    await expect(thumbs.first()).not.toHaveAttribute('aria-current')
+    await expect(image).not.toHaveAttribute('src', first)
+  })
+
+  test('les flèches gauche et droite passent d’une vignette à l’autre', async ({ page }) => {
+    await gotoHydrated(page, PRODUCT)
+    const thumbs = page.getByTestId('product-gallery-thumb')
+    await thumbs.first().focus()
+
+    await page.keyboard.press('ArrowRight')
+    await expect(thumbs.nth(1)).toBeFocused()
+    await expect(thumbs.nth(1)).toHaveAttribute('aria-current', 'true')
+
+    await page.keyboard.press('ArrowLeft')
+    await page.keyboard.press('ArrowLeft')
+    await expect(thumbs.nth(2)).toBeFocused()
+    await expect(thumbs.nth(2)).toHaveAttribute('aria-current', 'true')
+  })
+
+  test('sans galerie, la fiche garde son image seule', async ({ page }) => {
+    await page.goto('/produit/monstera-adansonii')
+
+    await expect(page.getByTestId('product-title')).toBeVisible()
+    await expect(page.getByTestId('product-gallery')).toHaveCount(0)
+    await expect(page.getByTestId('product-page').locator('img')).toHaveCount(1)
+  })
+
+  test.describe('sans JavaScript', () => {
+    test.use({ javaScriptEnabled: false })
+
+    test('les vignettes sont des liens vers l’image en grand', async ({ page }) => {
+      await page.goto(PRODUCT)
+
+      await expect(page.getByTestId('product-gallery-thumb').first()).toBeHidden()
+      const links = page.getByTestId('product-gallery-thumb-link')
+      await expect(links).toHaveCount(3)
+      await expect(links.first()).toBeVisible()
+      await expect(links.first()).toHaveAttribute('href', /^https?:\/\/.+\.webp$/)
+      await expect(links.first()).toHaveAccessibleName('Voir l’image 1 sur 3')
+    })
+  })
+})

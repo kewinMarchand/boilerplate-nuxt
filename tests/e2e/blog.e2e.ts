@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { gotoHydrated } from '../support/page'
+import { gotoHydrated, linkTo } from '../support/page'
 
 const API_URL = process.env.NUXT_PUBLIC_API_URL ?? 'http://localhost:8090'
 
@@ -63,6 +63,85 @@ test.describe('Liste des articles', () => {
   })
 })
 
+interface ApiArticle {
+  slug: string
+  section: { slug: string; name: string } | null
+}
+
+test.describe('Rubriques des articles', () => {
+  test('la rubrique en sur-titre des cartes, sur /blog et à l’accueil', async ({
+    page,
+    request,
+  }) => {
+    const articles = (await (await request.get(`${API_URL}/api/articles`)).json()) as ApiArticle[]
+    const withSection = articles.filter((article) => article.section)
+
+    await page.goto('/blog')
+    await expect(page.getByTestId('blog-list').getByTestId('article-section')).toHaveCount(
+      withSection.length,
+    )
+    await expect(page.getByTestId('blog-card').first().getByTestId('article-section')).toHaveText(
+      articles[0]?.section?.name ?? '',
+    )
+
+    await page.goto('/')
+    await expect(
+      page.getByTestId('home-blog-card').first().getByTestId('article-section'),
+    ).toHaveText(articles[0]?.section?.name ?? '')
+  })
+
+  test('filtre par rubrique : liens, rubrique active et liste filtrée', async ({
+    page,
+    request,
+  }) => {
+    const sections = (await (await request.get(`${API_URL}/api/article-sections`)).json()) as {
+      slug: string
+    }[]
+    const conseils = (await (
+      await request.get(`${API_URL}/api/articles?section=conseils`)
+    ).json()) as ApiArticle[]
+    await gotoHydrated(page, '/blog')
+
+    const nav = page.getByRole('navigation', { name: 'Rubriques' })
+    await expect(nav.getByTestId('blog-section-link')).toHaveCount(sections.length + 1)
+    await expect(linkTo(nav, 'blog-section-link', '/blog')).toHaveAttribute('aria-current', 'page')
+
+    await linkTo(nav, 'blog-section-link', '/blog?rubrique=conseils').click()
+
+    await expect(page).toHaveURL(/\/blog\?rubrique=conseils$/)
+    await expect(linkTo(nav, 'blog-section-link', '/blog?rubrique=conseils')).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    await expect(linkTo(nav, 'blog-section-link', '/blog')).not.toHaveAttribute('aria-current')
+    await expect(page.getByTestId('blog-card')).toHaveCount(conseils.length)
+  })
+
+  test.describe('sans JavaScript', () => {
+    test.use({ javaScriptEnabled: false })
+
+    test('la liste filtrée et la rubrique active sont rendues côté serveur', async ({ page }) => {
+      await page.goto('/blog?rubrique=actualites')
+
+      await expect(page.getByTestId('blog-card')).toHaveCount(1)
+      await expect(page.getByTestId('blog-card').getByTestId('article-section')).toHaveText(
+        'Actualités',
+      )
+      await expect(linkTo(page, 'blog-section-link', '/blog?rubrique=actualites')).toHaveAttribute(
+        'aria-current',
+        'page',
+      )
+    })
+  })
+
+  test('une rubrique inconnue donne la liste vide, sans rubrique active', async ({ page }) => {
+    await page.goto('/blog?rubrique=inconnue')
+
+    await expect(page.getByTestId('blog-empty')).toBeVisible()
+    await expect(page.locator('[data-testid="blog-section-link"][aria-current]')).toHaveCount(0)
+  })
+})
+
 test.describe('Liste des articles, API en erreur (X-Scenario: error)', () => {
   test.use({ extraHTTPHeaders: { 'X-Scenario': 'error' } })
 
@@ -83,5 +162,12 @@ test.describe('Liste des articles, API sans données (X-Scenario: empty)', () =>
 
     await expect(page.getByTestId('blog-empty')).toBeVisible()
     await expect(page.getByTestId('blog-list')).toHaveCount(0)
+  })
+
+  test('sans rubrique, pas de filtre', async ({ page }) => {
+    await page.goto('/blog')
+
+    await expect(page.getByTestId('blog-empty')).toBeVisible()
+    await expect(page.getByTestId('blog-sections')).toHaveCount(0)
   })
 })

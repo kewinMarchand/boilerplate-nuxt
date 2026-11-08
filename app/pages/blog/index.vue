@@ -4,20 +4,23 @@ import { useRuntimeConfig } from '#imports'
 import { usePageSeo } from '@/shared/seo'
 
 import { BlogView } from '@/modules/blog'
+import { usePageMeta } from '@/modules/identity'
 
 const { siteUrl } = useRuntimeConfig().public
 const DESCRIPTION =
   'Tous les articles du blog, du plus récent au plus ancien : accessibilité, performance, composants et retours d’expérience front-end.'
+const meta = await usePageMeta('blog')
+const description = () => meta.value.description || DESCRIPTION
 
 usePageSeo({
-  title: 'Blog',
-  description: DESCRIPTION,
-  jsonLd: [
+  title: () => meta.value.title || 'Blog',
+  description,
+  jsonLd: () => [
     {
       '@context': 'https://schema.org',
       '@type': 'Blog',
       name: 'Blog',
-      description: DESCRIPTION,
+      description: description(),
       url: new URL('/blog', siteUrl).href,
       inLanguage: 'fr-FR',
     },

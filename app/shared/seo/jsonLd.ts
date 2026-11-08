@@ -1,11 +1,12 @@
 import { SITE } from '@/shared/config'
 
-export const organizationJsonLd = (siteUrl: string, name: string) => ({
+/** `logo` : adresse absolue de l'icône saisie dans l'identité du site, l'icône du front sans elle. */
+export const organizationJsonLd = (siteUrl: string, name: string, logo?: string) => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name,
   url: new URL('/', siteUrl).href,
-  logo: new URL('/icon-512.png', siteUrl).href,
+  logo: logo ?? new URL('/icon-512.png', siteUrl).href,
   email: SITE.publisher.email,
 })
 

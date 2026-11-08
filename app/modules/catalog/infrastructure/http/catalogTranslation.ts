@@ -67,6 +67,9 @@ export const toProductDetail = (dto: ProductDetailDto): Catalog.ProductDetail =>
     .split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
     .filter((paragraph) => paragraph !== ''),
+  gallery: dto.gallery,
+  metaTitle: dto.metaTitle,
+  metaDescription: dto.metaDescription,
 })
 
 const toFacetCounts = <T extends string>(values: readonly T[], dtos: FacetDto[]) =>

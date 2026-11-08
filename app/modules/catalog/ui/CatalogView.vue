@@ -21,6 +21,10 @@ import { useCatalogSeo } from './composables/useCatalogSeo'
 import FiltersDialog from './FiltersDialog.vue'
 import ProductList from './ProductList.vue'
 
+import type { CatalogPageMeta } from './composables/useCatalogSeo'
+
+const props = defineProps<{ rootMeta?: CatalogPageMeta }>()
+
 const route = useRoute()
 const { categoryPath, query, catalog, hrefFor, navigate } = useCatalog()
 const { data, status, error, refetch } = catalog
@@ -41,7 +45,7 @@ const activeFilters = computed(() =>
 const clearHref = computed(() => hrefFor(clearFilters(query.value)))
 const hrefForPage = (page: number) => hrefFor({ ...query.value, page })
 
-useCatalogSeo(path, title, categoryPath, query, data, hrefForPage)
+useCatalogSeo(path, title, categoryPath, query, data, hrefForPage, () => props.rootMeta)
 
 watch(query, async (next, previous) => {
   const pageChanged =

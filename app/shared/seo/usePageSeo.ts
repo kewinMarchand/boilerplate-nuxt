@@ -1,5 +1,5 @@
 import { computed, toValue } from 'vue'
-import { useHead, useRoute, useRuntimeConfig, useSeoMeta } from '#imports'
+import { useHead, useRoute, useRuntimeConfig, useSeoMeta, useState } from '#imports'
 
 import { SITE } from '@/shared/config'
 
@@ -36,13 +36,20 @@ const DEFAULT_IMAGE: SeoImage = {
   alt: `${SITE.name} : jardin tropical`,
 }
 
+/**
+ * Image de partage des pages qui n'en ont pas, remplaçable par l'identité du site.
+ * État Nuxt et non `provide` : `error.vue` la pose et la lit dans le même composant.
+ */
+export const useDefaultSeoImage = () => useState<SeoImage>('default-seo-image', () => DEFAULT_IMAGE)
+
 export const usePageSeo = (input: PageSeoInput) => {
   const route = useRoute()
+  const defaultImage = useDefaultSeoImage()
   const { siteUrl } = useRuntimeConfig().public
   const absolute = (path: string) => new URL(path, siteUrl).href
 
   const canonical = computed(() => absolute(toValue(input.canonicalPath) ?? route.path))
-  const image = computed(() => toValue(input.image) ?? DEFAULT_IMAGE)
+  const image = computed(() => toValue(input.image) ?? defaultImage.value)
   const prevHref = computed(() => toValue(input.pagination)?.prev)
   const nextHref = computed(() => toValue(input.pagination)?.next)
   const breadcrumb = computed(() =>

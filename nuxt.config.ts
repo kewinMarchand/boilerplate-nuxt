@@ -39,12 +39,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'fr' },
-      link: [
-        { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
-        { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
-        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
-        { rel: 'manifest', href: '/manifest.webmanifest' },
-      ],
+      link: [{ rel: 'manifest', href: '/manifest.webmanifest' }],
       meta: [
         { name: 'theme-color', content: PRIMARY_COLOR },
         { name: 'color-scheme', content: 'light dark' },

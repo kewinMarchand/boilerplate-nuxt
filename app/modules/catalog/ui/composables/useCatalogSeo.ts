@@ -5,10 +5,16 @@ import { usePageSeo } from '@/shared/seo'
 
 import { PAGE_SIZE } from '@/modules/catalog/domain/catalog'
 import { isRefined } from '@/modules/catalog/domain/catalogQuery'
-import { categoryTrail } from '@/modules/catalog/domain/categoryPath'
+import { CATALOG_ROOT, categoryTrail } from '@/modules/catalog/domain/categoryPath'
 
 import type { Catalog } from '@/modules/catalog/domain/catalog'
 import type { ComputedRef, Ref } from 'vue'
+
+/** Titre et description saisis dans l'admin, chaînes vides si non saisis. */
+export interface CatalogPageMeta {
+  title: string
+  description: string
+}
 
 export const useCatalogSeo = (
   path: ComputedRef<string>,
@@ -17,14 +23,19 @@ export const useCatalogSeo = (
   query: ComputedRef<Catalog.Query>,
   page: Ref<Catalog.Page | undefined>,
   hrefForPage: (page: number) => string,
+  rootMeta: () => CatalogPageMeta | undefined,
 ) => {
   const { siteUrl } = useRuntimeConfig().public
   const currentPage = computed(() => page.value?.page ?? 1)
+  // Les métadonnées saisies ne visent que la racine du catalogue, pas ses catégories
+  const meta = computed(() => (path.value === CATALOG_ROOT.href ? rootMeta() : undefined))
+  const seoTitle = computed(() => meta.value?.title || title.value)
 
   usePageSeo({
     title: () =>
-      currentPage.value > 1 ? `${title.value}, page ${currentPage.value}` : title.value,
+      currentPage.value > 1 ? `${seoTitle.value}, page ${currentPage.value}` : seoTitle.value,
     description: () =>
+      meta.value?.description ||
       `${title.value} : plantes tropicales de la jardinerie de démonstration, filtrables par exposition, taille, prix et disponibilité.`,
     canonicalPath: () =>
       currentPage.value > 1 ? `${path.value}?page=${currentPage.value}` : path.value,

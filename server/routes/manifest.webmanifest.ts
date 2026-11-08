@@ -24,8 +24,8 @@ export default defineEventHandler(async (event) => {
     theme_color: identity.theme?.light.primary ?? PRIMARY_COLOR,
     background_color: '#ffffff',
     icons: [
-      { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { src: identity.icon?.png192 ?? '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: identity.icon?.png512 ?? '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
   }
 })

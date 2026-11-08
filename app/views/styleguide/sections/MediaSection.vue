@@ -19,6 +19,10 @@ const ARTICLE = {
     sources: buildSources('hero', [640, 1280]),
     src: '/images/hero-1280.webp',
   },
+  section: { slug: 'conseils', name: 'Conseils' },
+  format: null,
+  audio: null,
+  speaker: '',
 }
 const PRODUCT: Catalog.Product = {
   id: 'exemple',

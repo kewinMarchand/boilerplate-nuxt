@@ -25,6 +25,9 @@ for (const mode of ['normal', 'sombre', 'renforcé'] as const) {
       ...DEV_ROUTES,
       '/catalogue?exposition=mi-ombre&tri=prix-asc',
       '/catalogue?attr-feuillage=persistant',
+      '/blog?rubrique=conseils',
+      '/blog/un-carrousel-accessible-sans-dependance',
+      '/produit/strelitzia-reginae',
       '/panier',
     ]) {
       test(`la page ${route} ne présente aucune violation axe WCAG 2.1 AA`, async ({ page }) => {

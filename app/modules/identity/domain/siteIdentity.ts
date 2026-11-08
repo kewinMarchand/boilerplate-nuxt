@@ -26,10 +26,22 @@ export declare namespace SiteIdentity {
     dark: Palette
   }
 
+  /** PNG carrés tirés par l'API de l'icône saisie, adresses absolues. */
+  interface Icon {
+    png32: string
+    png180: string
+    png192: string
+    png512: string
+  }
+
   interface Entity {
     name: string
     tagline: string
     logo: ResponsiveImage | null
+    /** Image de partage par défaut (`og:image`), 1200 × 630. */
+    shareImage: ResponsiveImage | null
+    /** `null` sans icône saisie : favicons du front. */
+    icon: Icon | null
     defaultColorScheme: ColorScheme
     /** `null` sans couleurs de marque saisies : les jetons de la bibliothèque restent tels quels. */
     theme: Theme | null

@@ -111,18 +111,60 @@ const IDENTITY = {
   },
   defaultColorScheme: 'dark',
   theme: { light: LIGHT, dark: DARK },
+  shareImage: {
+    alt: 'Serre tropicale Oraki',
+    width: 1200,
+    height: 630,
+    sources: [{ type: 'image/webp', srcset: '/media/partage-oraki-1200.webp 1200w' }],
+    src: '/media/partage-oraki-1200.webp',
+  },
+  icon: {
+    png32: '/media/oraki-32.png',
+    png180: '/media/oraki-180.png',
+    png192: '/media/oraki-192.png',
+    png512: '/media/oraki-512.png',
+  },
 }
 
-/** API factice : sert l'identité ci-dessus et relaie tout le reste à l'API réelle, sans toucher à sa base. */
+const PAGE_METAS = [
+  {
+    page: 'contact',
+    title: 'Écrire à Oraki',
+    description: 'Une question sur une plante ? Écrivez-nous.',
+  },
+  { page: 'catalog', title: 'Toutes nos plantes', description: '' },
+]
+const PRODUCT_META = {
+  metaTitle: 'Monstera deliciosa, la plante gruyère',
+  metaDescription:
+    'Le monstera deliciosa, ses grandes feuilles perforées et nos conseils d’entretien.',
+}
+const ARTICLE_META = { metaTitle: 'Un carrousel sans dépendance', metaDescription: '' }
+
+/** Réponses remplacées par l'API factice, à partir de la réponse réelle quand elle sert de base. */
+const OVERRIDES: Record<string, (upstream: unknown) => unknown> = {
+  '/api/site-identity': () => IDENTITY,
+  '/api/page-metas': () => PAGE_METAS,
+  '/api/products/monstera-deliciosa': (product) => ({ ...(product as object), ...PRODUCT_META }),
+  '/api/articles/un-carrousel-accessible-sans-dependance': (article) => ({
+    ...(article as object),
+    ...ARTICLE_META,
+  }),
+}
+
+/** API factice : sert les réponses ci-dessus et relaie tout le reste à l'API réelle, sans toucher à sa base. */
 const startFakeApi = (port: number) =>
   createServer(async (request, response) => {
-    if (request.url === '/api/site-identity') {
-      response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(IDENTITY))
-      return
-    }
     const upstream = await fetch(new URL(request.url ?? '/', REAL_API), {
       headers: { accept: request.headers.accept ?? '*/*' },
     })
+    const override = OVERRIDES[request.url ?? '']
+    if (override) {
+      response
+        .writeHead(200, { 'content-type': 'application/json' })
+        .end(JSON.stringify(override(await upstream.json())))
+      return
+    }
     response
       .writeHead(upstream.status, { 'content-type': upstream.headers.get('content-type') ?? '' })
       .end(Buffer.from(await upstream.arrayBuffer()))
@@ -214,10 +256,98 @@ test.describe('Identité du site, logo et couleurs saisis (API factice)', () => 
     expect(await primaryOnHtml(page)).toBe(LIBRARY_ENHANCED_PRIMARY)
   })
 
-  test('manifeste au nom et à la couleur principale de l’API', async ({ request }) => {
+  test('manifeste au nom, à la couleur principale et aux icônes de l’API', async ({ request }) => {
     const manifest = await (await request.get(`${appUrl}/manifest.webmanifest`)).json()
 
     expect(manifest).toMatchObject({ name: 'Oraki', theme_color: LIGHT.primary })
+    expect(manifest.icons.map((icon: { src: string }) => icon.src)).toEqual([
+      IDENTITY.icon.png192,
+      IDENTITY.icon.png512,
+    ])
+  })
+
+  test('icône saisie : favicon 32 px et icône Apple de l’API, sans les fichiers du front', async ({
+    page,
+  }) => {
+    await page.goto(appUrl)
+
+    await expect(page.locator('link[rel="icon"]')).toHaveCount(1)
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', IDENTITY.icon.png32)
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute('sizes', '32x32')
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute('type', 'image/png')
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
+      'href',
+      IDENTITY.icon.png180,
+    )
+  })
+
+  test('image de partage saisie : og:image des pages sans image propre', async ({ page }) => {
+    await page.goto(`${appUrl}/mentions-legales`)
+
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      `${appUrl}/media/partage-oraki-1200.webp`,
+    )
+    await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
+      'content',
+      IDENTITY.shareImage.alt,
+    )
+
+    await page.goto(`${appUrl}/produit/monstera-deliciosa`)
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      /\/media\/[0-9a-f]+-800\.webp$/,
+    )
+  })
+
+  test('titre et description saisis pour une page fixe', async ({ page }) => {
+    await page.goto(`${appUrl}/contact`)
+
+    await expect(page).toHaveTitle('Écrire à Oraki · Oraki')
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      PAGE_METAS[0]?.description ?? '',
+    )
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'Écrire à Oraki',
+    )
+  })
+
+  test('titre saisi pour le catalogue : la racine seulement, description du front', async ({
+    page,
+  }) => {
+    await page.goto(`${appUrl}/catalogue`)
+    await expect(page).toHaveTitle('Toutes nos plantes · Oraki')
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      /^Catalogue : plantes/,
+    )
+
+    await page.goto(`${appUrl}/catalogue/plantes-interieur/feuillages`)
+    await expect(page).toHaveTitle('Feuillages · Oraki')
+  })
+
+  test('métadonnées saisies d’un produit et d’un article, titre affiché inchangé', async ({
+    page,
+  }) => {
+    await page.goto(`${appUrl}/produit/monstera-deliciosa`)
+    await expect(page).toHaveTitle(`${PRODUCT_META.metaTitle} · Oraki`)
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      PRODUCT_META.metaDescription,
+    )
+    await expect(page.getByTestId('product-title')).toHaveText('Monstera deliciosa')
+
+    await page.goto(`${appUrl}/blog/un-carrousel-accessible-sans-dependance`)
+    await expect(page).toHaveTitle(`${ARTICLE_META.metaTitle} · Oraki`)
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      /^Défilement natif/,
+    )
+    await expect(page.getByTestId('article-title')).toHaveText(
+      'Un carrousel accessible sans dépendance',
+    )
   })
 
   for (const mode of ['clair', 'sombre', 'renforcé'] as const) {

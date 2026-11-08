@@ -27,6 +27,8 @@ const BASE = {
   name: 'Oraki',
   tagline: 'Plantes rares et tropicales, livrées chez vous.',
   logo: null,
+  shareImage: null,
+  icon: null,
   defaultColorScheme: 'auto' as const,
   theme: null,
 }
@@ -46,6 +48,20 @@ describe('toSiteIdentity', () => {
         theme: { light: PALETTE, dark },
       }),
     ).toEqual({ ...BASE, logo: LOGO, defaultColorScheme: 'dark', theme: { light: PALETTE, dark } })
+  })
+
+  it('garde l’image de partage et les adresses de l’icône', () => {
+    const icon = {
+      png32: 'https://api.test/icon-32.png',
+      png180: 'https://api.test/icon-180.png',
+      png192: 'https://api.test/icon-192.png',
+      png512: 'https://api.test/icon-512.png',
+    }
+    expect(toSiteIdentity({ ...BASE, shareImage: LOGO, icon })).toEqual({
+      ...BASE,
+      shareImage: LOGO,
+      icon,
+    })
   })
 
   it('refuse une couleur hors du format #rrggbb', () => {

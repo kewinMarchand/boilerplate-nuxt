@@ -13,6 +13,7 @@ import { categoryTrail } from '../domain/categoryPath'
 import { formatPrice } from '../domain/price'
 import { useProduct } from './composables/useProduct'
 import { EXPOSURE_LABELS } from './labels'
+import ProductGallery from './ProductGallery.vue'
 import SimilarProducts from './SimilarProducts.vue'
 
 import type { Catalog } from '../domain/catalog'
@@ -30,16 +31,22 @@ const { siteUrl } = useRuntimeConfig().public
 const path = productHref(slug)
 const title = computed(() => product.value?.name ?? 'Produit')
 const category = computed(() => product.value?.categoryPath.at(-1))
+const galleryImages = computed(() =>
+  product.value?.gallery.length
+    ? [...(product.value.image ? [product.value.image] : []), ...product.value.gallery]
+    : [],
+)
 const trail = computed(() => [
   ...categoryTrail(product.value?.categoryPath ?? []),
   { label: title.value, href: path },
 ])
 
 usePageSeo({
-  title,
+  title: () => product.value?.metaTitle || title.value,
   description: () => {
     const value = product.value
     if (!value) return title.value
+    if (value.metaDescription) return value.metaDescription
     return `${value.name} : exposition ${EXPOSURE_LABELS[value.exposure].toLowerCase()}, taille ${value.size}, ${formatPrice(value.price)}. ${value.inStock ? 'En stock' : 'En rupture de stock'}, rayon ${category.value?.label ?? 'catalogue'}.`
   },
   noindex: () => !product.value,
@@ -108,7 +115,8 @@ useHead({
     <Alert variant="error" data-testid="product-error">{{ error?.message }}</Alert>
   </template>
   <article v-else-if="product" class="product" data-testid="product-page">
-    <picture v-if="product.image">
+    <ProductGallery v-if="galleryImages.length > 0" :images="galleryImages" :sizes="IMAGE_SIZES" />
+    <picture v-else-if="product.image">
       <source
         v-for="source in product.image.sources"
         :key="source.type"

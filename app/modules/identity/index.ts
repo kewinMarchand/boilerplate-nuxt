@@ -1,2 +1,3 @@
+export type { PageMeta } from './domain/pageMeta'
 export type { SiteIdentity } from './domain/siteIdentity'
-export { useSiteIdentity, useSiteIdentityHead } from './ui/composables/useSiteIdentity'
+export { usePageMeta, useSiteIdentity, useSiteIdentityHead } from './ui/composables/useSiteIdentity'

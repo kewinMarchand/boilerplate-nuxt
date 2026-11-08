@@ -217,6 +217,9 @@ describe('toProductDetail', () => {
         { slug: 'monstera', name: 'Monstera' },
       ],
       description: '',
+      gallery: [],
+      metaTitle: '',
+      metaDescription: '',
     })
 
     expect(detail.id).toBe('1')
@@ -245,8 +248,46 @@ describe('toProductDetail', () => {
       attributes: [],
       categoryPath: [{ slug: 'palmiers', name: 'Palmiers' }],
       description: 'Rustique.\n\n  \nRésiste au vent,\naux embruns.',
+      gallery: [],
+      metaTitle: '',
+      metaDescription: '',
     })
 
     expect(detail.description).toEqual(['Rustique.', 'Résiste au vent,\naux embruns.'])
+  })
+
+  it('garde la galerie dans l’ordre et les métadonnées saisies', () => {
+    const image = (name: string) => ({
+      alt: 'Strelitzia',
+      width: 800,
+      height: 800,
+      sources: [
+        { type: 'image/webp' as const, srcset: `http://api.test/media/${name}-800.webp 800w` },
+      ],
+      src: `http://api.test/media/${name}-400.webp`,
+    })
+    const detail = toProductDetail({
+      id: 2,
+      slug: 'strelitzia-reginae',
+      name: 'Strelitzia reginae',
+      categorySlug: 'fleuries',
+      price: 4990,
+      exposure: 'soleil',
+      size: 'L',
+      inStock: true,
+      image: image('principale'),
+      attributes: [],
+      categoryPath: [{ slug: 'fleuries', name: 'Fleuries' }],
+      description: '',
+      gallery: [image('a'), image('b')],
+      metaTitle: 'Oiseau de paradis',
+      metaDescription: 'Fleurs orange et bleues.',
+    })
+
+    expect(detail.gallery).toEqual([image('a'), image('b')])
+    expect(detail).toMatchObject({
+      metaTitle: 'Oiseau de paradis',
+      metaDescription: 'Fleurs orange et bleues.',
+    })
   })
 })

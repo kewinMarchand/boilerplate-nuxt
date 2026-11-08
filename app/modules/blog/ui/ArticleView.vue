@@ -9,6 +9,7 @@ import { largestWebp, RichHtml } from '@/shared/ui/kit'
 import { AppBreadcrumb } from '@/shared/ui/layout'
 
 import { articleHref } from '../domain/article'
+import { formatDuration } from '../domain/formatDuration'
 import { formatPublishedAt } from '../domain/formatPublishedAt'
 import { useArticle } from './composables/useArticle'
 
@@ -29,8 +30,8 @@ const trail = computed(() => [
 const shareImage = computed(() => article.value?.image ?? null)
 
 usePageSeo({
-  title,
-  description: () => article.value?.excerpt || title.value,
+  title: () => article.value?.metaTitle || title.value,
+  description: () => article.value?.metaDescription || article.value?.excerpt || title.value,
   noindex: () => !article.value,
   breadcrumbTrail: trail,
   publishedTime: () => article.value?.publishedAt,
@@ -90,6 +91,11 @@ useHead({
   </template>
   <article v-else-if="article" class="article" data-testid="article-page">
     <h1 data-testid="article-title">{{ article.title }}</h1>
+    <p v-if="article.section || article.format" class="article-terms">
+      <span v-if="article.section" data-testid="article-section">{{ article.section.name }}</span>
+      <span v-if="article.section && article.format" aria-hidden="true"> · </span>
+      <span v-if="article.format" data-testid="article-format">{{ article.format.name }}</span>
+    </p>
     <p class="article-date">
       Publié le
       <time :datetime="article.publishedAt">{{ formatPublishedAt(article.publishedAt) }}</time>
@@ -113,6 +119,24 @@ useHead({
       />
     </picture>
     <p v-if="article.excerpt" class="article-excerpt">{{ article.excerpt }}</p>
+    <figure v-if="article.audio" class="article-audio" data-testid="article-audio-block">
+      <figcaption>
+        Version audio, {{ formatDuration(article.audio.durationSeconds) }}
+        <template v-if="article.speaker">
+          · <span data-testid="article-speaker">{{ article.speaker }}</span>
+        </template>
+      </figcaption>
+      <audio
+        controls
+        preload="none"
+        :aria-label="`Écouter l’article : ${article.title}`"
+        class="article-audio-player"
+        data-testid="article-audio"
+      >
+        <source :src="article.audio.src" :type="article.audio.type" />
+        <a :href="article.audio.src" class="bui-link">Télécharger la version audio</a>
+      </audio>
+    </figure>
     <RichHtml :html="article.html" data-testid="article-body" />
     <p class="article-back">
       <NuxtLink :to="BLOG_PATH" data-testid="article-blog-link">Tous les articles</NuxtLink>
@@ -123,6 +147,26 @@ useHead({
 <style scoped>
 .article {
   max-width: 760px;
+}
+
+.article-terms {
+  margin-block: 0 var(--bui-space-2);
+  font-weight: 600;
+}
+
+.article-audio {
+  margin: var(--bui-space-6) 0;
+}
+
+.article-audio figcaption {
+  margin-block-end: var(--bui-space-2);
+  color: var(--bui-color-text-muted);
+  font-size: var(--bui-font-size-body-sm);
+}
+
+.article-audio-player {
+  display: block;
+  width: 100%;
 }
 
 .article-date {
