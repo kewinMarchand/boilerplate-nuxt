@@ -56,6 +56,9 @@ usePageSeo({
             '@context': 'https://schema.org',
             '@type': 'Product',
             name: product.value.name,
+            ...(product.value.description.length > 0 && {
+              description: product.value.description.join(' '),
+            }),
             sku: product.value.slug,
             url: new URL(path, siteUrl).href,
             ...(category.value && { category: category.value.label }),
@@ -120,6 +123,11 @@ useHead({
     <div>
       <h1 class="product-title" data-testid="product-title">{{ product.name }}</h1>
       <p class="product-price" data-testid="product-price">{{ formatPrice(product.price) }}</p>
+      <div v-if="product.description.length > 0" data-testid="product-description">
+        <p v-for="paragraph in product.description" :key="paragraph" class="product-paragraph">
+          {{ paragraph }}
+        </p>
+      </div>
       <dl class="product-features">
         <dt>Exposition</dt>
         <dd>{{ EXPOSURE_LABELS[product.exposure] }}</dd>
@@ -167,6 +175,10 @@ useHead({
 .product-price {
   font-size: var(--bui-font-size-lead);
   font-weight: 600;
+}
+
+.product-paragraph {
+  margin-block: 0 var(--bui-space-4);
 }
 
 .product-features {
