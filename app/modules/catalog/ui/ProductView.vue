@@ -42,7 +42,8 @@ const trail = computed(() => [
 ])
 
 usePageSeo({
-  title: () => product.value?.metaTitle || title.value,
+  title,
+  adminTitle: () => product.value?.metaTitle ?? '',
   description: () => {
     const value = product.value
     if (!value) return title.value

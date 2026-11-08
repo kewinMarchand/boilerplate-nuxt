@@ -300,10 +300,22 @@ test.describe('Identité du site, logo et couleurs saisis (API factice)', () => 
     )
   })
 
-  test('titre et description saisis pour une page fixe', async ({ page }) => {
-    await page.goto(`${appUrl}/contact`)
+  test('sans titre saisi, la page fixe garde son titre et le nom du site', async ({ page }) => {
+    await page.goto(`${appUrl}/mentions-legales`)
 
-    await expect(page).toHaveTitle('Écrire à Oraki · Oraki')
+    await expect(page).toHaveTitle('Mentions légales · Oraki')
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'Mentions légales',
+    )
+  })
+
+  test('titre et description saisis pour une page fixe, titre servi sans le nom du site', async ({
+    page,
+  }) => {
+    await gotoHydrated(page, `${appUrl}/contact`)
+
+    await expect(page).toHaveTitle('Écrire à Oraki')
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       'content',
       PAGE_METAS[0]?.description ?? '',
@@ -314,11 +326,11 @@ test.describe('Identité du site, logo et couleurs saisis (API factice)', () => 
     )
   })
 
-  test('titre saisi pour le catalogue : la racine seulement, description du front', async ({
+  test('titre saisi pour le catalogue, sans le nom du site : la racine seulement, description du front', async ({
     page,
   }) => {
     await page.goto(`${appUrl}/catalogue`)
-    await expect(page).toHaveTitle('Toutes nos plantes · Oraki')
+    await expect(page).toHaveTitle('Toutes nos plantes')
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       'content',
       /^Catalogue : plantes/,
@@ -328,11 +340,15 @@ test.describe('Identité du site, logo et couleurs saisis (API factice)', () => 
     await expect(page).toHaveTitle('Feuillages · Oraki')
   })
 
-  test('métadonnées saisies d’un produit et d’un article, titre affiché inchangé', async ({
+  test('métadonnées saisies d’un produit et d’un article : titre servi tel quel, titre affiché inchangé', async ({
     page,
   }) => {
-    await page.goto(`${appUrl}/produit/monstera-deliciosa`)
-    await expect(page).toHaveTitle(`${PRODUCT_META.metaTitle} · Oraki`)
+    await gotoHydrated(page, `${appUrl}/produit/monstera-deliciosa`)
+    await expect(page).toHaveTitle(PRODUCT_META.metaTitle)
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      PRODUCT_META.metaTitle,
+    )
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       'content',
       PRODUCT_META.metaDescription,
@@ -340,7 +356,7 @@ test.describe('Identité du site, logo et couleurs saisis (API factice)', () => 
     await expect(page.getByTestId('product-title')).toHaveText('Monstera deliciosa')
 
     await page.goto(`${appUrl}/blog/un-carrousel-accessible-sans-dependance`)
-    await expect(page).toHaveTitle(`${ARTICLE_META.metaTitle} · Oraki`)
+    await expect(page).toHaveTitle(ARTICLE_META.metaTitle)
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       'content',
       /^Défilement natif/,

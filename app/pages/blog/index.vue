@@ -13,7 +13,8 @@ const meta = await usePageMeta('blog')
 const description = () => meta.value.description || DESCRIPTION
 
 usePageSeo({
-  title: () => meta.value.title || 'Blog',
+  title: 'Blog',
+  adminTitle: () => meta.value.title,
   description,
   jsonLd: () => [
     {

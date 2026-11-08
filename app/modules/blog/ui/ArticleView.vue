@@ -30,7 +30,8 @@ const trail = computed(() => [
 const shareImage = computed(() => article.value?.image ?? null)
 
 usePageSeo({
-  title: () => article.value?.metaTitle || title.value,
+  title,
+  adminTitle: () => article.value?.metaTitle ?? '',
   description: () => article.value?.metaDescription || article.value?.excerpt || title.value,
   noindex: () => !article.value,
   breadcrumbTrail: trail,

@@ -29,11 +29,14 @@ export const useCatalogSeo = (
   const currentPage = computed(() => page.value?.page ?? 1)
   // Les métadonnées saisies ne visent que la racine du catalogue, pas ses catégories
   const meta = computed(() => (path.value === CATALOG_ROOT.href ? rootMeta() : undefined))
-  const seoTitle = computed(() => meta.value?.title || title.value)
 
   usePageSeo({
     title: () =>
-      currentPage.value > 1 ? `${seoTitle.value}, page ${currentPage.value}` : seoTitle.value,
+      currentPage.value > 1 ? `${title.value}, page ${currentPage.value}` : title.value,
+    adminTitle: () => {
+      const saisi = meta.value?.title ?? ''
+      return saisi && currentPage.value > 1 ? `${saisi}, page ${currentPage.value}` : saisi
+    },
     description: () =>
       meta.value?.description ||
       `${title.value} : plantes tropicales de la jardinerie de démonstration, filtrables par exposition, taille, prix et disponibilité.`,

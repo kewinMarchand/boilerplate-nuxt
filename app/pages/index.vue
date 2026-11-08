@@ -15,7 +15,8 @@ const identity = await useSiteIdentity()
 const meta = await usePageMeta('home')
 
 usePageSeo({
-  title: () => meta.value.title || 'Accueil',
+  title: 'Accueil',
+  adminTitle: () => meta.value.title,
   description: () => meta.value.description || identity.value.tagline || SITE.description,
   jsonLd: () => [
     organizationJsonLd(siteUrl, identity.value.name, identity.value.icon?.png512),

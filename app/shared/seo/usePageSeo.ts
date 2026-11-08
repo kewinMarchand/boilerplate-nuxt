@@ -17,6 +17,8 @@ export interface SeoImage {
 
 export interface PageSeoInput {
   title: MaybeRefOrGetter<string>
+  /** Titre saisi dans l'admin, servi tel quel, sans le nom du site ; vide : `title` et le modèle du site. */
+  adminTitle?: MaybeRefOrGetter<string>
   description: MaybeRefOrGetter<string>
   image?: MaybeRefOrGetter<SeoImage | undefined>
   noindex?: MaybeRefOrGetter<boolean>
@@ -48,6 +50,8 @@ export const usePageSeo = (input: PageSeoInput) => {
   const { siteUrl } = useRuntimeConfig().public
   const absolute = (path: string) => new URL(path, siteUrl).href
 
+  const adminTitle = computed(() => toValue(input.adminTitle) ?? '')
+  const title = computed(() => adminTitle.value || toValue(input.title))
   const canonical = computed(() => absolute(toValue(input.canonicalPath) ?? route.path))
   const image = computed(() => toValue(input.image) ?? defaultImage.value)
   const prevHref = computed(() => toValue(input.pagination)?.prev)
@@ -60,6 +64,8 @@ export const usePageSeo = (input: PageSeoInput) => {
     ...(toValue(input.jsonLd) ?? []),
   ])
 
+  // Titre saisi : le modèle « · nom du site » posé par l'identité est retiré
+  useHead(() => (adminTitle.value ? { titleTemplate: null } : {}))
   useHead({
     link: () => [
       { rel: 'canonical', href: canonical.value },
@@ -75,13 +81,13 @@ export const usePageSeo = (input: PageSeoInput) => {
   })
 
   useSeoMeta({
-    title: () => toValue(input.title),
+    title: () => title.value,
     description: () => toValue(input.description),
     robots: () => (toValue(input.noindex) ? 'noindex, follow' : 'index, follow'),
     ogType: () => (toValue(input.publishedTime) ? 'article' : 'website'),
     articlePublishedTime: () => toValue(input.publishedTime),
     ogLocale: SITE.locale,
-    ogTitle: () => toValue(input.title),
+    ogTitle: () => title.value,
     ogDescription: () => toValue(input.description),
     ogUrl: () => canonical.value,
     ogImage: () => absolute(image.value.path),
@@ -89,7 +95,7 @@ export const usePageSeo = (input: PageSeoInput) => {
     ogImageHeight: () => image.value.height,
     ogImageAlt: () => image.value.alt,
     twitterCard: 'summary_large_image',
-    twitterTitle: () => toValue(input.title),
+    twitterTitle: () => title.value,
     twitterDescription: () => toValue(input.description),
     twitterImage: () => absolute(image.value.path),
   })
