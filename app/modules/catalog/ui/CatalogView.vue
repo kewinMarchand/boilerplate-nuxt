@@ -30,11 +30,13 @@ const titleElement = useTemplateRef<HTMLElement>('titleElement')
 const title = computed(() => categoryPath.value?.at(-1)?.label ?? CATALOG_ROOT.label)
 const path = computed(() => route.path)
 const activeFilters = computed(() =>
-  describeActiveFilters(query.value).map(({ id, label, query: next }) => ({
-    id,
-    label,
-    href: hrefFor(next),
-  })),
+  describeActiveFilters(query.value, data.value?.facets.attributes ?? []).map(
+    ({ id, label, query: next }) => ({
+      id,
+      label,
+      href: hrefFor(next),
+    }),
+  ),
 )
 const clearHref = computed(() => hrefFor(clearFilters(query.value)))
 const hrefForPage = (page: number) => hrefFor({ ...query.value, page })

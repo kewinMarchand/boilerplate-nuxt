@@ -1,6 +1,8 @@
 import {
+  activeFilterCount,
   clearFilters,
   DEFAULT_QUERY,
+  hasActiveFilters,
   parseCatalogQuery,
   serializeCatalogQuery,
   withFilters,
@@ -28,8 +30,25 @@ describe('parseCatalogQuery', () => {
     })
   })
 
+  it('lit les attributs dans attr-<code>, sans doublon ni valeur ou code invalides', () => {
+    expect(
+      parseCatalogQuery({
+        'attr-feuillage': ['caduc', 'Persistant', 'caduc'],
+        'attr-hauteur-adulte': 'grande',
+        'attr-9x': 'caduc',
+        'attr-vide': '',
+      }).attributes,
+    ).toEqual({ feuillage: ['caduc'], 'hauteur-adulte': ['grande'] })
+  })
+
   it('fait l’aller-retour avec la sérialisation sans paramètre par défaut', () => {
-    const raw = { exposition: ['mi-ombre'], tri: 'prix-asc', vue: 'liste', page: '2' }
+    const raw = {
+      exposition: ['mi-ombre'],
+      'attr-feuillage': ['persistant', 'caduc'],
+      tri: 'prix-asc',
+      vue: 'liste',
+      page: '2',
+    }
     expect(serializeCatalogQuery(parseCatalogQuery(raw))).toEqual(raw)
     expect(serializeCatalogQuery(DEFAULT_QUERY)).toEqual({})
   })
@@ -43,6 +62,13 @@ describe('withFilters et clearFilters', () => {
     view: 'liste' as const,
     page: 3,
   }
+
+  it('compte les valeurs d’attribut comme des filtres actifs', () => {
+    const filtered = { ...DEFAULT_QUERY, attributes: { feuillage: ['persistant', 'caduc'] } }
+    expect(hasActiveFilters(filtered)).toBe(true)
+    expect(activeFilterCount(filtered)).toBe(2)
+    expect(clearFilters(filtered).attributes).toEqual({})
+  })
 
   it('remet la page à 1 et conserve les autres paramètres', () => {
     expect(withFilters(query, { inStock: true })).toEqual({ ...query, inStock: true, page: 1 })

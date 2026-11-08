@@ -1,4 +1,10 @@
-import { toCatalogPage, toCategory, toProductDetail, toProductsQuery } from './catalogTranslation'
+import {
+  toCatalogPage,
+  toCategory,
+  toFacetsQuery,
+  toProductDetail,
+  toProductsQuery,
+} from './catalogTranslation'
 
 import type { Catalog } from '@/modules/catalog/domain/catalog'
 
@@ -8,6 +14,7 @@ const QUERY: Catalog.Query = {
   priceMin: null,
   priceMax: null,
   inStock: false,
+  attributes: {},
   sort: 'pertinence',
   view: 'grille',
   page: 1,
@@ -42,6 +49,18 @@ describe('toProductsQuery', () => {
       itemsPerPage: 12,
     })
     expect(toProductsQuery([], { ...QUERY, sort: 'nom' })).toMatchObject({ 'order[name]': 'asc' })
+  })
+
+  it('traduit les attributs en clés répétées attributes[<code>][]', () => {
+    expect(
+      toFacetsQuery([], {
+        ...QUERY,
+        attributes: { feuillage: ['persistant', 'caduc'], 'hauteur-adulte': ['grande'] },
+      }),
+    ).toEqual({
+      'attributes[feuillage][]': ['persistant', 'caduc'],
+      'attributes[hauteur-adulte][]': ['grande'],
+    })
   })
 
   it('garde un prix minimum à zéro', () => {
@@ -82,6 +101,16 @@ describe('toCatalogPage', () => {
           size: 'L',
           inStock: true,
           image: null,
+          attributes: [
+            {
+              code: 'feuillage',
+              label: 'Feuillage',
+              type: 'choice',
+              value: 'persistant',
+              valueLabel: 'Persistant',
+              unit: null,
+            },
+          ],
         },
       ],
       {
@@ -92,12 +121,36 @@ describe('toCatalogPage', () => {
         ],
         size: [{ value: 'L', count: 1 }],
         category: [{ slug: 'palmiers', name: 'Palmiers', count: 1 }],
+        attributes: [
+          {
+            code: 'feuillage',
+            label: 'Feuillage',
+            values: [
+              { value: 'persistant', label: 'Persistant', count: 1 },
+              { value: 'caduc', label: 'Caduc', count: 0 },
+            ],
+          },
+        ],
       },
       1,
       ['plantes-exterieur'],
     )
 
-    expect(page.items[0]).toMatchObject({ id: '7', price: 5990 })
+    expect(page.items[0]).toMatchObject({
+      id: '7',
+      price: 5990,
+      attributes: [{ code: 'feuillage', label: 'Feuillage', value: 'Persistant', unit: null }],
+    })
+    expect(page.facets.attributes).toEqual([
+      {
+        code: 'feuillage',
+        label: 'Feuillage',
+        values: [
+          { value: 'persistant', label: 'Persistant', count: 1 },
+          { value: 'caduc', label: 'Caduc', count: 0 },
+        ],
+      },
+    ])
     expect(page.facets.categories).toEqual([
       {
         slug: 'palmiers',
@@ -114,13 +167,23 @@ describe('toCatalogPage', () => {
   })
 
   it('garde au moins une page quand il n’y a aucun résultat', () => {
-    const page = toCatalogPage([], { totalItems: 0, exposure: [], size: [], category: [] }, 1, [])
+    const page = toCatalogPage(
+      [],
+      { totalItems: 0, exposure: [], size: [], category: [], attributes: [] },
+      1,
+      [],
+    )
 
     expect(page.pageCount).toBe(1)
   })
 
   it('calcule le nombre de pages à partir du total des facettes', () => {
-    const page = toCatalogPage([], { totalItems: 25, exposure: [], size: [], category: [] }, 3, [])
+    const page = toCatalogPage(
+      [],
+      { totalItems: 25, exposure: [], size: [], category: [], attributes: [] },
+      3,
+      [],
+    )
 
     expect(page).toMatchObject({ total: 25, page: 3, pageCount: 3 })
   })
@@ -138,6 +201,16 @@ describe('toProductDetail', () => {
       size: 'M',
       inStock: true,
       image: null,
+      attributes: [
+        {
+          code: 'hauteur-adulte',
+          label: 'Hauteur adulte',
+          type: 'number',
+          value: '300',
+          valueLabel: '300',
+          unit: 'cm',
+        },
+      ],
       categoryPath: [
         { slug: 'plantes-interieur', name: 'Plantes d’intérieur' },
         { slug: 'feuillages', name: 'Feuillages' },
@@ -147,6 +220,9 @@ describe('toProductDetail', () => {
     })
 
     expect(detail.id).toBe('1')
+    expect(detail.attributes).toEqual([
+      { code: 'hauteur-adulte', label: 'Hauteur adulte', value: '300', unit: 'cm' },
+    ])
     expect(detail.description).toEqual([])
     expect(detail.categoryPath.map((link) => link.href)).toEqual([
       '/catalogue/plantes-interieur',
@@ -166,6 +242,7 @@ describe('toProductDetail', () => {
       size: 'M',
       inStock: true,
       image: null,
+      attributes: [],
       categoryPath: [{ slug: 'palmiers', name: 'Palmiers' }],
       description: 'Rustique.\n\n  \nRésiste au vent,\naux embruns.',
     })

@@ -18,7 +18,7 @@ const PAGE: Catalog.Page = {
   total: 0,
   page: 1,
   pageCount: 1,
-  facets: { exposures: [], sizes: [], categories: [] },
+  facets: { exposures: [], sizes: [], categories: [], attributes: [] },
 }
 
 const repository = (findCatalogPage: CatalogRepository['findCatalogPage']): CatalogRepository => ({

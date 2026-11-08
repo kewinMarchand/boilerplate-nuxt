@@ -145,6 +145,16 @@ useHead({
           <span v-else class="product-badge">Rupture de stock</span>
         </dd>
       </dl>
+      <dl
+        v-if="product.attributes.length > 0"
+        class="product-features"
+        data-testid="product-attributes"
+      >
+        <template v-for="attribute in product.attributes" :key="attribute.code">
+          <dt>{{ attribute.label }}</dt>
+          <dd>{{ attribute.unit ? `${attribute.value} ${attribute.unit}` : attribute.value }}</dd>
+        </template>
+      </dl>
       <slot name="purchase" :product="product" />
       <p v-if="category">
         <NuxtLink :to="category.href" class="bui-link">

@@ -30,6 +30,14 @@ export declare namespace Catalog {
   /** Chaîne des catégories de la racine à la catégorie courante, validée contre l'arbre. */
   type CategoryPath = CategoryLink[]
 
+  /** Attribut configurable dans l'admin, renseigné sur le produit : `value` est le libellé affiché. */
+  interface ProductAttribute {
+    code: string
+    label: string
+    value: string
+    unit: string | null
+  }
+
   interface Product {
     id: string
     slug: string
@@ -40,6 +48,7 @@ export declare namespace Catalog {
     size: Size
     inStock: boolean
     image: ResponsiveImage | null
+    attributes: ProductAttribute[]
   }
 
   /** Fiche : le produit, sa description et le chemin de sa catégorie, de la racine à elle (fil d'Ariane). */
@@ -55,6 +64,8 @@ export declare namespace Catalog {
     priceMin: number | null
     priceMax: number | null
     inStock: boolean
+    /** Valeurs cochées par code d'attribut. */
+    attributes: Record<string, string[]>
     sort: Sort
     view: View
     page: number
@@ -72,10 +83,17 @@ export declare namespace Catalog {
     count: number
   }
 
+  interface AttributeFacet {
+    code: string
+    label: string
+    values: (FacetValue<string> & { label: string })[]
+  }
+
   interface Facet {
     exposures: FacetValue<Exposure>[]
     sizes: FacetValue<Size>[]
     categories: CategoryFacet[]
+    attributes: AttributeFacet[]
   }
 
   interface Page {

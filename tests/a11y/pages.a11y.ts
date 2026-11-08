@@ -24,6 +24,7 @@ for (const mode of ['normal', 'sombre', 'renforcé'] as const) {
       ...ROUTES,
       ...DEV_ROUTES,
       '/catalogue?exposition=mi-ombre&tri=prix-asc',
+      '/catalogue?attr-feuillage=persistant',
       '/panier',
     ]) {
       test(`la page ${route} ne présente aucune violation axe WCAG 2.1 AA`, async ({ page }) => {

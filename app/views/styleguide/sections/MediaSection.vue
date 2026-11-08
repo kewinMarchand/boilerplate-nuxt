@@ -30,6 +30,7 @@ const PRODUCT: Catalog.Product = {
   size: 'M',
   inStock: false,
   image: null,
+  attributes: [],
 }
 </script>
 

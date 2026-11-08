@@ -9,7 +9,16 @@ export interface ActiveFilter {
   query: Catalog.Query
 }
 
-export const describeActiveFilters = (query: Catalog.Query): ActiveFilter[] => [
+const attributeLabel = (facets: Catalog.AttributeFacet[], code: string, value: string) => {
+  const facet = facets.find((candidate) => candidate.code === code)
+  const valueLabel = facet?.values.find((candidate) => candidate.value === value)?.label ?? value
+  return facet ? `${facet.label} : ${valueLabel}` : valueLabel
+}
+
+export const describeActiveFilters = (
+  query: Catalog.Query,
+  attributeFacets: Catalog.AttributeFacet[],
+): ActiveFilter[] => [
   ...query.exposures.map((value) => ({
     id: `exposition-${value}`,
     label: EXPOSURE_LABELS[value],
@@ -20,6 +29,15 @@ export const describeActiveFilters = (query: Catalog.Query): ActiveFilter[] => [
     label: SIZE_LABELS[value],
     query: withFilters(query, { sizes: query.sizes.filter((other) => other !== value) }),
   })),
+  ...Object.entries(query.attributes).flatMap(([code, values]) =>
+    values.map((value) => ({
+      id: `attr-${code}-${value}`,
+      label: attributeLabel(attributeFacets, code, value),
+      query: withFilters(query, {
+        attributes: { ...query.attributes, [code]: values.filter((other) => other !== value) },
+      }),
+    })),
+  ),
   ...(query.priceMin !== null
     ? [
         {

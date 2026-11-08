@@ -32,6 +32,37 @@ test.describe('Catalogue', () => {
     await expect(page.getByTestId('catalog-active-filter')).toHaveText(/Mi-ombre/)
   })
 
+  test('filtrer par un attribut configurable met à jour l’URL, le compteur et les puces', async ({
+    page,
+  }, testInfo) => {
+    await gotoHydrated(page, '/catalogue?page=2')
+
+    const filters = await openFilters(page, testInfo)
+    const checkbox = filters.getByTestId('catalog-filter-attribute-feuillage-caduc')
+    await expect(checkbox).toHaveAccessibleName(/Caduc \(2\)/)
+    await checkbox.check()
+
+    await expect(page).toHaveURL(/attr-feuillage=caduc/)
+    await expect(page).not.toHaveURL(/page=/)
+    await expect(page.getByTestId('catalog-results-count')).toHaveText('2 produits')
+    if (isMobile(testInfo)) await page.keyboard.press('Escape')
+    await expect(page.getByTestId('catalog-active-filter')).toHaveText(/Feuillage : Caduc/)
+
+    await page.getByTestId('catalog-clear-filters').click()
+    await expect(page).not.toHaveURL(/attr-feuillage/)
+    await expect(page.getByTestId('catalog-active-filters')).toHaveCount(0)
+  })
+
+  test('n’affiche pas de facette d’attribut dans une branche sans attribut', async ({
+    page,
+  }, testInfo) => {
+    await gotoHydrated(page, '/catalogue/plantes-exterieur/arbustes-a-fleurs')
+
+    const filters = await openFilters(page, testInfo)
+    await expect(filters.getByTestId('catalog-filter-exposure-soleil')).toBeVisible()
+    await expect(filters.locator('[data-testid^="catalog-filter-attribute-"]')).toHaveCount(0)
+  })
+
   test('retirer une puce et tout effacer', async ({ page }) => {
     await gotoHydrated(page, '/catalogue?exposition=soleil&taille=M&tri=nom&vue=liste')
     await expect(page.getByTestId('catalog-active-filter')).toHaveCount(2)
@@ -123,6 +154,16 @@ test.describe('Catalogue sans JavaScript', () => {
     await expect(page).toHaveURL(/taille=L/)
     await expect(page).toHaveURL(/vue=liste/)
     await expect(page.getByTestId('catalog-results-count')).toHaveText('9 produits')
+  })
+
+  test('le formulaire GET applique un attribut configurable', async ({ page }) => {
+    await page.goto('/catalogue')
+    const filters = page.getByTestId('catalog-filters')
+    await filters.getByTestId('catalog-filter-attribute-feuillage-persistant').check()
+    await filters.getByTestId('catalog-filters-apply').click()
+
+    await expect(page).toHaveURL(/attr-feuillage=persistant/)
+    await expect(page.getByTestId('catalog-results-count')).toHaveText('6 produits')
   })
 })
 

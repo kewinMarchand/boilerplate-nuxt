@@ -11,12 +11,18 @@ type ProductDto = components['schemas']['Product']
 type ProductDetailDto = components['schemas']['ProductDetail']
 type ProductFacetsDto = components['schemas']['ProductFacets']
 type FacetDto = components['schemas']['FacetValue']
-export type ProductsQuery = NonNullable<
-  operations['api_products_get_collection']['parameters']['query']
->
-export type ProductFacetsQuery = NonNullable<
-  operations['api_product-facets_get']['parameters']['query']
->
+/** openapi-fetch refuse un tableau dans un objet (`deepObject`) : clés à plat, `attributes[<code>][]`. */
+type AttributeParams = Record<`attributes[${string}][]`, string[]>
+export type ProductsQuery = Omit<
+  NonNullable<operations['api_products_get_collection']['parameters']['query']>,
+  'attributes'
+> &
+  AttributeParams
+export type ProductFacetsQuery = Omit<
+  NonNullable<operations['api_product-facets_get']['parameters']['query']>,
+  'attributes'
+> &
+  AttributeParams
 
 const SORT_PARAMS: Record<Catalog.Sort, ProductsQuery> = {
   pertinence: {},
@@ -41,6 +47,12 @@ export const toProduct = (dto: ProductDto): Catalog.Product => ({
   size: dto.size,
   inStock: dto.inStock,
   image: dto.image,
+  attributes: dto.attributes.map((attribute) => ({
+    code: attribute.code,
+    label: attribute.label,
+    value: attribute.valueLabel,
+    unit: attribute.unit,
+  })),
 })
 
 export const toProductDetail = (dto: ProductDetailDto): Catalog.ProductDetail => ({
@@ -73,6 +85,9 @@ export const toFacetsQuery = (slugs: string[], query: Catalog.Query): ProductFac
     ...(query.priceMin !== null && { priceMin: eurosToCents(query.priceMin) }),
     ...(query.priceMax !== null && { priceMax: eurosToCents(query.priceMax) }),
     ...(query.inStock && { inStock: true }),
+    ...Object.fromEntries(
+      Object.entries(query.attributes).map(([code, values]) => [`attributes[${code}][]`, values]),
+    ),
   }
 }
 
@@ -102,6 +117,11 @@ export const toCatalogPage = (
       label: child.name,
       href: categoryHref([...slugs, child.slug]),
       count: child.count,
+    })),
+    attributes: facets.attributes.map((facet) => ({
+      code: facet.code,
+      label: facet.label,
+      values: facet.values.map(({ value, label, count }) => ({ value, label, count })),
     })),
   },
 })

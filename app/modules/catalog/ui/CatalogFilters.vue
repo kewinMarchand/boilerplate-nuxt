@@ -16,7 +16,14 @@ const emit = defineEmits<{ change: [query: Catalog.Query] }>()
 
 const prefix = useId()
 const hiddenFields = computed(() =>
-  toFormFields(query, ['exposition', 'taille', 'prix_min', 'prix_max', 'en_stock']),
+  toFormFields(query, [
+    'exposition',
+    'taille',
+    ...facets.attributes.map((facet) => `attr-${facet.code}`),
+    'prix_min',
+    'prix_max',
+    'en_stock',
+  ]),
 )
 
 const onChange = (event: Event) => {
@@ -82,6 +89,24 @@ const onChange = (event: Event) => {
             :data-testid="`catalog-filter-size-${option.value}`"
           />
           {{ SIZE_LABELS[option.value] }} ({{ option.count }})
+        </label>
+      </fieldset>
+    </details>
+
+    <details v-for="facet in facets.attributes" :key="facet.code" open class="facet">
+      <summary>{{ facet.label }}</summary>
+      <fieldset>
+        <legend class="bui-visually-hidden">{{ facet.label }}</legend>
+        <label v-for="option in facet.values" :key="option.value" class="facet-option">
+          <input
+            type="checkbox"
+            :name="`attr-${facet.code}`"
+            :value="option.value"
+            :checked="query.attributes[facet.code]?.includes(option.value)"
+            :disabled="option.count === 0 && !query.attributes[facet.code]?.includes(option.value)"
+            :data-testid="`catalog-filter-attribute-${facet.code}-${option.value}`"
+          />
+          {{ option.label }} ({{ option.count }})
         </label>
       </fieldset>
     </details>

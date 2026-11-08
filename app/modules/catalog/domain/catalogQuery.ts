@@ -12,6 +12,7 @@ export const DEFAULT_QUERY: Catalog.Query = {
   priceMin: null,
   priceMax: null,
   inStock: false,
+  attributes: {},
   sort: 'pertinence',
   view: 'grille',
   page: 1,
@@ -35,6 +36,26 @@ const euros = z.preprocess((value) => {
   return raw === undefined || raw === null || raw === '' ? null : Number(raw)
 }, z.number().int().nonnegative().nullable().catch(null))
 
+const ATTRIBUTE_PARAM = /^attr-([a-z][a-z0-9-]{0,39})$/
+const ATTRIBUTE_VALUE = /^[a-z0-9][a-z0-9-]{0,39}$/
+
+const parseAttributes = (raw: RawQuery): Record<string, string[]> =>
+  Object.fromEntries(
+    Object.entries(raw).flatMap(([key, value]) => {
+      const code = ATTRIBUTE_PARAM.exec(key)?.[1]
+      const values = [
+        ...new Set(
+          toArray(value).filter(
+            (item): item is string => typeof item === 'string' && ATTRIBUTE_VALUE.test(item),
+          ),
+        ),
+      ]
+      return code && values.length > 0 ? [[code, values]] : []
+    }),
+  )
+
+const attributeValueCount = (query: Catalog.Query) => Object.values(query.attributes).flat().length
+
 const querySchema = z.object({
   exposition: listOf(EXPOSURES),
   taille: listOf(SIZES),
@@ -54,6 +75,7 @@ export const parseCatalogQuery = (raw: RawQuery): Catalog.Query => {
     priceMin: parsed.prix_min,
     priceMax: parsed.prix_max,
     inStock: parsed.en_stock === '1',
+    attributes: parseAttributes(raw),
     sort: parsed.tri,
     view: parsed.vue,
     page: parsed.page,
@@ -63,6 +85,11 @@ export const parseCatalogQuery = (raw: RawQuery): Catalog.Query => {
 export const serializeCatalogQuery = (query: Catalog.Query): Record<string, string | string[]> => ({
   ...(query.exposures.length && { exposition: query.exposures }),
   ...(query.sizes.length && { taille: query.sizes }),
+  ...Object.fromEntries(
+    Object.entries(query.attributes)
+      .filter(([, values]) => values.length > 0)
+      .map(([code, values]) => [`attr-${code}`, values]),
+  ),
   ...(query.priceMin !== null && { prix_min: String(query.priceMin) }),
   ...(query.priceMax !== null && { prix_max: String(query.priceMax) }),
   ...(query.inStock && { en_stock: '1' }),
@@ -76,7 +103,8 @@ export const hasActiveFilters = (query: Catalog.Query) =>
   query.sizes.length > 0 ||
   query.priceMin !== null ||
   query.priceMax !== null ||
-  query.inStock
+  query.inStock ||
+  attributeValueCount(query) > 0
 
 export const isRefined = (query: Catalog.Query) =>
   hasActiveFilters(query) || query.sort !== 'pertinence'
@@ -86,7 +114,8 @@ export const activeFilterCount = (query: Catalog.Query) =>
   query.sizes.length +
   Number(query.priceMin !== null) +
   Number(query.priceMax !== null) +
-  Number(query.inStock)
+  Number(query.inStock) +
+  attributeValueCount(query)
 
 export const withFilters = (
   query: Catalog.Query,
