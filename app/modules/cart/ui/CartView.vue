@@ -9,6 +9,7 @@ import { MAX_QUANTITY, totalPrice } from '../domain/cart'
 import { formatPrice } from '../domain/price'
 import { CART_PATH } from './cartPath'
 import { useCart } from './composables/useCart'
+import { useFocusAfterRemoval } from './composables/useFocusAfterRemoval'
 
 // Le panier n'existe que dans le navigateur : titre et message sans JavaScript au rendu serveur, contenu au montage
 const CATALOG_PATH = '/catalogue'
@@ -16,6 +17,12 @@ const productHref = (slug: string) => `/produit/${slug}`
 
 const { lines, changeQuantity, remove } = useCart()
 const total = computed(() => formatPrice(totalPrice(lines.value)))
+const { markRemoved } = useFocusAfterRemoval(() => lines.value.length)
+
+const removeLine = (index: number, slug: string) => {
+  markRemoved(index)
+  remove(slug)
+}
 
 const onQuantityInput = (slug: string, event: Event) => {
   if (!(event.currentTarget instanceof HTMLInputElement)) return
@@ -34,13 +41,18 @@ const onQuantityInput = (slug: string, event: Event) => {
   <h1>Panier</h1>
   <noscript data-allow-mismatch="children"><p>Le panier demande JavaScript.</p></noscript>
   <ClientOnly>
-    <p v-if="lines.length === 0" data-testid="cart-empty">
+    <p v-if="lines.length === 0" ref="cartEmpty" tabindex="-1" data-testid="cart-empty">
       Votre panier est vide.
       <NuxtLink :to="CATALOG_PATH" class="bui-link">Parcourir le catalogue</NuxtLink>
     </p>
     <template v-else>
-      <ul class="cart-lines">
-        <li v-for="line in lines" :key="line.slug" class="cart-line" data-testid="cart-line">
+      <ul ref="cartLines" class="cart-lines">
+        <li
+          v-for="(line, index) in lines"
+          :key="line.slug"
+          class="cart-line"
+          data-testid="cart-line"
+        >
           <NuxtLink :to="productHref(line.slug)" class="bui-link cart-line-name">
             {{ line.name }}
           </NuxtLink>
@@ -62,7 +74,7 @@ const onQuantityInput = (slug: string, event: Event) => {
             variant="outline"
             :aria-label="`Retirer ${line.name}`"
             data-testid="cart-remove"
-            @click="remove(line.slug)"
+            @click="removeLine(index, line.slug)"
           >
             Retirer
           </Button>

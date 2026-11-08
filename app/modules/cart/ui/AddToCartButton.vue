@@ -8,6 +8,9 @@ import { useCart } from './composables/useCart'
 
 import type { Cart } from '../domain/cart'
 
+// Vider puis remplir la région : un lecteur d'écran ne relit pas un texte identique
+const ANNOUNCE_DELAY_MS = 100
+
 /** Ajoute une unité du produit ; désactivé en rupture de stock. Absent sans JavaScript, le panier en dépend. */
 const { item, isAvailable } = defineProps<{ item: Cart.Item; isAvailable: boolean }>()
 
@@ -16,7 +19,10 @@ const isAdded = ref(false)
 
 const addToCart = () => {
   add(item)
-  isAdded.value = true
+  isAdded.value = false
+  window.setTimeout(() => {
+    isAdded.value = true
+  }, ANNOUNCE_DELAY_MS)
 }
 </script>
 
