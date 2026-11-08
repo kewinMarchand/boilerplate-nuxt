@@ -39,7 +39,7 @@ const renderCarousel = () =>
       () => () =>
         h(
           'div',
-          h(Suspense, null, () => h(FeaturedProducts)),
+          h(Suspense, null, () => h(FeaturedProducts, { salesEnabled: true })),
         ),
     ),
   )

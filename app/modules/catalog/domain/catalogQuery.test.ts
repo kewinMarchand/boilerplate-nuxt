@@ -5,7 +5,9 @@ import {
   hasActiveFilters,
   parseCatalogQuery,
   serializeCatalogQuery,
+  sortsFor,
   withFilters,
+  withoutPrices,
 } from './catalogQuery'
 
 describe('parseCatalogQuery', () => {
@@ -76,5 +78,33 @@ describe('withFilters et clearFilters', () => {
 
   it('retire filtres et tri mais garde la vue', () => {
     expect(clearFilters(query)).toEqual({ ...DEFAULT_QUERY, view: 'liste' })
+  })
+})
+
+describe('withoutPrices', () => {
+  it('ignore le filtre et les tris par prix, garde le reste', () => {
+    const query = parseCatalogQuery({
+      exposition: 'ombre',
+      prix_min: '10',
+      prix_max: '40',
+      tri: 'prix-desc',
+      page: '2',
+    })
+    expect(withoutPrices(query)).toEqual({
+      ...DEFAULT_QUERY,
+      exposures: ['ombre'],
+      page: 2,
+    })
+  })
+
+  it('garde un tri qui ne porte pas sur le prix', () => {
+    expect(withoutPrices({ ...DEFAULT_QUERY, sort: 'nom' }).sort).toBe('nom')
+  })
+})
+
+describe('sortsFor', () => {
+  it('retire les tris par prix quand la vente est coupée', () => {
+    expect(sortsFor(false)).toEqual(['pertinence', 'nom'])
+    expect(sortsFor(true)).toEqual(['pertinence', 'prix-asc', 'prix-desc', 'nom'])
   })
 })

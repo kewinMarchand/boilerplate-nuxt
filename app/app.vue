@@ -24,7 +24,7 @@ const breadcrumbTrail = computed(() => trailFor(route.path))
     :breadcrumb-trail="breadcrumbTrail"
   >
     <NuxtPage />
-    <template #cart-link><CartLink /></template>
+    <template v-if="identity.salesEnabled" #cart-link><CartLink /></template>
   </AppShell>
   <ClientOnly>
     <VueQueryDevtools button-position="bottom-left" />

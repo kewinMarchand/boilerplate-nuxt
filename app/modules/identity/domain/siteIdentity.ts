@@ -45,5 +45,7 @@ export declare namespace SiteIdentity {
     defaultColorScheme: ColorScheme
     /** `null` sans couleurs de marque saisies : les jetons de la bibliothèque restent tels quels. */
     theme: Theme | null
+    /** `false` : ni prix ni panier, une demande de renseignement sur chaque produit. */
+    salesEnabled: boolean
   }
 }

@@ -14,6 +14,7 @@ defineProps<{
   products: Catalog.Product[] | undefined
   view: Catalog.View
   clearHref: string
+  salesEnabled: boolean
   errorMessage?: string
 }>()
 
@@ -53,6 +54,7 @@ const emit = defineEmits<{ retry: [] }>()
       :product="product"
       :eager="index < EAGER_COUNT"
       :priority="index === 0"
+      :show-price="salesEnabled"
     />
   </div>
 </template>

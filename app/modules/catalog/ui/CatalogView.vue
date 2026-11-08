@@ -23,10 +23,10 @@ import ProductList from './ProductList.vue'
 
 import type { CatalogPageMeta } from './composables/useCatalogSeo'
 
-const props = defineProps<{ rootMeta?: CatalogPageMeta }>()
+const props = defineProps<{ rootMeta?: CatalogPageMeta; salesEnabled: boolean }>()
 
 const route = useRoute()
-const { categoryPath, query, catalog, hrefFor, navigate } = useCatalog()
+const { categoryPath, query, catalog, hrefFor, navigate } = useCatalog(props.salesEnabled)
 const { data, status, error, refetch } = catalog
 const { matches: isDesktop, isMounted } = useMediaQuery('(min-width: 1024px)')
 
@@ -73,6 +73,7 @@ watch(query, async (next, previous) => {
         :query="query"
         :facets="data.facets"
         :action="path"
+        :sales-enabled="salesEnabled"
         @change="navigate"
       />
     </aside>
@@ -95,6 +96,7 @@ watch(query, async (next, previous) => {
           :query="query"
           :facets="data.facets"
           :action="path"
+          :sales-enabled="salesEnabled"
           @change="navigate"
         />
       </FiltersDialog>
@@ -111,6 +113,7 @@ watch(query, async (next, previous) => {
         :action="path"
         :grid-href="hrefFor({ ...query, view: 'grille' })"
         :list-href="hrefFor({ ...query, view: 'liste' })"
+        :sales-enabled="salesEnabled"
         @sort="(sort) => navigate(withFilters(query, { sort }))"
       />
 
@@ -119,6 +122,7 @@ watch(query, async (next, previous) => {
         :products="data?.items"
         :view="query.view"
         :clear-href="clearHref"
+        :sales-enabled="salesEnabled"
         v-bind="error ? { errorMessage: error.message } : {}"
         @retry="refetch()"
       />

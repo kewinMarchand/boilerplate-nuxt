@@ -1,18 +1,15 @@
-import { spawn } from 'node:child_process'
-import { createServer } from 'node:http'
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
+import { serveWithFakeApi } from '../support/fakeApi'
 import { enableEnhancedMode, gotoHydrated } from '../support/page'
 import { FAKE_API_PORT, IDENTITY_PORT } from '../support/ports'
 
+import type { ApiOverrides } from '../support/fakeApi'
 import type { Page } from '@playwright/test'
-import type { ChildProcess } from 'node:child_process'
-import type { Server } from 'node:http'
 
 const LIBRARY_PRIMARY = '#1d4ed8'
 const LIBRARY_ENHANCED_PRIMARY = '#1e3a8a'
-const REAL_API = process.env.NUXT_PUBLIC_API_URL ?? 'http://localhost:8090'
 
 const primaryOnHtml = (page: Page) =>
   page.evaluate(() =>
@@ -124,6 +121,7 @@ const IDENTITY = {
     png192: '/media/oraki-192.png',
     png512: '/media/oraki-512.png',
   },
+  salesEnabled: true,
 }
 
 const PAGE_METAS = [
@@ -141,8 +139,7 @@ const PRODUCT_META = {
 }
 const ARTICLE_META = { metaTitle: 'Un carrousel sans dépendance', metaDescription: '' }
 
-/** Réponses remplacées par l'API factice, à partir de la réponse réelle quand elle sert de base. */
-const OVERRIDES: Record<string, (upstream: unknown) => unknown> = {
+const OVERRIDES: ApiOverrides = {
   '/api/site-identity': () => IDENTITY,
   '/api/page-metas': () => PAGE_METAS,
   '/api/products/monstera-deliciosa': (product) => ({ ...(product as object), ...PRODUCT_META }),
@@ -152,55 +149,22 @@ const OVERRIDES: Record<string, (upstream: unknown) => unknown> = {
   }),
 }
 
-/** API factice : sert les réponses ci-dessus et relaie tout le reste à l'API réelle, sans toucher à sa base. */
-const startFakeApi = (port: number) =>
-  createServer(async (request, response) => {
-    const upstream = await fetch(new URL(request.url ?? '/', REAL_API), {
-      headers: { accept: request.headers.accept ?? '*/*' },
-    })
-    const override = OVERRIDES[request.url ?? '']
-    if (override) {
-      response
-        .writeHead(200, { 'content-type': 'application/json' })
-        .end(JSON.stringify(override(await upstream.json())))
-      return
-    }
-    response
-      .writeHead(upstream.status, { 'content-type': upstream.headers.get('content-type') ?? '' })
-      .end(Buffer.from(await upstream.arrayBuffer()))
-  }).listen(port)
-
 test.describe('Identité du site, logo et couleurs saisis (API factice)', () => {
   test.describe.configure({ mode: 'serial' })
 
   let appUrl = ''
-  let app: ChildProcess | undefined
-  let fakeApi: Server | undefined
+  let stop: (() => void) | undefined
 
   test.beforeAll(async () => {
     const offset = test.info().project.name === 'mobile' ? 2 : 0
-    const appPort = IDENTITY_PORT + offset
-    const fakeApiPort = FAKE_API_PORT + offset
-    appUrl = `http://localhost:${appPort}`
-    fakeApi = startFakeApi(fakeApiPort)
-    app = spawn('node', ['.output/server/index.mjs'], {
-      env: {
-        ...process.env,
-        PORT: String(appPort),
-        NUXT_PUBLIC_SITE_URL: appUrl,
-        NUXT_API_URL: `http://localhost:${fakeApiPort}`,
-      },
-      stdio: 'ignore',
-    })
-    await expect
-      .poll(async () => (await fetch(appUrl).catch(() => null))?.status, { timeout: 30_000 })
-      .toBe(200)
+    ;({ appUrl, stop } = await serveWithFakeApi(
+      IDENTITY_PORT + offset,
+      FAKE_API_PORT + offset,
+      OVERRIDES,
+    ))
   })
 
-  test.afterAll(() => {
-    app?.kill()
-    fakeApi?.close()
-  })
+  test.afterAll(() => stop?.())
 
   test('le logo remplace pictogramme et nom dans le lien du header', async ({ page }) => {
     await gotoHydrated(page, appUrl)

@@ -8,7 +8,11 @@ import { formatPrice } from '../domain/price'
 import { useSimilarProducts } from './composables/useSimilarProducts'
 
 /** Autres produits de la catégorie ; section absente s'il n'y en a pas ou si l'API échoue. */
-const { categorySlug, productSlug } = defineProps<{ categorySlug: string; productSlug: string }>()
+const { categorySlug, productSlug, salesEnabled } = defineProps<{
+  categorySlug: string
+  productSlug: string
+  salesEnabled: boolean
+}>()
 
 const { data } = await useSimilarProducts(categorySlug, productSlug)
 
@@ -16,7 +20,7 @@ const slides = computed(() =>
   (data.value ?? []).map((product) => ({
     id: product.id,
     title: product.name,
-    text: formatPrice(product.price),
+    text: salesEnabled ? formatPrice(product.price) : '',
     image: product.image,
     href: productHref(product.slug),
   })),

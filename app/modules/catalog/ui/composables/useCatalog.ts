@@ -2,7 +2,11 @@ import { keepPreviousData, useQuery } from '@tanstack/vue-query'
 import { computed, onServerPrefetch, watch } from 'vue'
 import { createError, showError, useRoute, useRouter } from '#imports'
 
-import { parseCatalogQuery, serializeCatalogQuery } from '@/modules/catalog/domain/catalogQuery'
+import {
+  parseCatalogQuery,
+  serializeCatalogQuery,
+  withoutPrices,
+} from '@/modules/catalog/domain/catalogQuery'
 import { isBeyondLastPage, resolveCatalogCategory } from '@/modules/catalog/application/catalogPage'
 import { useCatalogUseCases } from '@/modules/catalog/application/useCatalogUseCases'
 
@@ -15,7 +19,7 @@ const NOT_FOUND = { statusCode: 404, fatal: true }
 const toSlugs = (param: string | string[] | undefined) =>
   (Array.isArray(param) ? param : param ? [param] : []).filter(Boolean)
 
-export const useCatalog = () => {
+export const useCatalog = (salesEnabled: boolean) => {
   const route = useRoute()
   const router = useRouter()
 
@@ -42,7 +46,10 @@ export const useCatalog = () => {
     { immediate: true },
   )
 
-  const query = computed(() => parseCatalogQuery(route.query))
+  const query = computed(() => {
+    const parsed = parseCatalogQuery(route.query)
+    return salesEnabled ? parsed : withoutPrices(parsed)
+  })
 
   const catalog = useQuery({
     queryKey: ['catalog', slugs, query],

@@ -11,4 +11,13 @@ export const contactSchema = z.object({
 
 export declare namespace Contact {
   type FormValues = z.infer<typeof contactSchema>
+
+  /** Message envoyé : `product` porte le slug d'une demande de renseignement, `null` sinon. */
+  type Message = FormValues & { product: string | null }
+
+  /** Produit d'une demande de renseignement, tel que la page de contact l'affiche. */
+  interface InquiryProduct {
+    slug: string
+    name: string
+  }
 }

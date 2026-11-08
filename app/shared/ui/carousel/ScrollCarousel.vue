@@ -93,7 +93,7 @@ const setViewport = (element: unknown) => {
             </NuxtLink>
             <template v-else>{{ slide.title }}</template>
           </h3>
-          <p>{{ slide.text }}</p>
+          <p v-if="slide.text">{{ slide.text }}</p>
         </div>
       </div>
     </div>

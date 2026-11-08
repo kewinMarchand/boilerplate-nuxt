@@ -35,6 +35,22 @@ describe('ContactForm', () => {
     expect(await screen.findByTestId('contact-success')).toBeInTheDocument()
   })
 
+  it('envoie le produit d’une demande de renseignement et adapte la confirmation', async () => {
+    renderWithProviders(ContactForm, { props: { product: 'monstera-deliciosa' } })
+    await userEvent.type(field('contact-name'), 'Ada')
+    await userEvent.type(field('contact-email'), 'ada@exemple.fr')
+    await userEvent.type(field('contact-message'), 'Bonjour, ceci est un message.')
+    await userEvent.click(screen.getByTestId('contact-submit'))
+
+    expect(await screen.findByTestId('contact-success')).toHaveTextContent(
+      'Votre demande de renseignement a bien été envoyée.',
+    )
+    expect(send).toHaveBeenLastCalledWith(
+      expect.objectContaining({ product: 'monstera-deliciosa' }),
+      expect.anything(),
+    )
+  })
+
   it('relaie sous le champ la violation 422 renvoyée par l’API', async () => {
     send.mockResolvedValueOnce({
       status: 'invalid',

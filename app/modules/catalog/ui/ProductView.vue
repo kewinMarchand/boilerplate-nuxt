@@ -18,7 +18,9 @@ import SimilarProducts from './SimilarProducts.vue'
 
 import type { Catalog } from '../domain/catalog'
 
-/** Bouton d'achat, fourni par la couche de routage (module panier). */
+const { salesEnabled } = defineProps<{ salesEnabled: boolean }>()
+
+/** Bouton d'achat ou lien de demande de renseignement, fourni par la couche de routage. */
 defineSlots<{ purchase?: (props: { product: Catalog.ProductDetail }) => unknown }>()
 
 const IMAGE_SIZES = '(min-width: 1440px) 680px, (min-width: 768px) 50vw, calc(100vw - 32px)'
@@ -48,7 +50,8 @@ usePageSeo({
     const value = product.value
     if (!value) return title.value
     if (value.metaDescription) return value.metaDescription
-    return `${value.name} : exposition ${EXPOSURE_LABELS[value.exposure].toLowerCase()}, taille ${value.size}, ${formatPrice(value.price)}. ${value.inStock ? 'En stock' : 'En rupture de stock'}, rayon ${category.value?.label ?? 'catalogue'}.`
+    const price = salesEnabled ? `, ${formatPrice(value.price)}` : ''
+    return `${value.name} : exposition ${EXPOSURE_LABELS[value.exposure].toLowerCase()}, taille ${value.size}${price}. ${value.inStock ? 'En stock' : 'En rupture de stock'}, rayon ${category.value?.label ?? 'catalogue'}.`
   },
   noindex: () => !product.value,
   breadcrumbTrail: trail,
@@ -77,13 +80,15 @@ usePageSeo({
             url: new URL(path, siteUrl).href,
             ...(category.value && { category: category.value.label }),
             ...(product.value.image && { image: largestWebp(product.value.image) }),
-            offers: {
-              '@type': 'Offer',
-              url: new URL(path, siteUrl).href,
-              priceCurrency: 'EUR',
-              price: (product.value.price / 100).toFixed(2),
-              availability: `https://schema.org/${product.value.inStock ? 'InStock' : 'OutOfStock'}`,
-            },
+            ...(salesEnabled && {
+              offers: {
+                '@type': 'Offer',
+                url: new URL(path, siteUrl).href,
+                priceCurrency: 'EUR',
+                price: (product.value.price / 100).toFixed(2),
+                availability: `https://schema.org/${product.value.inStock ? 'InStock' : 'OutOfStock'}`,
+              },
+            }),
           },
         ]
       : [],
@@ -137,7 +142,9 @@ useHead({
     </picture>
     <div>
       <h1 class="product-title" data-testid="product-title">{{ product.name }}</h1>
-      <p class="product-price" data-testid="product-price">{{ formatPrice(product.price) }}</p>
+      <p v-if="salesEnabled" class="product-price" data-testid="product-price">
+        {{ formatPrice(product.price) }}
+      </p>
       <div v-if="product.description.length > 0" data-testid="product-description">
         <p v-for="paragraph in product.description" :key="paragraph" class="product-paragraph">
           {{ paragraph }}
@@ -176,6 +183,7 @@ useHead({
     v-if="product"
     :category-slug="product.categorySlug"
     :product-slug="product.slug"
+    :sales-enabled="salesEnabled"
     class="product-similar"
   />
 </template>

@@ -31,6 +31,7 @@ const BASE = {
   icon: null,
   defaultColorScheme: 'auto' as const,
   theme: null,
+  salesEnabled: true,
 }
 
 describe('toSiteIdentity', () => {
@@ -61,6 +62,13 @@ describe('toSiteIdentity', () => {
       ...BASE,
       shareImage: LOGO,
       icon,
+    })
+  })
+
+  it('garde la vente en ligne coupée', () => {
+    expect(toSiteIdentity({ ...BASE, salesEnabled: false })).toEqual({
+      ...BASE,
+      salesEnabled: false,
     })
   })
 

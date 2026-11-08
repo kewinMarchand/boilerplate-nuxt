@@ -5,6 +5,11 @@ import type { Catalog } from './catalog'
 export const EXPOSURES: Catalog.Exposure[] = ['soleil', 'mi-ombre', 'ombre']
 export const SIZES: Catalog.Size[] = ['S', 'M', 'L']
 export const SORTS: Catalog.Sort[] = ['pertinence', 'prix-asc', 'prix-desc', 'nom']
+const PRICE_SORTS: Catalog.Sort[] = ['prix-asc', 'prix-desc']
+
+/** Tris proposés : sans les tris par prix quand la vente en ligne est coupée. */
+export const sortsFor = (salesEnabled: boolean) =>
+  salesEnabled ? SORTS : SORTS.filter((sort) => !PRICE_SORTS.includes(sort))
 
 export const DEFAULT_QUERY: Catalog.Query = {
   exposures: [],
@@ -81,6 +86,14 @@ export const parseCatalogQuery = (raw: RawQuery): Catalog.Query => {
     page: parsed.page,
   }
 }
+
+/** Vente en ligne coupée : filtre et tris par prix ignorés, comme une valeur invalide. */
+export const withoutPrices = (query: Catalog.Query): Catalog.Query => ({
+  ...query,
+  priceMin: null,
+  priceMax: null,
+  sort: PRICE_SORTS.includes(query.sort) ? 'pertinence' : query.sort,
+})
 
 export const serializeCatalogQuery = (query: Catalog.Query): Record<string, string | string[]> => ({
   ...(query.exposures.length && { exposition: query.exposures }),

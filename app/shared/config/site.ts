@@ -9,6 +9,8 @@ export interface SiteConfig {
     email: string
   }
   accessibility: Compliance.Audit
+  /** Repli de l'identité du site quand l'API ne répond pas. */
+  salesEnabled: boolean
 }
 
 export const SITE: SiteConfig = {
@@ -21,4 +23,5 @@ export const SITE: SiteConfig = {
     email: 'contact@exemple.fr',
   },
   accessibility: { auditDate: null, complianceRate: null, auditor: null },
+  salesEnabled: true,
 }

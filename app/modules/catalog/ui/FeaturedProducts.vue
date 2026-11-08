@@ -9,13 +9,15 @@ import { productHref } from '../domain/catalog'
 import { formatPrice } from '../domain/price'
 import { useFeaturedProducts } from './composables/useFeaturedProducts'
 
+const { salesEnabled } = defineProps<{ salesEnabled: boolean }>()
+
 const { status, data, error } = await useFeaturedProducts()
 
 const slides = computed(() =>
   (data.value ?? []).map((product) => ({
     id: product.id,
     title: product.name,
-    text: formatPrice(product.price),
+    text: salesEnabled ? formatPrice(product.price) : '',
     image: product.image,
     href: productHref(product.slug),
   })),

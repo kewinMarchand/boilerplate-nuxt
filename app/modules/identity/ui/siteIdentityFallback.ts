@@ -11,4 +11,5 @@ export const FALLBACK_IDENTITY: SiteIdentity.Entity = {
   icon: null,
   defaultColorScheme: 'auto',
   theme: null,
+  salesEnabled: SITE.salesEnabled,
 }

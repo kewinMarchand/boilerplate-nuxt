@@ -6,3 +6,6 @@ export const FAKE_GLITCHTIP_PORT = 3113
 /** Build servi avec une API factice pour l'identité du site ; le projet mobile prend les deux ports suivants. */
 export const IDENTITY_PORT = 3114
 export const FAKE_API_PORT = 3115
+/** Build servi avec une API factice, vente en ligne coupée ; le projet mobile prend les deux ports suivants. */
+export const SALES_OFF_PORT = 3140
+export const SALES_OFF_FAKE_API_PORT = 3141

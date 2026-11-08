@@ -11,7 +11,13 @@ const {
   product,
   eager = false,
   priority = false,
-} = defineProps<{ product: Catalog.Product; eager?: boolean; priority?: boolean }>()
+  showPrice = true,
+} = defineProps<{
+  product: Catalog.Product
+  eager?: boolean
+  priority?: boolean
+  showPrice?: boolean
+}>()
 
 const SIZES = '(min-width: 1024px) 280px, (min-width: 480px) 50vw, calc(100vw - 58px)'
 const preload = product.image?.sources[0]
@@ -65,7 +71,7 @@ if (priority && preload) {
             {{ product.name }}
           </NuxtLink>
         </h2>
-        <p class="product-price" data-testid="catalog-product-price">
+        <p v-if="showPrice" class="product-price" data-testid="catalog-product-price">
           {{ formatPrice(product.price) }}
         </p>
         <dl class="product-specs">

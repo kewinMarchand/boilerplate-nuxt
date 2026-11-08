@@ -3,29 +3,31 @@ import { computed, useId } from 'vue'
 
 import { Icon } from '@/shared/ui/kit'
 
-import { SORTS, toFormFields } from '../domain/catalogQuery'
+import { sortsFor, toFormFields } from '../domain/catalogQuery'
 import { SORT_LABELS } from './labels'
 
 import type { Catalog } from '../domain/catalog'
 
-const { query, total, action } = defineProps<{
+const { query, total, action, salesEnabled } = defineProps<{
   query: Catalog.Query
   total: number
   action: string
   gridHref: string
   listHref: string
+  salesEnabled: boolean
 }>()
 
 const emit = defineEmits<{ sort: [sort: Catalog.Sort] }>()
 
 const sortId = useId()
+const sorts = computed(() => sortsFor(salesEnabled))
 const hiddenFields = computed(() => toFormFields(query, ['tri']))
 const countLabel = computed(() => `${total} produit${total > 1 ? 's' : ''}`)
 
 const onSortChange = (event: Event) => {
   if (!(event.target instanceof HTMLSelectElement)) return
   const { value } = event.target
-  const sort = SORTS.find((candidate) => candidate === value)
+  const sort = sorts.value.find((candidate) => candidate === value)
   if (sort) emit('sort', sort)
 }
 </script>
@@ -51,7 +53,7 @@ const onSortChange = (event: Event) => {
         data-testid="catalog-sort"
         @change="onSortChange"
       >
-        <option v-for="sort in SORTS" :key="sort" :value="sort" :selected="sort === query.sort">
+        <option v-for="sort in sorts" :key="sort" :value="sort" :selected="sort === query.sort">
           {{ SORT_LABELS[sort] }}
         </option>
       </select>

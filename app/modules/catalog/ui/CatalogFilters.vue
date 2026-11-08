@@ -10,6 +10,7 @@ const { query, facets, action } = defineProps<{
   query: Catalog.Query
   facets: Catalog.Facet
   action: string
+  salesEnabled: boolean
 }>()
 
 const emit = defineEmits<{ change: [query: Catalog.Query] }>()
@@ -111,7 +112,7 @@ const onChange = (event: Event) => {
       </fieldset>
     </details>
 
-    <details open class="facet">
+    <details v-if="salesEnabled" open class="facet">
       <summary>Prix</summary>
       <fieldset class="facet-price">
         <legend class="bui-visually-hidden">Prix</legend>

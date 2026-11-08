@@ -29,4 +29,5 @@ export const toSiteIdentity = (dto: SiteIdentityDto): SiteIdentity.Entity => ({
   },
   defaultColorScheme: dto.defaultColorScheme,
   theme: dto.theme ? { light: toPalette(dto.theme.light), dark: toPalette(dto.theme.dark) } : null,
+  salesEnabled: dto.salesEnabled,
 })

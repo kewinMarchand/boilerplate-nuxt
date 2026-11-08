@@ -26,5 +26,9 @@ usePageSeo({
 </script>
 
 <template>
-  <HomeView :site-name="identity.name" :tagline="identity.tagline" />
+  <HomeView
+    :site-name="identity.name"
+    :tagline="identity.tagline"
+    :sales-enabled="identity.salesEnabled"
+  />
 </template>

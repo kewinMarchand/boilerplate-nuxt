@@ -38,6 +38,6 @@ usePageSeo({
     :current-label="title"
   >
     <ErrorView :not-found="isNotFound" :title="title" />
-    <template #cart-link><CartLink /></template>
+    <template v-if="identity.salesEnabled" #cart-link><CartLink /></template>
   </AppShell>
 </template>

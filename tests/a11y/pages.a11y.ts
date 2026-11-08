@@ -28,6 +28,7 @@ for (const mode of ['normal', 'sombre', 'renforcé'] as const) {
       '/blog?rubrique=conseils',
       '/blog/un-carrousel-accessible-sans-dependance',
       '/produit/strelitzia-reginae',
+      '/contact?produit=monstera-deliciosa',
       '/panier',
     ]) {
       test(`la page ${route} ne présente aucune violation axe WCAG 2.1 AA`, async ({ page }) => {
