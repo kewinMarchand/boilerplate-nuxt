@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useHead } from '#imports'
 
-import { SITE } from '@/shared/config'
 import { buildSources, buildSrcset } from '@/shared/ui/kit/imageSources'
+
+const { siteName, tagline } = defineProps<{ siteName: string; tagline: string }>()
 
 const HERO_WIDTHS = [640, 828, 960, 1280, 1920]
 const HERO_SIZES = '100vw'
@@ -44,8 +45,8 @@ useHead({
     <div class="hero-veil" />
     <div class="hero-content app-container">
       <p class="hero-eyebrow">Boilerplate Nuxt 4 · boilerplates-ui · TanStack Query</p>
-      <h1>{{ SITE.name }}</h1>
-      <p class="hero-text">{{ SITE.description }}</p>
+      <h1>{{ siteName }}</h1>
+      <p v-if="tagline" class="hero-text">{{ tagline }}</p>
       <div class="hero-actions">
         <NuxtLink to="/taches" class="bui-button bui-button--lg" data-testid="home-tasks-link">
           Voir la démo TanStack Query

@@ -8,10 +8,13 @@ import SkipLink from './SkipLink.vue'
 
 import type { NavigationNode } from '@/shared/config'
 import type { Breadcrumb } from '@/shared/seo'
+import type { ResponsiveImage } from '@/shared/ui/kit'
 
 const AppFooter = defineLazyHydrationComponent('visible', () => import('./AppFooter.vue'))
 
-const { categoryMenu, breadcrumbTrail, currentLabel } = defineProps<{
+const { siteName, logo, categoryMenu, breadcrumbTrail, currentLabel } = defineProps<{
+  siteName: string
+  logo: ResponsiveImage | null
   categoryMenu: NavigationNode
   breadcrumbTrail?: Breadcrumb.Item[] | null
   currentLabel?: string
@@ -23,7 +26,7 @@ const isFullBleed = computed(() => route.meta.fullBleed === true && !currentLabe
 <template>
   <div class="app-shell">
     <SkipLink />
-    <AppHeader :category-menu="categoryMenu">
+    <AppHeader :site-name="siteName" :logo="logo" :category-menu="categoryMenu">
       <template #cart-link><slot name="cart-link" /></template>
     </AppHeader>
     <main id="main" tabindex="-1" class="app-main">
@@ -36,7 +39,7 @@ const isFullBleed = computed(() => route.meta.fullBleed === true && !currentLabe
         <slot />
       </div>
     </main>
-    <AppFooter />
+    <AppFooter :site-name="siteName" />
   </div>
 </template>
 

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { MAIN_NAVIGATION, SITE } from '@/shared/config'
+import { computed } from 'vue'
+
+import { MAIN_NAVIGATION } from '@/shared/config'
 
 import A11yModeToggle from '../a11y-mode/A11yModeToggle.vue'
 import ColorSchemeToggle from '../color-scheme/ColorSchemeToggle.vue'
@@ -8,8 +10,19 @@ import MobileMenu from './MobileMenu.vue'
 import NavLink from './NavLink.vue'
 
 import type { NavigationNode } from '@/shared/config'
+import type { ResponsiveImage } from '@/shared/ui/kit'
 
-const { categoryMenu } = defineProps<{ categoryMenu: NavigationNode }>()
+const LOGO_HEIGHT = 40
+
+const { siteName, logo, categoryMenu } = defineProps<{
+  siteName: string
+  logo: ResponsiveImage | null
+  categoryMenu: NavigationNode
+}>()
+
+const logoSizes = computed(() =>
+  logo ? `${Math.round((LOGO_HEIGHT * logo.width) / logo.height)}px` : undefined,
+)
 
 const [HOME, ...SECONDARY_NAVIGATION] = MAIN_NAVIGATION
 </script>
@@ -18,8 +31,28 @@ const [HOME, ...SECONDARY_NAVIGATION] = MAIN_NAVIGATION
   <header class="app-header">
     <div class="app-container header-bar">
       <NuxtLink to="/" class="header-logo" data-testid="layout-logo">
-        <img src="/images/logo-mark.svg" alt="" width="40" height="40" />
-        <span>{{ SITE.name }}</span>
+        <picture v-if="logo">
+          <source
+            v-for="source in logo.sources"
+            :key="source.type"
+            :type="source.type"
+            :srcset="source.srcset"
+            :sizes="logoSizes"
+          />
+          <img
+            :src="logo.src"
+            :alt="siteName"
+            :width="logo.width"
+            :height="logo.height"
+            fetchpriority="high"
+            class="header-logo-image"
+            data-testid="layout-logo-image"
+          />
+        </picture>
+        <template v-else>
+          <img src="/images/logo-mark.svg" alt="" width="40" height="40" />
+          <span>{{ siteName }}</span>
+        </template>
       </NuxtLink>
       <nav aria-label="Navigation principale" class="header-nav">
         <ul class="header-nav-list">
@@ -68,6 +101,11 @@ const [HOME, ...SECONDARY_NAVIGATION] = MAIN_NAVIGATION
 
 .header-logo img {
   flex-shrink: 0;
+}
+
+.header-logo-image {
+  width: auto;
+  height: 40px;
 }
 
 .header-nav-list,

@@ -11,8 +11,7 @@ const isColorScheme = (value: string | undefined | null): value is ColorScheme =
 
 const persist = (scheme: ColorScheme) => {
   try {
-    if (scheme === 'auto') localStorage.removeItem(COLOR_SCHEME_STORAGE_KEY)
-    else localStorage.setItem(COLOR_SCHEME_STORAGE_KEY, scheme)
+    localStorage.setItem(COLOR_SCHEME_STORAGE_KEY, scheme)
   } catch (error) {
     console.warn('Thème non mémorisé, stockage indisponible.', error)
   }

@@ -54,7 +54,6 @@ export const usePageSeo = (input: PageSeoInput) => {
   ])
 
   useHead({
-    titleTemplate: (title) => (title ? `${title} · ${SITE.name}` : SITE.name),
     link: () => [
       { rel: 'canonical', href: canonical.value },
       ...(prevHref.value ? [{ rel: 'prev' as const, href: absolute(prevHref.value) }] : []),
@@ -74,7 +73,6 @@ export const usePageSeo = (input: PageSeoInput) => {
     robots: () => (toValue(input.noindex) ? 'noindex, follow' : 'index, follow'),
     ogType: () => (toValue(input.publishedTime) ? 'article' : 'website'),
     articlePublishedTime: () => toValue(input.publishedTime),
-    ogSiteName: SITE.name,
     ogLocale: SITE.locale,
     ogTitle: () => toValue(input.title),
     ogDescription: () => toValue(input.description),

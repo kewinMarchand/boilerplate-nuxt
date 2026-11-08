@@ -73,7 +73,7 @@ test.describe('Logo', () => {
   test('le lien logo porte le nom du site et aria-current sur l’accueil', async ({ page }) => {
     await gotoHydrated(page, '/')
     const logo = page.getByTestId('layout-logo')
-    await expect(logo).toHaveAccessibleName('Boilerplate Nuxt')
+    await expect(logo).toHaveAccessibleName('Boilerplate')
     await expect(logo).toHaveAttribute('aria-current', 'page')
 
     await gotoHydrated(page, '/contact')

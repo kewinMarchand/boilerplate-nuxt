@@ -6,12 +6,15 @@ import { AppShell } from '@/shared/ui/layout'
 
 import { CartLink } from '@/modules/cart'
 import { useCatalogNavigation } from '@/modules/catalog'
+import { useSiteIdentity, useSiteIdentityHead } from '@/modules/identity'
 
 import { ErrorView } from '@/views/errors'
 
 import type { NuxtError } from '#app'
 
 const { error } = defineProps<{ error: NuxtError }>()
+const identity = await useSiteIdentity()
+useSiteIdentityHead(identity)
 const { categoryMenu } = await useCatalogNavigation()
 const isNotFound = computed(() => error.status === 404)
 const title = computed(() => (isNotFound.value ? 'Page introuvable' : 'Une erreur est survenue'))
@@ -28,7 +31,12 @@ usePageSeo({
 </script>
 
 <template>
-  <AppShell :category-menu="categoryMenu" :current-label="title">
+  <AppShell
+    :site-name="identity.name"
+    :logo="identity.logo"
+    :category-menu="categoryMenu"
+    :current-label="title"
+  >
     <ErrorView :not-found="isNotFound" :title="title" />
     <template #cart-link><CartLink /></template>
   </AppShell>

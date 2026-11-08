@@ -5,13 +5,15 @@ import { BlogSection } from '@/modules/blog'
 
 import HomeHero from './HomeHero.vue'
 
+const { siteName, tagline } = defineProps<{ siteName: string; tagline: string }>()
+
 const FeaturedProducts = defineLazyHydrationComponent('visible', () =>
   import('@/modules/catalog').then((catalog) => catalog.FeaturedProducts),
 )
 </script>
 
 <template>
-  <HomeHero />
+  <HomeHero :site-name="siteName" :tagline="tagline" />
   <div class="app-container home-sections">
     <FeaturedProducts />
     <BlogSection />

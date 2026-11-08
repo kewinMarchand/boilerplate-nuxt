@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useRuntimeConfig } from '#imports'
 
-import { LEGAL_NAVIGATION, SITE } from '@/shared/config'
+import { LEGAL_NAVIGATION } from '@/shared/config'
 
+const { siteName } = defineProps<{ siteName: string }>()
 const { devTools } = useRuntimeConfig().public
 </script>
 
@@ -29,7 +30,7 @@ const { devTools } = useRuntimeConfig().public
       </nav>
       <p class="footer-brand">
         <img src="/images/logo-mark.svg" alt="" width="24" height="24" />
-        {{ SITE.name }}
+        {{ siteName }}
       </p>
     </div>
   </footer>

@@ -7,14 +7,22 @@ import { AppShell } from '@/shared/ui/layout'
 
 import { CartLink } from '@/modules/cart'
 import { useCatalogNavigation } from '@/modules/catalog'
+import { useSiteIdentity, useSiteIdentityHead } from '@/modules/identity'
 
 const route = useRoute()
+const identity = await useSiteIdentity()
+useSiteIdentityHead(identity)
 const { categoryMenu, trailFor } = await useCatalogNavigation()
 const breadcrumbTrail = computed(() => trailFor(route.path))
 </script>
 
 <template>
-  <AppShell :category-menu="categoryMenu" :breadcrumb-trail="breadcrumbTrail">
+  <AppShell
+    :site-name="identity.name"
+    :logo="identity.logo"
+    :category-menu="categoryMenu"
+    :breadcrumb-trail="breadcrumbTrail"
+  >
     <NuxtPage />
     <template #cart-link><CartLink /></template>
   </AppShell>
