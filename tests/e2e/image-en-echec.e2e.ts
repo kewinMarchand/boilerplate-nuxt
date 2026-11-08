@@ -61,6 +61,35 @@ test.describe('Image de l’API en échec', () => {
     await expect(picture.locator('img')).toHaveCSS('opacity', '1')
   })
 
+  test('une vignette de la galerie en échec est marquée, le bouton garde sa taille', async ({
+    page,
+    request,
+  }) => {
+    const product = (await (await request.get(`${API_URL}/api/products/${FAILING}`)).json()) as {
+      gallery: { src: string }[]
+    }
+    const thumbFile = new URL(product.gallery[0]?.src ?? '').pathname
+    await gotoHydrated(page, `/produit/${FAILING}`)
+    const thumb = page.getByTestId('product-gallery-thumb').nth(1)
+    await thumb.scrollIntoViewIfNeeded()
+    await expect(thumb.locator('picture img')).toHaveJSProperty('complete', true)
+    const before = await thumb.boundingBox()
+
+    await page.route(
+      (url) => url.pathname === thumbFile,
+      (route) => route.fulfill({ status: 404 }),
+    )
+    await gotoHydrated(page, `/produit/${FAILING}`)
+    await thumb.scrollIntoViewIfNeeded()
+
+    await expect(thumb.locator('picture')).toHaveAttribute('data-image-error', '')
+    await expect(thumb.locator('picture img')).toHaveCSS('opacity', '0')
+    await expect(
+      page.getByTestId('product-gallery-thumb').first().locator('picture'),
+    ).not.toHaveAttribute('data-image-error')
+    expect(await thumb.boundingBox()).toEqual(before)
+  })
+
   for (const route of [
     '/',
     '/catalogue',

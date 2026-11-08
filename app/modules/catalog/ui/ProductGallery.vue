@@ -56,15 +56,17 @@ const onKeydown = (event: KeyboardEvent, index: number) => {
           @click="current = index"
           @keydown="onKeydown($event, index)"
         >
-          <img
-            :src="image.src"
-            alt=""
-            :width="image.width"
-            :height="image.height"
-            loading="lazy"
-            decoding="async"
-            class="gallery-thumb-image"
-          />
+          <picture class="bui-picture gallery-thumb-picture">
+            <img
+              :src="image.src"
+              alt=""
+              :width="image.width"
+              :height="image.height"
+              loading="lazy"
+              decoding="async"
+              class="gallery-thumb-image"
+            />
+          </picture>
         </button>
         <a
           :href="largestWebp(image)"
@@ -72,15 +74,17 @@ const onKeydown = (event: KeyboardEvent, index: number) => {
           :aria-label="thumbLabel(index)"
           data-testid="product-gallery-thumb-link"
         >
-          <img
-            :src="image.src"
-            alt=""
-            :width="image.width"
-            :height="image.height"
-            loading="lazy"
-            decoding="async"
-            class="gallery-thumb-image"
-          />
+          <picture class="bui-picture gallery-thumb-picture">
+            <img
+              :src="image.src"
+              alt=""
+              :width="image.width"
+              :height="image.height"
+              loading="lazy"
+              decoding="async"
+              class="gallery-thumb-image"
+            />
+          </picture>
         </a>
       </li>
     </ul>
@@ -127,10 +131,14 @@ const onKeydown = (event: KeyboardEvent, index: number) => {
   outline-offset: 2px;
 }
 
+.gallery-thumb-picture,
+.gallery-thumb-image {
+  border-radius: 4px;
+}
+
 .gallery-thumb-image {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 4px;
 }
 </style>
