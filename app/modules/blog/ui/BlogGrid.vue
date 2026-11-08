@@ -17,6 +17,7 @@ defineProps<{
 const emit = defineEmits<{ retry: [] }>()
 
 const BLOG_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
+const FEATURED_SIZES = '(min-width: 1024px) 66vw, 100vw'
 </script>
 
 <template>
@@ -47,7 +48,7 @@ const BLOG_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
 
   <div v-else class="blog-grid">
     <article
-      v-for="article in articles"
+      v-for="(article, position) in articles"
       :key="article.id"
       class="blog-card"
       data-testid="home-blog-card"
@@ -59,7 +60,7 @@ const BLOG_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
             :key="source.type"
             :type="source.type"
             :srcset="source.srcset"
-            :sizes="BLOG_SIZES"
+            :sizes="position === 0 ? FEATURED_SIZES : BLOG_SIZES"
           />
           <img
             :src="article.image.src"
@@ -132,13 +133,39 @@ const BLOG_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
 
 @media (min-width: 640px) {
   .blog-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(12, 1fr);
+  }
+
+  .blog-card {
+    grid-column: span 6;
+  }
+
+  .blog-card:first-child {
+    grid-row: span 2;
+  }
+
+  .blog-card:first-child .blog-card-frame {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .blog-card:first-child picture {
+    flex-grow: 1;
+  }
+
+  .blog-card:first-child .blog-card-image {
+    height: 100%;
+    object-fit: cover;
   }
 }
 
 @media (min-width: 1024px) {
-  .blog-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .blog-card {
+    grid-column: span 4;
+  }
+
+  .blog-card:first-child {
+    grid-column: span 8;
   }
 }
 </style>

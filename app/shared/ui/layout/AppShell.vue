@@ -49,6 +49,7 @@ const isFullBleed = computed(() => route.meta.fullBleed === true && !currentLabe
 
 .app-main {
   flex-grow: 1;
+  overflow-x: clip;
 }
 
 .app-page {

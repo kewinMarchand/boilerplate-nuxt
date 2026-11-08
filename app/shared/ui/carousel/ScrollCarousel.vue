@@ -13,7 +13,7 @@ const { slides, labelledby } = defineProps<{
 }>()
 
 const SLIDE_SIZES =
-  '(min-width: 1024px) calc((min(100vw, 1440px) - 64px) / 3), (min-width: 640px) calc(50vw - 40px), calc(100vw - 32px)'
+  '(min-width: 1024px) calc((min(100vw, 1440px) - 64px) / 3), (min-width: 640px) calc(50vw - 40px), calc((100vw - 32px) * 0.85)'
 
 const trackId = useId()
 const { viewport, isReady, snapCount, selectedIndex, canPrev, canNext, prev, next, goTo } =
@@ -143,7 +143,7 @@ const setViewport = (element: unknown) => {
 }
 
 .carousel-viewport.is-ready {
-  overflow: hidden;
+  overflow: visible;
   scroll-snap-type: none;
 }
 
@@ -155,7 +155,7 @@ const setViewport = (element: unknown) => {
 
 .carousel-slide {
   position: relative;
-  flex: 0 0 100%;
+  flex: 0 0 85%;
   min-width: 0;
   padding-left: 16px;
   scroll-snap-align: start;

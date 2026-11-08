@@ -67,6 +67,44 @@ test.describe('Fiche produit', () => {
     await expect(page.getByTestId('product-title')).toHaveText(name)
   })
 
+  test('le carrousel des produits similaires déborde du conteneur sans défilement de la page', async ({
+    page,
+  }) => {
+    // Une catégorie a au plus 3 produits : la liste lue par le navigateur après une navigation est allongée
+    await page.route(
+      (url) => url.pathname === '/api/products' && url.searchParams.has('category'),
+      async (route) => {
+        const products = (await (await route.fetch()).json()) as { id: number; slug: string }[]
+        const longer = Array.from({ length: 9 }, (_, index) => {
+          const product = products[index % products.length]
+          return { ...product, id: 1000 + index, slug: `${product?.slug}-${index}` }
+        })
+        await route.fulfill({ json: longer })
+      },
+    )
+    await gotoHydrated(page, PRODUCT)
+    await page.getByTestId('product-similar').getByTestId('carousel-slide-link').first().click()
+    await expect(page).toHaveURL(/\/produit\/monstera-/)
+
+    const similar = page.getByTestId('product-similar')
+    await expect(similar.getByTestId('carousel-slide')).toHaveCount(8)
+    await similar.scrollIntoViewIfNeeded()
+    await expect(similar.getByTestId('carousel-dot').first()).toBeVisible()
+    const section = await similar.boundingBox()
+    const firstSlide = await similar.getByTestId('carousel-slide').first().boundingBox()
+    if (!section || !firstSlide) throw new Error('Carrousel introuvable')
+    const pointIsOnSlide = await page.evaluate(
+      ({ x, y }) =>
+        document.elementFromPoint(x, y)?.closest('[data-testid="carousel-slide"]') !== null,
+      { x: section.x + section.width + 8, y: firstSlide.y + firstSlide.height / 3 },
+    )
+    expect(pointIsOnSlide).toBe(true)
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    )
+    expect(overflow).toBeLessThanOrEqual(0)
+  })
+
   test('répond 404 pour un produit inconnu', async ({ page }) => {
     const response = await page.goto('/produit/produit-inconnu')
 
