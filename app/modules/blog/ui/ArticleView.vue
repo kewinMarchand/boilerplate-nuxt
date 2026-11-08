@@ -12,6 +12,7 @@ import { articleHref } from '../domain/article'
 import { formatPublishedAt } from '../domain/formatPublishedAt'
 import { useArticle } from './composables/useArticle'
 
+const BLOG_PATH = '/blog'
 const IMAGE_SIZES = '(min-width: 800px) 760px, calc(100vw - 32px)'
 
 const route = useRoute()
@@ -21,7 +22,10 @@ const { siteUrl } = useRuntimeConfig().public
 
 const path = articleHref(slug)
 const title = computed(() => article.value?.title ?? 'Article')
-const trail = computed(() => [{ label: title.value, href: path }])
+const trail = computed(() => [
+  { label: 'Blog', href: BLOG_PATH },
+  { label: title.value, href: path },
+])
 const shareImage = computed(() => article.value?.image ?? null)
 
 usePageSeo({
@@ -110,7 +114,9 @@ useHead({
     </picture>
     <p v-if="article.excerpt" class="article-excerpt">{{ article.excerpt }}</p>
     <RichHtml :html="article.html" data-testid="article-body" />
-    <p class="article-back"><NuxtLink to="/">Retour à l’accueil</NuxtLink></p>
+    <p class="article-back">
+      <NuxtLink :to="BLOG_PATH" data-testid="article-blog-link">Tous les articles</NuxtLink>
+    </p>
   </article>
 </template>
 

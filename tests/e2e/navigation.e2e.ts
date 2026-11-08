@@ -12,6 +12,31 @@ test.describe('Navigation', () => {
     await expect(linkTo(page, testId, '/')).not.toHaveAttribute('aria-current')
   })
 
+  test('le lien Blog suit le menu Catalogue et devient actif sur /blog', async ({
+    page,
+  }, testInfo) => {
+    await gotoHydrated(page, '/blog')
+    if (isMobile(testInfo)) {
+      await page.getByTestId('layout-mobile-menu-toggle').click()
+      await expect(linkTo(page, 'layout-mobile-menu-link', '/blog')).toHaveAttribute(
+        'aria-current',
+        'page',
+      )
+      return
+    }
+
+    const blogLink = linkTo(page, 'layout-nav-link', '/blog')
+    await expect(blogLink).toHaveAttribute('aria-current', 'page')
+    const follows = await page
+      .getByTestId('layout-category-menu-toggle')
+      .evaluate(
+        (toggle, link) =>
+          !!link && !!(toggle.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING),
+        await blogLink.elementHandle(),
+      )
+    expect(follows).toBe(true)
+  })
+
   test('le lien d’évitement mène au contenu principal', async ({ page }) => {
     await gotoHydrated(page, '/')
     await page.keyboard.press('Tab')

@@ -16,5 +16,14 @@ const { status, data, error, refetch } = useLatestArticles()
         @retry="refetch()"
       />
     </div>
+    <p class="blog-all">
+      <NuxtLink to="/blog" class="bui-link" data-testid="home-blog-all">Tous les articles</NuxtLink>
+    </p>
   </section>
 </template>
+
+<style scoped>
+.blog-all {
+  margin-block-start: var(--bui-space-6);
+}
+</style>

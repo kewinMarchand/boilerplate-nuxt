@@ -42,6 +42,26 @@ test.describe('Fiche article', () => {
     )
   })
 
+  test('son fil d’Ariane mène à la liste des articles', async ({ page }) => {
+    await gotoHydrated(page, ARTICLE)
+
+    const breadcrumb = page.getByTestId('layout-breadcrumb')
+    await expect(breadcrumb.locator('li')).toHaveCount(3)
+    await breadcrumb.locator('a[href="/blog"]').click()
+
+    await expect(page).toHaveURL(/\/blog$/)
+    await expect(page.getByTestId('blog-list')).toBeVisible()
+  })
+
+  test('son lien « Tous les articles » mène à la liste', async ({ page }) => {
+    await gotoHydrated(page, ARTICLE)
+
+    await page.getByTestId('article-blog-link').click()
+
+    await expect(page).toHaveURL(/\/blog$/)
+    await expect(page.getByTestId('blog-list')).toBeVisible()
+  })
+
   test('expose ses données structurées d’article', async ({ page }) => {
     await page.goto(ARTICLE)
 

@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { Alert, Button, Skeleton } from '@kewinmarchand/boilerplates-ui/vue'
 
 import { Icon } from '@/shared/ui/kit'
 
-import { articleHref } from '@/modules/blog/domain/article'
-import { formatPublishedAt } from '@/modules/blog/domain/formatPublishedAt'
+import BlogCard from './BlogCard.vue'
 
 import type { Article } from '../domain/article'
 
-defineProps<{
+const { articles } = defineProps<{
   status: 'pending' | 'error' | 'success'
   articles: Article.Entity[] | undefined
   errorMessage?: string
@@ -16,6 +17,9 @@ defineProps<{
 
 const emit = defineEmits<{ retry: [] }>()
 
+const latestArticles = computed(() => articles?.slice(0, HOME_ARTICLE_COUNT))
+
+const HOME_ARTICLE_COUNT = 3
 const BLOG_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
 const FEATURED_SIZES = '(min-width: 1024px) 66vw, 100vw'
 </script>
@@ -47,44 +51,14 @@ const FEATURED_SIZES = '(min-width: 1024px) 66vw, 100vw'
   </Alert>
 
   <div v-else class="blog-grid">
-    <article
-      v-for="(article, position) in articles"
+    <BlogCard
+      v-for="(article, position) in latestArticles"
       :key="article.id"
-      class="blog-card"
+      :article="article"
+      :sizes="position === 0 ? FEATURED_SIZES : BLOG_SIZES"
+      heading="h3"
       data-testid="home-blog-card"
-    >
-      <div class="bui-card blog-card-frame">
-        <picture v-if="article.image">
-          <source
-            v-for="source in article.image.sources"
-            :key="source.type"
-            :type="source.type"
-            :srcset="source.srcset"
-            :sizes="position === 0 ? FEATURED_SIZES : BLOG_SIZES"
-          />
-          <img
-            :src="article.image.src"
-            :alt="article.image.alt"
-            :width="article.image.width"
-            :height="article.image.height"
-            loading="lazy"
-            decoding="async"
-            class="blog-card-image"
-          />
-        </picture>
-        <div class="blog-card-body">
-          <h3>
-            <NuxtLink :to="articleHref(article.slug)" class="blog-card-link">{{
-              article.title
-            }}</NuxtLink>
-          </h3>
-          <p>{{ article.excerpt }}</p>
-          <time :datetime="article.publishedAt" class="blog-card-date">
-            {{ formatPublishedAt(article.publishedAt) }}
-          </time>
-        </div>
-      </div>
-    </article>
+    />
   </div>
 </template>
 
@@ -92,43 +66,6 @@ const FEATURED_SIZES = '(min-width: 1024px) 66vw, 100vw'
 .blog-grid {
   display: grid;
   gap: var(--bui-space-6);
-}
-
-.blog-card-frame {
-  position: relative;
-  height: 100%;
-}
-
-/* Lien étiré sur toute la carte : un seul lien, nommé par le titre */
-.blog-card-link::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-}
-
-.blog-card-date {
-  color: var(--bui-color-text-muted);
-  font-size: var(--bui-font-size-body-sm);
-}
-
-.blog-card {
-  container-type: inline-size;
-}
-
-.blog-card-image {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.blog-card-body {
-  padding: 16px;
-}
-
-@container (min-width: 360px) {
-  .blog-card-body {
-    padding: 24px;
-  }
 }
 
 @media (min-width: 640px) {
@@ -144,16 +81,16 @@ const FEATURED_SIZES = '(min-width: 1024px) 66vw, 100vw'
     grid-row: span 2;
   }
 
-  .blog-card:first-child .blog-card-frame {
+  .blog-card:first-child :deep(.blog-card-frame) {
     display: flex;
     flex-direction: column;
   }
 
-  .blog-card:first-child picture {
+  .blog-card:first-child :deep(picture) {
     flex-grow: 1;
   }
 
-  .blog-card:first-child .blog-card-image {
+  .blog-card:first-child :deep(.blog-card-image) {
     height: 100%;
     object-fit: cover;
   }
