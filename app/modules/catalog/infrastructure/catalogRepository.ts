@@ -4,6 +4,7 @@ import { MAX_PAGE_SIZE, SIMILAR_LIMIT } from '../domain/catalog'
 import {
   toCatalogPage,
   toCategory,
+  toFacetsQuery,
   toProduct,
   toProductDetail,
   toProductsQuery,
@@ -20,7 +21,7 @@ export interface CatalogRepository {
   findFeaturedProducts: () => Promise<Catalog.Product[]>
   /** Produits de la catégorie, sans celui affiché : le carrousel de la fiche. */
   findSimilarProducts: (categorySlug: string, excludedSlug: string) => Promise<Catalog.Product[]>
-  /** Slugs de tous les produits, page après page (sitemap). */
+  /** Slugs de tous les produits, page après page jusqu'à une page incomplète (sitemap). */
   findAllProductSlugs: () => Promise<string[]>
 }
 
@@ -31,11 +32,13 @@ export const createCatalogRepository = (api: ApiClient): CatalogRepository => ({
     return data.map(toCategory)
   },
   findCatalogPage: async (slugs, query) => {
-    const { data, response } = await api.GET('/api/products', {
-      params: { query: toProductsQuery(slugs, query) },
-    })
-    if (!data) throw new ApiError(response)
-    return toCatalogPage(data, slugs)
+    const [products, facets] = await Promise.all([
+      api.GET('/api/products', { params: { query: toProductsQuery(slugs, query) } }),
+      api.GET('/api/product-facets', { params: { query: toFacetsQuery(slugs, query) } }),
+    ])
+    if (!products.data) throw new ApiError(products.response)
+    if (!facets.data) throw new ApiError(facets.response)
+    return toCatalogPage(products.data, facets.data, query.page, slugs)
   },
   findProduct: async (slug) => {
     const { data, response } = await api.GET('/api/products/{slug}', {
@@ -55,7 +58,7 @@ export const createCatalogRepository = (api: ApiClient): CatalogRepository => ({
       params: { query: { category: categorySlug, itemsPerPage: SIMILAR_LIMIT + 1 } },
     })
     if (!data) throw new ApiError(response)
-    return data.items
+    return data
       .map(toProduct)
       .filter((product) => product.slug !== excludedSlug)
       .slice(0, SIMILAR_LIMIT)
@@ -67,8 +70,8 @@ export const createCatalogRepository = (api: ApiClient): CatalogRepository => ({
         params: { query: { page, itemsPerPage: MAX_PAGE_SIZE } },
       })
       if (!data) throw new ApiError(response)
-      slugs.push(...data.items.map((item) => item.slug))
-      if (page >= data.totalPages) return slugs
+      slugs.push(...data.map((item) => item.slug))
+      if (data.length < MAX_PAGE_SIZE) return slugs
     }
   },
 })
