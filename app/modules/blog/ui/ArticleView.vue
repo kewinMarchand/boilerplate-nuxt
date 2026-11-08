@@ -176,6 +176,10 @@ useHead({
   font-size: var(--bui-font-size-body-sm);
 }
 
+.bui-picture {
+  border-radius: var(--bui-radius-md);
+}
+
 .article-image {
   display: block;
   width: 100%;

@@ -113,6 +113,10 @@ if (priority && preload) {
   border-radius: 8px;
 }
 
+.bui-picture {
+  border-radius: var(--bui-radius-md);
+}
+
 .product-image {
   display: block;
   width: 100%;

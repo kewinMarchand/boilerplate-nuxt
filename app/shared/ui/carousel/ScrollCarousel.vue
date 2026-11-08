@@ -161,6 +161,7 @@ const setViewport = (element: unknown) => {
   scroll-snap-align: start;
 }
 
+.bui-picture,
 .carousel-image,
 .carousel-placeholder {
   border-radius: var(--bui-radius-md);

@@ -61,6 +61,32 @@ test.describe('Image de l’API en échec', () => {
     await expect(picture.locator('img')).toHaveCSS('opacity', '1')
   })
 
+  for (const route of [
+    '/',
+    '/catalogue',
+    `/produit/${WORKING}`,
+    `/produit/${FAILING}`,
+    '/blog/le-mode-accessibilite-renforcee',
+  ]) {
+    test(`${route} : le fond de remplacement prend les coins de l’image`, async ({ page }) => {
+      await gotoHydrated(page, route)
+      await expect(page.locator('picture.bui-picture').first()).toBeVisible()
+
+      const mismatches = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('picture.bui-picture')].flatMap((picture) => {
+          picture.toggleAttribute('data-image-error', true)
+          const image = picture.querySelector('img')
+          if (!image) return []
+          const imageRadius = getComputedStyle(image).borderRadius
+          const pictureRadius = getComputedStyle(picture).borderRadius
+          const clipped = picture.closest('.bui-card') !== null
+          return imageRadius === pictureRadius || clipped ? [] : [{ imageRadius, pictureRadius }]
+        }),
+      )
+      expect(mismatches).toEqual([])
+    })
+  }
+
   for (const mode of ['normal', 'sombre', 'renforcé'] as const) {
     test(`mode ${mode} : aucune violation axe WCAG 2.1 AA`, async ({ page, context, request }) => {
       if (mode === 'renforcé') await enableEnhancedMode(context)

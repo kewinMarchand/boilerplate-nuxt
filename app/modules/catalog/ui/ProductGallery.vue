@@ -88,6 +88,10 @@ const onKeydown = (event: KeyboardEvent, index: number) => {
 </template>
 
 <style scoped>
+.bui-picture {
+  border-radius: var(--bui-radius-md);
+}
+
 .gallery-image {
   display: block;
   width: 100%;

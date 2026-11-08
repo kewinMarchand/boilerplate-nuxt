@@ -205,6 +205,10 @@ useHead({
   margin-block-start: var(--bui-space-12);
 }
 
+.bui-picture {
+  border-radius: var(--bui-radius-md);
+}
+
 .product-image {
   display: block;
   width: 100%;
