@@ -26,6 +26,7 @@ const repository = (findCatalogPage: CatalogRepository['findCatalogPage']): Cata
   findCatalogPage,
   findProduct: async () => null,
   findFeaturedProducts: async () => [],
+  findSimilarProducts: async () => [],
   findAllProductSlugs: async () => [],
 })
 

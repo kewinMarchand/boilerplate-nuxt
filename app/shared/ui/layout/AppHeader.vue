@@ -29,6 +29,7 @@ const [HOME, ...SECONDARY_NAVIGATION] = MAIN_NAVIGATION
         </ul>
       </nav>
       <div class="header-actions">
+        <slot name="cart-link" />
         <MobileMenu :menu="categoryMenu" />
         <ColorSchemeToggle />
         <A11yModeToggle />

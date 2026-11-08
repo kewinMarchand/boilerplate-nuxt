@@ -13,12 +13,18 @@ import { categoryTrail } from '../domain/categoryPath'
 import { formatPrice } from '../domain/price'
 import { useProduct } from './composables/useProduct'
 import { EXPOSURE_LABELS } from './labels'
+import SimilarProducts from './SimilarProducts.vue'
+
+import type { Catalog } from '../domain/catalog'
+
+/** Bouton d'achat, fourni par la couche de routage (module panier). */
+defineSlots<{ purchase?: (props: { product: Catalog.ProductDetail }) => unknown }>()
 
 const IMAGE_SIZES = '(min-width: 1440px) 680px, (min-width: 768px) 50vw, calc(100vw - 32px)'
 
 const route = useRoute()
 const slug = String(route.params['slug'])
-const { status, data: product, error } = useProduct(slug)
+const { status, data: product, error } = await useProduct(slug)
 const { siteUrl } = useRuntimeConfig().public
 
 const path = productHref(slug)
@@ -139,6 +145,7 @@ useHead({
           <span v-else class="product-badge">Rupture de stock</span>
         </dd>
       </dl>
+      <slot name="purchase" :product="product" />
       <p v-if="category">
         <NuxtLink :to="category.href" class="bui-link">
           Voir les autres produits : {{ category.label }}
@@ -146,6 +153,12 @@ useHead({
       </p>
     </div>
   </article>
+  <SimilarProducts
+    v-if="product"
+    :category-slug="product.categorySlug"
+    :product-slug="product.slug"
+    class="product-similar"
+  />
 </template>
 
 <style scoped>
@@ -159,6 +172,10 @@ useHead({
   .product {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+.product-similar {
+  margin-block-start: var(--bui-space-12);
 }
 
 .product-image {

@@ -20,7 +20,12 @@ for (const mode of ['normal', 'sombre', 'renforcé'] as const) {
       if (mode === 'sombre') await enableDarkMode(context)
     })
 
-    for (const route of [...ROUTES, ...DEV_ROUTES, '/catalogue?exposition=mi-ombre&tri=prix-asc']) {
+    for (const route of [
+      ...ROUTES,
+      ...DEV_ROUTES,
+      '/catalogue?exposition=mi-ombre&tri=prix-asc',
+      '/panier',
+    ]) {
       test(`la page ${route} ne présente aucune violation axe WCAG 2.1 AA`, async ({ page }) => {
         await gotoHydrated(page, route)
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
@@ -35,6 +40,15 @@ for (const mode of ['normal', 'sombre', 'renforcé'] as const) {
         await expectNoViolation(page)
       })
     }
+
+    test('le panier rempli ne présente aucune violation axe', async ({ page }) => {
+      await gotoHydrated(page, '/produit/monstera-deliciosa')
+      await page.getByTestId('add-to-cart').click()
+      await expect(page.getByTestId('cart-count')).toHaveText('1')
+      await gotoHydrated(page, '/panier')
+      await expect(page.getByTestId('cart-line')).toHaveCount(1)
+      await expectNoViolation(page)
+    })
 
     test('le menu ouvert ne présente aucune violation axe', async ({ page }, testInfo) => {
       await gotoHydrated(page, '/')

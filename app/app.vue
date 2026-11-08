@@ -5,6 +5,7 @@ import { useRoute } from '#imports'
 
 import { AppShell } from '@/shared/ui/layout'
 
+import { CartLink } from '@/modules/cart'
 import { useCatalogNavigation } from '@/modules/catalog'
 
 const route = useRoute()
@@ -15,6 +16,7 @@ const breadcrumbTrail = computed(() => trailFor(route.path))
 <template>
   <AppShell :category-menu="categoryMenu" :breadcrumb-trail="breadcrumbTrail">
     <NuxtPage />
+    <template #cart-link><CartLink /></template>
   </AppShell>
   <ClientOnly>
     <VueQueryDevtools button-position="bottom-left" />

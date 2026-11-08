@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import { usePageSeo } from '@/shared/seo'
 import { AppShell } from '@/shared/ui/layout'
 
+import { CartLink } from '@/modules/cart'
 import { useCatalogNavigation } from '@/modules/catalog'
 
 import { ErrorView } from '@/views/errors'
@@ -29,5 +30,6 @@ usePageSeo({
 <template>
   <AppShell :category-menu="categoryMenu" :current-label="title">
     <ErrorView :not-found="isNotFound" :title="title" />
+    <template #cart-link><CartLink /></template>
   </AppShell>
 </template>

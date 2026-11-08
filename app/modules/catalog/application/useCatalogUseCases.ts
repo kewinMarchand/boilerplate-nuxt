@@ -12,5 +12,11 @@ export const useCatalogUseCases = () => {
       loadCatalogPage(repository, slugs, query),
     loadProduct: (slug: string) => repository.findProduct(slug),
     loadFeaturedProducts: () => repository.findFeaturedProducts(),
+    /** Aucun produit si l'API ne répond pas : la fiche reste l'essentiel. */
+    loadSimilarProducts: (categorySlug: string, excludedSlug: string) =>
+      repository.findSimilarProducts(categorySlug, excludedSlug).catch((error: unknown) => {
+        console.error(error)
+        return []
+      }),
   }
 }

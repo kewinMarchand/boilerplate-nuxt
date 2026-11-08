@@ -1,6 +1,6 @@
 import { ApiError, createApiClient } from '@/shared/api/client'
 
-import { MAX_PAGE_SIZE } from '../domain/catalog'
+import { MAX_PAGE_SIZE, SIMILAR_LIMIT } from '../domain/catalog'
 import {
   toCatalogPage,
   toCategory,
@@ -18,6 +18,8 @@ export interface CatalogRepository {
   /** `null` si l'API ne connaît pas le produit (404). */
   findProduct: (slug: string) => Promise<Catalog.ProductDetail | null>
   findFeaturedProducts: () => Promise<Catalog.Product[]>
+  /** Produits de la catégorie, sans celui affiché : le carrousel de la fiche. */
+  findSimilarProducts: (categorySlug: string, excludedSlug: string) => Promise<Catalog.Product[]>
   /** Slugs de tous les produits, page après page (sitemap). */
   findAllProductSlugs: () => Promise<string[]>
 }
@@ -47,6 +49,16 @@ export const createCatalogRepository = (api: ApiClient): CatalogRepository => ({
     const { data, response } = await api.GET('/api/featured-products')
     if (!data) throw new ApiError(response)
     return data.map(toProduct)
+  },
+  findSimilarProducts: async (categorySlug, excludedSlug) => {
+    const { data, response } = await api.GET('/api/products', {
+      params: { query: { category: categorySlug, itemsPerPage: SIMILAR_LIMIT + 1 } },
+    })
+    if (!data) throw new ApiError(response)
+    return data.items
+      .map(toProduct)
+      .filter((product) => product.slug !== excludedSlug)
+      .slice(0, SIMILAR_LIMIT)
   },
   findAllProductSlugs: async () => {
     const slugs: string[] = []

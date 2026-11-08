@@ -23,7 +23,9 @@ const isFullBleed = computed(() => route.meta.fullBleed === true && !currentLabe
 <template>
   <div class="app-shell">
     <SkipLink />
-    <AppHeader :category-menu="categoryMenu" />
+    <AppHeader :category-menu="categoryMenu">
+      <template #cart-link><slot name="cart-link" /></template>
+    </AppHeader>
     <main id="main" tabindex="-1" class="app-main">
       <slot v-if="isFullBleed" />
       <div v-else class="app-container app-page">
