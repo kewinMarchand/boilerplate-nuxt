@@ -101,6 +101,8 @@ export default defineNuxtConfig({
       },
     },
     nodeTsConfig: {
+      // Les e2e lisent les dictionnaires (`@/shared/i18n/dictionaries`), qui importent leurs types par l'alias
+      compilerOptions: { paths: { '@/*': ['../app/*'] } },
       include: [
         '../vitest.config.ts',
         '../vitest.setup.ts',
