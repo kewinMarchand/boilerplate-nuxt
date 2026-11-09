@@ -93,8 +93,8 @@ test.describe('Image de l’API en échec', () => {
   test('une diapositive en 404 garde la taille de son image, fond sans débordement', async ({
     page,
   }) => {
-    await gotoHydrated(page, '/')
-    const slide = page.getByTestId('carousel-slide').first()
+    await gotoHydrated(page, '/produit/monstera-deliciosa')
+    const slide = page.getByTestId('product-similar').getByTestId('carousel-slide').first()
     const image = slide.locator('picture img')
     await expect(image).toHaveJSProperty('complete', true)
     const loadedBox = await image.boundingBox()
@@ -105,7 +105,7 @@ test.describe('Image de l’API en échec', () => {
       (url) => url.pathname.startsWith(`${file}-`),
       (route) => route.fulfill({ status: 404 }),
     )
-    await gotoHydrated(page, '/')
+    await gotoHydrated(page, '/produit/monstera-deliciosa')
 
     await expect(slide.locator('picture')).toHaveAttribute('data-image-error', '')
     const failedBox = await slide.locator('picture').boundingBox()

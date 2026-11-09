@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 import { fr } from '@/shared/i18n/dictionaries/fr'
 
-import { gotoHydrated } from '../support/page'
+import { gotoHydrated, isMobile, linkTo } from '../support/page'
 
 test.describe('Dictionnaire envoyé au navigateur', () => {
   test('le payload ne porte que les sections du document et de la page', async ({ request }) => {
@@ -19,10 +19,15 @@ test.describe('Dictionnaire envoyé au navigateur', () => {
 
   test('une navigation dans le navigateur demande les sections qui manquent à la page', async ({
     page,
-  }) => {
-    await gotoHydrated(page, '/')
+  }, testInfo) => {
+    await gotoHydrated(page, '/produit/monstera-deliciosa')
     const sections = page.waitForRequest((request) => request.url().includes('/api/dictionary'))
-    await page.getByTestId('home-contact-link').click()
+    if (isMobile(testInfo)) {
+      await page.getByTestId('layout-mobile-menu-toggle').click()
+      await linkTo(page, 'layout-mobile-menu-link', '/contact').click()
+    } else {
+      await linkTo(page, 'layout-nav-link', '/contact').click()
+    }
 
     expect(new URL((await sections).url()).searchParams.get('sections')).toBe(
       'contact,meta.contact',
