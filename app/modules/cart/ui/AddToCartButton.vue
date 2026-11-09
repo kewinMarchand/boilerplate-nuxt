@@ -3,6 +3,8 @@ import { ref } from 'vue'
 
 import { Button } from '@kewinmarchand/boilerplates-ui/vue'
 
+import { format, useDictionary, useLocalizePath } from '@/shared/i18n'
+
 import { CART_PATH } from './cartPath'
 import { useCart } from './composables/useCart'
 
@@ -15,6 +17,8 @@ const ANNOUNCE_DELAY_MS = 100
 const { item, isAvailable } = defineProps<{ item: Cart.Item; isAvailable: boolean }>()
 
 const { add } = useCart()
+const t = useDictionary()
+const localizePath = useLocalizePath()
 const isAdded = ref(false)
 
 const addToCart = () => {
@@ -30,12 +34,12 @@ const addToCart = () => {
   <ClientOnly>
     <div class="add-to-cart">
       <Button :disabled="!isAvailable" data-testid="add-to-cart" @click="addToCart">
-        Ajouter au panier
+        {{ t.cart.add }}
       </Button>
       <p role="status" data-testid="add-to-cart-status">
         <template v-if="isAdded">
-          {{ item.name }} ajouté au panier.
-          <NuxtLink :to="CART_PATH" class="bui-link">Voir le panier</NuxtLink>
+          {{ format(t.cart.added, { name: item.name }) }}
+          <NuxtLink :to="localizePath(CART_PATH)" class="bui-link">{{ t.cart.view }}</NuxtLink>
         </template>
       </p>
     </div>

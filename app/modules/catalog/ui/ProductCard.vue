@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useHead } from '#imports'
 
+import { useDictionary, useLocalizePath } from '@/shared/i18n'
+
 import { productHref } from '../domain/catalog'
 import { formatPrice } from '../domain/price'
-import { EXPOSURE_LABELS, SIZE_LABELS } from './labels'
 
 import type { Catalog } from '../domain/catalog'
 
@@ -18,6 +19,9 @@ const {
   priority?: boolean
   showPrice?: boolean
 }>()
+
+const t = useDictionary()
+const localizePath = useLocalizePath()
 
 const SIZES = '(min-width: 1024px) 280px, (min-width: 480px) 50vw, calc(100vw - 58px)'
 const preload = product.image?.sources[0]
@@ -64,7 +68,7 @@ if (priority && preload) {
       <div class="product-body">
         <h2 class="product-name">
           <NuxtLink
-            :to="productHref(product.slug)"
+            :to="localizePath(productHref(product.slug))"
             class="bui-link product-link"
             data-testid="catalog-product-link"
           >
@@ -72,19 +76,19 @@ if (priority && preload) {
           </NuxtLink>
         </h2>
         <p v-if="showPrice" class="product-price" data-testid="catalog-product-price">
-          {{ formatPrice(product.price) }}
+          {{ formatPrice(product.price, t.language.tag) }}
         </p>
         <dl class="product-specs">
           <div>
-            <dt>Exposition</dt>
-            <dd>{{ EXPOSURE_LABELS[product.exposure] }}</dd>
+            <dt>{{ t.catalog.exposure }}</dt>
+            <dd>{{ t.catalog.exposures[product.exposure] }}</dd>
           </div>
           <div>
-            <dt>Taille</dt>
-            <dd>{{ SIZE_LABELS[product.size] }}</dd>
+            <dt>{{ t.catalog.size }}</dt>
+            <dd>{{ t.catalog.sizes[product.size] }}</dd>
           </div>
         </dl>
-        <p v-if="!product.inStock" class="product-badge">Rupture de stock</p>
+        <p v-if="!product.inStock" class="product-badge">{{ t.catalog.outOfStock }}</p>
       </div>
     </div>
   </article>

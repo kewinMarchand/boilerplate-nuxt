@@ -3,6 +3,8 @@ import { useId } from 'vue'
 
 import { Button } from '@kewinmarchand/boilerplates-ui/vue'
 
+import { format, useDictionary, useLocalizePath } from '@/shared/i18n'
+
 import { useCarousel } from './useCarousel'
 
 import type { Carousel } from './carousel'
@@ -15,6 +17,8 @@ const { slides, labelledby } = defineProps<{
 const SLIDE_SIZES =
   '(min-width: 1024px) calc((min(100vw, 1440px) - 64px) / 3), (min-width: 640px) calc(50vw - 40px), calc((100vw - 32px) * 0.85)'
 
+const t = useDictionary()
+const localizePath = useLocalizePath()
 const trackId = useId()
 const { viewport, isReady, snapCount, selectedIndex, canPrev, canNext, prev, next, goTo } =
   useCarousel()
@@ -25,7 +29,7 @@ const setViewport = (element: unknown) => {
 </script>
 
 <template>
-  <section aria-roledescription="carrousel" :aria-labelledby="labelledby">
+  <section :aria-roledescription="t.carousel.roleDescription" :aria-labelledby="labelledby">
     <slot />
     <div
       :ref="setViewport"
@@ -39,8 +43,10 @@ const setViewport = (element: unknown) => {
           :key="slide.id"
           class="carousel-slide"
           role="group"
-          aria-roledescription="diapositive"
-          :aria-label="`${position + 1} sur ${slides.length}`"
+          :aria-roledescription="t.carousel.slideRoleDescription"
+          :aria-label="
+            format(t.carousel.position, { position: position + 1, total: slides.length })
+          "
           data-testid="carousel-slide"
         >
           <template v-if="slide.image">
@@ -84,7 +90,7 @@ const setViewport = (element: unknown) => {
             <!-- Après un glisser, Embla annule le clic : la diapositive ne s'ouvre pas en fin de geste -->
             <NuxtLink
               v-if="slide.href"
-              :to="slide.href"
+              :to="localizePath(slide.href)"
               draggable="false"
               class="bui-link carousel-link"
               data-testid="carousel-slide-link"
@@ -104,7 +110,7 @@ const setViewport = (element: unknown) => {
           :key="index"
           type="button"
           class="carousel-dot"
-          :aria-label="`Aller à la diapositive ${index}`"
+          :aria-label="format(t.carousel.goTo, { position: index })"
           :aria-current="selectedIndex === index - 1 ? 'true' : undefined"
           :aria-controls="trackId"
           data-testid="carousel-dot"
@@ -119,7 +125,7 @@ const setViewport = (element: unknown) => {
         data-testid="carousel-prev"
         @click="prev"
       >
-        Précédent
+        {{ t.carousel.previous }}
       </Button>
       <Button
         variant="outline"
@@ -130,7 +136,7 @@ const setViewport = (element: unknown) => {
         data-testid="carousel-next"
         @click="next"
       >
-        Suivant
+        {{ t.carousel.next }}
       </Button>
     </div>
   </section>

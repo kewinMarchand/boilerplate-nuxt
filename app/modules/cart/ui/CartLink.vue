@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import { plural, useDictionary, useLocalizePath } from '@/shared/i18n'
 import { Icon } from '@/shared/ui/kit'
 
 import { countItems } from '../domain/cart'
@@ -10,16 +11,22 @@ import { useCart } from './composables/useCart'
 // Nom accessible « Panier, 3 articles » : texte visible et compléments masqués, sans aria-label (axe exige le texte affiché dans le nom)
 const { lines } = useCart()
 const count = computed(() => countItems(lines.value))
+const t = useDictionary()
+const localizePath = useLocalizePath()
 </script>
 
 <template>
-  <NuxtLink :to="CART_PATH" class="bui-button bui-button--nav cart-link" data-testid="cart-link">
+  <NuxtLink
+    :to="localizePath(CART_PATH)"
+    class="bui-button bui-button--nav cart-link"
+    data-testid="cart-link"
+  >
     <Icon name="shopping-cart" />
-    <span class="cart-link-label">Panier</span>
+    <span class="cart-link-label">{{ t.cart.title }}</span>
     <template v-if="count > 0">
       <span class="bui-visually-hidden">, </span>
       <span class="cart-link-count" data-testid="cart-count">{{ count }}</span>
-      <span class="bui-visually-hidden"> article{{ count > 1 ? 's' : '' }}</span>
+      <span class="bui-visually-hidden">{{ plural(t.cart.itemCount, count, t.language.tag) }}</span>
     </template>
   </NuxtLink>
 </template>

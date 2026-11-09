@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useId } from 'vue'
 
+import { useDictionary } from '@/shared/i18n'
 import { useOppositionMesure } from '@/shared/observability'
 
+const t = useDictionary()
 const { refusee, changer } = useOppositionMesure()
 const inputId = useId()
 </script>
@@ -16,14 +18,10 @@ const inputId = useId()
       data-testid="legal-opposition-mesure"
       @change="changer(($event.target as HTMLInputElement).checked)"
     />
-    <label :for="inputId">Ne pas mesurer mes visites sur ce site</label>
+    <label :for="inputId">{{ t.opposition.label }}</label>
   </div>
   <p role="status" aria-live="polite" data-testid="legal-opposition-etat">
-    {{
-      refusee
-        ? 'Vos visites ne sont plus mesurées depuis ce navigateur.'
-        : 'Vos visites sont mesurées, de façon anonyme.'
-    }}
+    {{ refusee ? t.opposition.refused : t.opposition.measured }}
   </p>
 </template>
 

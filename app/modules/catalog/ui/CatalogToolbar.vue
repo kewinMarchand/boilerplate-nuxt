@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue'
 
+import { plural, useDictionary } from '@/shared/i18n'
 import { Icon } from '@/shared/ui/kit'
 
 import { sortsFor, toFormFields } from '../domain/catalogQuery'
-import { SORT_LABELS } from './labels'
 
 import type { Catalog } from '../domain/catalog'
 
@@ -19,10 +19,11 @@ const { query, total, action, salesEnabled } = defineProps<{
 
 const emit = defineEmits<{ sort: [sort: Catalog.Sort] }>()
 
+const t = useDictionary()
 const sortId = useId()
 const sorts = computed(() => sortsFor(salesEnabled))
 const hiddenFields = computed(() => toFormFields(query, ['tri']))
-const countLabel = computed(() => `${total} produit${total > 1 ? 's' : ''}`)
+const countLabel = computed(() => plural(t.catalog.productCount, total, t.language.tag))
 
 const onSortChange = (event: Event) => {
   if (!(event.target instanceof HTMLSelectElement)) return
@@ -45,7 +46,7 @@ const onSortChange = (event: Event) => {
         :name="field.name"
         :value="field.value"
       />
-      <label :for="sortId">Trier par</label>
+      <label :for="sortId">{{ t.catalog.sortBy }}</label>
       <select
         :id="sortId"
         name="tri"
@@ -54,12 +55,12 @@ const onSortChange = (event: Event) => {
         @change="onSortChange"
       >
         <option v-for="sort in sorts" :key="sort" :value="sort" :selected="sort === query.sort">
-          {{ SORT_LABELS[sort] }}
+          {{ t.catalog.sorts[sort] }}
         </option>
       </select>
-      <button type="submit" class="native-button no-js-only">Trier</button>
+      <button type="submit" class="native-button no-js-only">{{ t.catalog.sort }}</button>
     </form>
-    <nav aria-label="Affichage" class="view-toggle">
+    <nav :aria-label="t.catalog.display" class="view-toggle">
       <NuxtLink
         :to="gridHref"
         class="view-link"
@@ -67,7 +68,7 @@ const onSortChange = (event: Event) => {
         data-testid="catalog-view-grid"
       >
         <Icon name="layout-grid" />
-        Grille
+        {{ t.catalog.views.grille }}
       </NuxtLink>
       <NuxtLink
         :to="listHref"
@@ -76,7 +77,7 @@ const onSortChange = (event: Event) => {
         data-testid="catalog-view-list"
       >
         <Icon name="layout-list" />
-        Liste
+        {{ t.catalog.views.liste }}
       </NuxtLink>
     </nav>
   </div>

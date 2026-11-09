@@ -1,0 +1,1 @@
+export { useLanguageAlternates } from './useLanguageAlternates'

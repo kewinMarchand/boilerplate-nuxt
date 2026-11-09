@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { useRoute } from '#imports'
 
+import { useDictionary, useLocalizePath } from '@/shared/i18n'
+
 import BlogList from './BlogList.vue'
 import { useArticleSections } from './composables/useArticleSections'
 import { useLatestArticles } from './composables/useLatestArticles'
@@ -9,6 +11,8 @@ import { useLatestArticles } from './composables/useLatestArticles'
 const BLOG_PATH = '/blog'
 
 const route = useRoute()
+const t = useDictionary()
+const localizePath = useLocalizePath()
 const section = computed(() => {
   const value = route.query['rubrique']
   return typeof value === 'string' && value !== '' ? value : undefined
@@ -17,21 +21,21 @@ const { status, data, error, refetch } = useLatestArticles(section)
 const { data: sections } = useArticleSections()
 
 const sectionLinks = computed(() => [
-  { slug: undefined, name: 'Toutes', href: BLOG_PATH },
+  { slug: undefined, name: t.blog.allSections, href: localizePath(BLOG_PATH) },
   ...(sections.value ?? []).map(({ slug, name }) => ({
     slug,
     name,
-    href: `${BLOG_PATH}?rubrique=${encodeURIComponent(slug)}`,
+    href: localizePath(`${BLOG_PATH}?rubrique=${encodeURIComponent(slug)}`),
   })),
 ])
 </script>
 
 <template>
-  <h1>Blog</h1>
+  <h1>{{ t.blog.title }}</h1>
   <!-- aria-current posé à la main : NuxtLink ignore la requête et marquerait « Toutes » comme actif partout -->
   <nav
     v-if="sections?.length"
-    aria-label="Rubriques"
+    :aria-label="t.blog.sections"
     class="blog-sections"
     data-testid="blog-sections"
   >
@@ -54,7 +58,7 @@ const sectionLinks = computed(() => [
     <BlogList
       :status="status"
       :articles="data"
-      v-bind="error ? { errorMessage: error.message } : {}"
+      v-bind="error ? { errorMessage: t.blog.latestError } : {}"
       @retry="refetch()"
     />
   </div>

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue'
 
+import { useDictionary, useLocalizePath } from '@/shared/i18n'
+
 import { formDataToQuery, toFormFields } from '../domain/catalogQuery'
-import { EXPOSURE_LABELS, SIZE_LABELS } from './labels'
 
 import type { Catalog } from '../domain/catalog'
 
@@ -15,6 +16,8 @@ const { query, facets, action } = defineProps<{
 
 const emit = defineEmits<{ change: [query: Catalog.Query] }>()
 
+const t = useDictionary()
+const localizePath = useLocalizePath()
 const prefix = useId()
 const hiddenFields = computed(() =>
   toFormFields(query, [
@@ -50,18 +53,20 @@ const onChange = (event: Event) => {
     />
 
     <details v-if="facets.categories.length" open class="facet">
-      <summary>Catégorie</summary>
+      <summary>{{ t.catalog.category }}</summary>
       <ul class="facet-links">
         <li v-for="category in facets.categories" :key="category.slug">
-          <NuxtLink :to="category.href">{{ category.label }} ({{ category.count }})</NuxtLink>
+          <NuxtLink :to="localizePath(category.href)"
+            >{{ category.label }} ({{ category.count }})</NuxtLink
+          >
         </li>
       </ul>
     </details>
 
     <details open class="facet">
-      <summary>Exposition</summary>
+      <summary>{{ t.catalog.exposure }}</summary>
       <fieldset>
-        <legend class="bui-visually-hidden">Exposition</legend>
+        <legend class="bui-visually-hidden">{{ t.catalog.exposure }}</legend>
         <label v-for="option in facets.exposures" :key="option.value" class="facet-option">
           <input
             type="checkbox"
@@ -71,15 +76,15 @@ const onChange = (event: Event) => {
             :disabled="option.count === 0 && !query.exposures.includes(option.value)"
             :data-testid="`catalog-filter-exposure-${option.value}`"
           />
-          {{ EXPOSURE_LABELS[option.value] }} ({{ option.count }})
+          {{ t.catalog.exposures[option.value] }} ({{ option.count }})
         </label>
       </fieldset>
     </details>
 
     <details open class="facet">
-      <summary>Taille</summary>
+      <summary>{{ t.catalog.size }}</summary>
       <fieldset>
-        <legend class="bui-visually-hidden">Taille</legend>
+        <legend class="bui-visually-hidden">{{ t.catalog.size }}</legend>
         <label v-for="option in facets.sizes" :key="option.value" class="facet-option">
           <input
             type="checkbox"
@@ -89,7 +94,7 @@ const onChange = (event: Event) => {
             :disabled="option.count === 0 && !query.sizes.includes(option.value)"
             :data-testid="`catalog-filter-size-${option.value}`"
           />
-          {{ SIZE_LABELS[option.value] }} ({{ option.count }})
+          {{ t.catalog.sizes[option.value] }} ({{ option.count }})
         </label>
       </fieldset>
     </details>
@@ -113,10 +118,10 @@ const onChange = (event: Event) => {
     </details>
 
     <details v-if="salesEnabled" open class="facet">
-      <summary>Prix</summary>
+      <summary>{{ t.catalog.price }}</summary>
       <fieldset class="facet-price">
-        <legend class="bui-visually-hidden">Prix</legend>
-        <label :for="`${prefix}-min`">Minimum (€)</label>
+        <legend class="bui-visually-hidden">{{ t.catalog.price }}</legend>
+        <label :for="`${prefix}-min`">{{ t.catalog.priceMin }}</label>
         <input
           :id="`${prefix}-min`"
           type="number"
@@ -127,7 +132,7 @@ const onChange = (event: Event) => {
           :value="query.priceMin ?? ''"
           data-testid="catalog-filter-price-min"
         />
-        <label :for="`${prefix}-max`">Maximum (€)</label>
+        <label :for="`${prefix}-max`">{{ t.catalog.priceMax }}</label>
         <input
           :id="`${prefix}-max`"
           type="number"
@@ -142,9 +147,9 @@ const onChange = (event: Event) => {
     </details>
 
     <details open class="facet">
-      <summary>Disponibilité</summary>
+      <summary>{{ t.catalog.availability }}</summary>
       <fieldset>
-        <legend class="bui-visually-hidden">Disponibilité</legend>
+        <legend class="bui-visually-hidden">{{ t.catalog.availability }}</legend>
         <label class="facet-option">
           <input
             type="checkbox"
@@ -155,13 +160,13 @@ const onChange = (event: Event) => {
             :aria-checked="query.inStock ? 'true' : 'false'"
             data-testid="catalog-filter-in-stock"
           />
-          En stock uniquement
+          {{ t.catalog.inStockOnly }}
         </label>
       </fieldset>
     </details>
 
     <button type="submit" class="native-button no-js-only" data-testid="catalog-filters-apply">
-      Appliquer les filtres
+      {{ t.catalog.applyFilters }}
     </button>
   </form>
 </template>

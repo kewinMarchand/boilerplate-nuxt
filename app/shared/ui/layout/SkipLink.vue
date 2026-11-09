@@ -1,5 +1,11 @@
+<script setup lang="ts">
+import { useDictionary } from '@/shared/i18n'
+
+const t = useDictionary()
+</script>
+
 <template>
-  <a href="#main" data-testid="layout-skip-link" class="skip-link">Aller au contenu principal</a>
+  <a href="#main" data-testid="layout-skip-link" class="skip-link">{{ t.layout.skipLink }}</a>
 </template>
 
 <style scoped>

@@ -1,16 +1,21 @@
 import { z } from 'zod'
 
-export const contactSchema = z.object({
-  name: z.string().trim().min(2, { error: 'Indiquez votre nom (2 caractères minimum).' }),
-  email: z.email({ error: 'Indiquez une adresse e-mail valide, par exemple nom@domaine.fr.' }),
-  message: z
-    .string()
-    .trim()
-    .min(10, { error: 'Votre message doit contenir au moins 10 caractères.' }),
-})
+/** Messages de validation dans la langue de la page. */
+export interface ContactValidationMessages {
+  name: string
+  email: string
+  message: string
+}
+
+export const contactSchema = (messages: ContactValidationMessages) =>
+  z.object({
+    name: z.string().trim().min(2, { error: messages.name }),
+    email: z.email({ error: messages.email }),
+    message: z.string().trim().min(10, { error: messages.message }),
+  })
 
 export declare namespace Contact {
-  type FormValues = z.infer<typeof contactSchema>
+  type FormValues = z.infer<ReturnType<typeof contactSchema>>
 
   /** Message envoyé : `product` porte le slug d'une demande de renseignement, `null` sinon. */
   type Message = FormValues & { product: string | null }

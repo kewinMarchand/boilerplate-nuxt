@@ -2,6 +2,8 @@
 import { computed, nextTick, useTemplateRef, watch } from 'vue'
 import { useRoute } from '#imports'
 
+import { useDictionary, useLocalizePath } from '@/shared/i18n'
+import { usePagePath } from '@/shared/i18n/route'
 import { useMediaQuery } from '@/shared/ui/composables'
 
 import {
@@ -26,15 +28,19 @@ import type { CatalogPageMeta } from './composables/useCatalogSeo'
 const props = defineProps<{ rootMeta?: CatalogPageMeta; salesEnabled: boolean }>()
 
 const route = useRoute()
+const t = useDictionary()
+const localizePath = useLocalizePath()
 const { categoryPath, query, catalog, hrefFor, navigate } = useCatalog(props.salesEnabled)
 const { data, status, error, refetch } = catalog
 const { matches: isDesktop, isMounted } = useMediaQuery('(min-width: 1024px)')
 
 const titleElement = useTemplateRef<HTMLElement>('titleElement')
 const title = computed(() => categoryPath.value?.at(-1)?.label ?? CATALOG_ROOT.label)
-const path = computed(() => route.path)
+// Formulaires sans JavaScript : adresse de la page, préfixe de langue compris
+const action = computed(() => route.path)
+const pagePath = usePagePath()
 const activeFilters = computed(() =>
-  describeActiveFilters(query.value, data.value?.facets.attributes ?? []).map(
+  describeActiveFilters(query.value, data.value?.facets.attributes ?? [], t.catalog).map(
     ({ id, label, query: next }) => ({
       id,
       label,
@@ -45,7 +51,7 @@ const activeFilters = computed(() =>
 const clearHref = computed(() => hrefFor(clearFilters(query.value)))
 const hrefForPage = (page: number) => hrefFor({ ...query.value, page })
 
-useCatalogSeo(path, title, categoryPath, query, data, hrefForPage, () => props.rootMeta)
+useCatalogSeo(pagePath, title, categoryPath, query, data, hrefForPage, () => props.rootMeta)
 
 watch(query, async (next, previous) => {
   const pageChanged =
@@ -67,12 +73,12 @@ watch(query, async (next, previous) => {
       aria-labelledby="catalog-filters-title"
       data-testid="catalog-filters"
     >
-      <h2 id="catalog-filters-title" class="catalog-aside-title">Filtres</h2>
+      <h2 id="catalog-filters-title" class="catalog-aside-title">{{ t.catalog.filters }}</h2>
       <CatalogFilters
         v-if="data"
         :query="query"
         :facets="data.facets"
-        :action="path"
+        :action="action"
         :sales-enabled="salesEnabled"
         @change="navigate"
       />
@@ -82,7 +88,9 @@ watch(query, async (next, previous) => {
       <h1 ref="titleElement" tabindex="-1">{{ title }}</h1>
       <ul v-if="data?.facets.categories.length" class="subcategories a11y-chrome">
         <li v-for="category in data.facets.categories" :key="category.slug">
-          <NuxtLink :to="category.href" class="subcategory">{{ category.label }}</NuxtLink>
+          <NuxtLink :to="localizePath(category.href)" class="subcategory">{{
+            category.label
+          }}</NuxtLink>
         </li>
       </ul>
 
@@ -95,7 +103,7 @@ watch(query, async (next, previous) => {
           v-if="data"
           :query="query"
           :facets="data.facets"
-          :action="path"
+          :action="action"
           :sales-enabled="salesEnabled"
           @change="navigate"
         />
@@ -110,7 +118,7 @@ watch(query, async (next, previous) => {
       <CatalogToolbar
         :query="query"
         :total="data?.total ?? 0"
-        :action="path"
+        :action="action"
         :grid-href="hrefFor({ ...query, view: 'grille' })"
         :list-href="hrefFor({ ...query, view: 'liste' })"
         :sales-enabled="salesEnabled"
@@ -123,7 +131,7 @@ watch(query, async (next, previous) => {
         :view="query.view"
         :clear-href="clearHref"
         :sales-enabled="salesEnabled"
-        v-bind="error ? { errorMessage: error.message } : {}"
+        v-bind="error ? { errorMessage: t.catalog.loadError } : {}"
         @retry="refetch()"
       />
 

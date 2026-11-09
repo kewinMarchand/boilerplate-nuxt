@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { createError } from '#imports'
 
+import { useDictionary } from '@/shared/i18n'
 import { usePageSeo } from '@/shared/seo'
 
 import { CartView } from '@/modules/cart'
@@ -10,12 +11,13 @@ const identity = await useSiteIdentity()
 // Vente coupée : pas de panier, son stockage n'est ni lu ni effacé
 if (!identity.value.salesEnabled) throw createError({ statusCode: 404, fatal: true })
 
+const t = useDictionary()
+
 usePageSeo({
-  title: 'Panier',
-  description:
-    'Votre panier : les produits choisis, leurs quantités et le total, gardés dans ce navigateur.',
+  title: t.meta.cart.title,
+  description: t.meta.cart.description,
   noindex: true,
-  breadcrumbTrail: [{ label: 'Panier', href: '/panier' }],
+  breadcrumbTrail: [{ label: t.meta.cart.title, href: '/panier' }],
 })
 </script>
 

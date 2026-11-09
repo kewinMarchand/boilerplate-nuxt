@@ -10,10 +10,11 @@ export const organizationJsonLd = (siteUrl: string, name: string, logo?: string)
   email: SITE.publisher.email,
 })
 
-export const websiteJsonLd = (siteUrl: string, name: string) => ({
+/** `path` : accueil dans la langue de la page ; `inLanguage` : code de cette langue (`fr`). */
+export const websiteJsonLd = (siteUrl: string, name: string, path: string, inLanguage: string) => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name,
-  url: new URL('/', siteUrl).href,
-  inLanguage: 'fr',
+  url: new URL(path, siteUrl).href,
+  inLanguage,
 })

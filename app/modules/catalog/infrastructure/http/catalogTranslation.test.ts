@@ -76,13 +76,27 @@ describe('toCategory', () => {
         name: 'Plantes aquatiques',
         parent: null,
         children: [
-          { slug: 'nenuphars', name: 'Nénuphars', parent: 'plantes-aquatiques', children: [] },
+          {
+            slug: 'nenuphars',
+            name: 'Nénuphars',
+            parent: 'plantes-aquatiques',
+            children: [],
+            alternates: [],
+          },
+        ],
+        alternates: [
+          { locale: 'fr', slug: 'plantes-aquatiques' },
+          { locale: 'en', slug: 'aquatic-plants' },
         ],
       }),
     ).toEqual({
       slug: 'plantes-aquatiques',
       label: 'Plantes aquatiques',
-      children: [{ slug: 'nenuphars', label: 'Nénuphars', children: [] }],
+      children: [{ slug: 'nenuphars', label: 'Nénuphars', children: [], alternates: [] }],
+      alternates: [
+        { locale: 'fr', slug: 'plantes-aquatiques' },
+        { locale: 'en', slug: 'aquatic-plants' },
+      ],
     })
   })
 })
@@ -220,6 +234,7 @@ describe('toProductDetail', () => {
       gallery: [],
       metaTitle: '',
       metaDescription: '',
+      alternates: [],
     })
 
     expect(detail.id).toBe('1')
@@ -251,6 +266,7 @@ describe('toProductDetail', () => {
       gallery: [],
       metaTitle: '',
       metaDescription: '',
+      alternates: [],
     })
 
     expect(detail.description).toEqual(['Rustique.', 'Résiste au vent,\naux embruns.'])
@@ -282,12 +298,14 @@ describe('toProductDetail', () => {
       gallery: [image('a'), image('b')],
       metaTitle: 'Oiseau de paradis',
       metaDescription: 'Fleurs orange et bleues.',
+      alternates: [{ locale: 'fr', slug: 'strelitzia-reginae' }],
     })
 
     expect(detail.gallery).toEqual([image('a'), image('b')])
     expect(detail).toMatchObject({
       metaTitle: 'Oiseau de paradis',
       metaDescription: 'Fleurs orange et bleues.',
+      alternates: [{ locale: 'fr', slug: 'strelitzia-reginae' }],
     })
   })
 })

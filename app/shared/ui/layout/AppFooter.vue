@@ -1,29 +1,37 @@
 <script setup lang="ts">
 import { useRuntimeConfig } from '#imports'
 
-import { LEGAL_NAVIGATION } from '@/shared/config'
+import { labelNavigation, LEGAL_NAVIGATION } from '@/shared/config'
+import { useDictionary, useLocalizePath } from '@/shared/i18n'
 
 const { siteName } = defineProps<{ siteName: string }>()
 const { devTools } = useRuntimeConfig().public
+const t = useDictionary()
+const localizePath = useLocalizePath()
+const links = labelNavigation(LEGAL_NAVIGATION, t)
 </script>
 
 <template>
   <footer class="app-footer">
     <div class="app-container">
-      <nav aria-label="Liens légaux">
+      <nav :aria-label="t.layout.legalLinks">
         <ul class="footer-links">
-          <li v-for="item in LEGAL_NAVIGATION" :key="item.href">
-            <NuxtLink :to="item.href" class="footer-link" data-testid="layout-footer-link">
+          <li v-for="item in links" :key="item.href">
+            <NuxtLink
+              :to="localizePath(item.href)"
+              class="footer-link"
+              data-testid="layout-footer-link"
+            >
               {{ item.footerLabel ?? item.label }}
             </NuxtLink>
           </li>
           <li v-if="devTools">
             <NuxtLink
-              to="/charte-graphique"
+              :to="localizePath('/charte-graphique')"
               class="footer-link"
               data-testid="layout-styleguide-link"
             >
-              Charte graphique (dev)
+              {{ t.layout.styleguide }}
             </NuxtLink>
           </li>
         </ul>

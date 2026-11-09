@@ -1,19 +1,25 @@
 <script setup lang="ts">
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
-import { computed } from 'vue'
-import { useRoute } from '#imports'
+import { computed, provide } from 'vue'
 
+import { PAGE_ALTERNATES } from '@/shared/i18n'
+import { assertLocaleRoute, usePagePath, useSiteLocale } from '@/shared/i18n/route'
 import { AppShell } from '@/shared/ui/layout'
 
 import { CartLink } from '@/modules/cart'
 import { useCatalogNavigation } from '@/modules/catalog'
 import { useSiteIdentity, useSiteIdentityHead } from '@/modules/identity'
 
-const route = useRoute()
+import { useLanguageAlternates } from '@/views/document'
+
 const identity = await useSiteIdentity()
+const locale = useSiteLocale(identity.value.locales)
+assertLocaleRoute(locale)
 useSiteIdentityHead(identity)
 const { categoryMenu, trailFor } = await useCatalogNavigation()
-const breadcrumbTrail = computed(() => trailFor(route.path))
+const pagePath = usePagePath()
+const breadcrumbTrail = computed(() => trailFor(pagePath.value))
+provide(PAGE_ALTERNATES, await useLanguageAlternates(locale))
 </script>
 
 <template>

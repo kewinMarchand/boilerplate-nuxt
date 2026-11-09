@@ -1,4 +1,4 @@
-import { ALL_NAVIGATION } from '@/shared/config'
+import type { NavigationItem } from '@/shared/config'
 
 export declare namespace Breadcrumb {
   interface Item {
@@ -7,24 +7,30 @@ export declare namespace Breadcrumb {
   }
 }
 
-const HOME: Breadcrumb.Item = { label: 'Accueil', href: '/' }
+const HOME_PATH = '/'
 
 /**
- * Fil d'Ariane d'une page. Une piste fournie par un module (le catalogue) prime : le socle
- * ne connaît que la navigation statique et le libellé donné par la page.
+ * Fil d'Ariane d'une page, chemins sans préfixe de langue. Une piste fournie par un module (le
+ * catalogue) prime : le socle ne connaît que la navigation statique, libellée dans la langue de la
+ * page (accueil compris), et le libellé donné par la page.
  */
 export const buildBreadcrumb = (
   path: string,
+  navigation: NavigationItem[],
   currentLabel?: string,
   trail?: Breadcrumb.Item[] | null,
 ): Breadcrumb.Item[] => {
-  if (path === HOME.href) return []
-  if (trail) return [HOME, ...trail]
+  if (path === HOME_PATH) return []
+  const home = {
+    label: navigation.find(({ href }) => href === HOME_PATH)?.label ?? '',
+    href: HOME_PATH,
+  }
+  if (trail) return [home, ...trail]
 
-  const item = ALL_NAVIGATION.find((navigation) => navigation.href === path)
-  if (item) return [HOME, { label: item.label, href: item.href }]
+  const item = navigation.find((navigation) => navigation.href === path)
+  if (item) return [home, { label: item.label, href: item.href }]
 
-  return currentLabel ? [HOME, { label: currentLabel, href: path }] : [HOME]
+  return currentLabel ? [home, { label: currentLabel, href: path }] : [home]
 }
 
 export const toBreadcrumbJsonLd = (items: Breadcrumb.Item[], siteUrl: string) => ({

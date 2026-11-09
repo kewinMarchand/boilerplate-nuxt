@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useDictionary } from '@/shared/i18n'
 import { Icon } from '@/shared/ui/kit'
 
 defineProps<{
   filters: { id: string; label: string; href: string }[]
   clearHref: string
 }>()
+
+const t = useDictionary()
 </script>
 
 <template>
@@ -12,13 +15,14 @@ defineProps<{
     <ul>
       <li v-for="filter in filters" :key="filter.id">
         <NuxtLink :to="filter.href" class="chip" data-testid="catalog-active-filter">
-          <span class="bui-visually-hidden">Retirer le filtre : </span>{{ filter.label }}
+          <span class="bui-visually-hidden">{{ t.catalog.removeFilter }}</span
+          >{{ filter.label }}
           <Icon name="x" :size="16" />
         </NuxtLink>
       </li>
     </ul>
     <NuxtLink :to="clearHref" class="clear-link" data-testid="catalog-clear-filters">
-      Tout effacer
+      {{ t.catalog.clearFilters }}
     </NuxtLink>
   </div>
 </template>

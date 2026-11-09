@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 
+import { useDictionary, useLocalizePath } from '@/shared/i18n'
 import { Icon } from '@/shared/ui/kit'
 
 import { useCategoryMenu } from './composables/useCategoryMenu'
@@ -9,6 +10,8 @@ import type { NavigationNode } from '@/shared/config'
 
 const { menu } = defineProps<{ menu: NavigationNode }>()
 
+const t = useDictionary()
+const localizePath = useLocalizePath()
 const panelId = useId()
 const root = useTemplateRef<HTMLElement>('root')
 const toggleButton = useTemplateRef<HTMLButtonElement>('toggleButton')
@@ -33,7 +36,7 @@ watch([isOpen, columns], async () => {
 
 <template>
   <div ref="root" class="category-menu" @keydown="onKeydown">
-    <NuxtLink :to="menu.href" class="header-link no-js-only">
+    <NuxtLink :to="localizePath(menu.href)" class="header-link no-js-only">
       {{ menu.label }}
     </NuxtLink>
     <button
@@ -57,12 +60,12 @@ watch([isOpen, columns], async () => {
       data-testid="layout-category-menu"
     >
       <NuxtLink
-        :to="menu.href"
+        :to="localizePath(menu.href)"
         class="category-link category-all"
         data-testid="layout-category-link"
         @click="close"
       >
-        Tout le catalogue
+        {{ t.layout.wholeCatalog }}
       </NuxtLink>
       <div class="category-columns">
         <ul
@@ -73,7 +76,7 @@ watch([isOpen, columns], async () => {
         >
           <li v-for="node in column.nodes" :key="node.id">
             <NuxtLink
-              :to="node.href"
+              :to="localizePath(node.href)"
               class="category-link"
               :aria-expanded="node.children.length ? isExpanded(column.depth, node.id) : undefined"
               :aria-controls="

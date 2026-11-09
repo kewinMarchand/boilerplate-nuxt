@@ -3,10 +3,12 @@ import { ref, useId } from 'vue'
 
 import { Button, Drawer } from '@kewinmarchand/boilerplates-ui/vue'
 
+import { format, useDictionary } from '@/shared/i18n'
 import { Icon } from '@/shared/ui/kit'
 
 defineProps<{ activeCount: number; total: number }>()
 
+const t = useDictionary()
 const isOpen = ref(false)
 const drawerId = useId()
 </script>
@@ -22,23 +24,25 @@ const drawerId = useId()
     @click="isOpen = true"
   >
     <Icon name="list-filter" />
-    Filtrer
+    {{ t.catalog.filterButton }}
     <span v-if="activeCount">&nbsp;({{ activeCount }})</span>
   </button>
 
   <Drawer
     :id="drawerId"
-    title="Filtres"
+    :title="t.catalog.filters"
     :open="isOpen"
     side="start"
-    close-label="Fermer les filtres"
+    :close-label="t.catalog.closeFilters"
     @close="isOpen = false"
   >
     <div v-if="isOpen" data-testid="catalog-filters">
       <slot />
     </div>
     <template #footer>
-      <Button full-width @click="isOpen = false">Voir les {{ total }} produits</Button>
+      <Button full-width @click="isOpen = false">{{
+        format(t.catalog.showProducts, { total })
+      }}</Button>
     </template>
   </Drawer>
 </template>

@@ -8,13 +8,16 @@ import type { SiteIdentity } from '../domain/siteIdentity'
 import type { ApiClient } from '@/shared/api/client'
 
 export interface SiteIdentityRepository {
-  find: () => Promise<SiteIdentity.Entity>
+  /** `locale` : langue demandée par l'adresse ; sans elle, celle de la page, sinon la langue par défaut. */
+  find: (locale?: string) => Promise<SiteIdentity.Entity>
   findPageMetas: () => Promise<PageMeta.ByPage>
 }
 
 export const createSiteIdentityRepository = (api: ApiClient): SiteIdentityRepository => ({
-  find: async () => {
-    const { data, response } = await api.GET('/api/site-identity')
+  find: async (locale) => {
+    const { data, response } = await api.GET('/api/site-identity', {
+      params: { query: locale ? { locale } : {} },
+    })
     if (!data) throw new ApiError(response)
     return toSiteIdentity(data)
   },

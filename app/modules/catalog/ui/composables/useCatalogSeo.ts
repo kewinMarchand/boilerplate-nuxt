@@ -1,6 +1,7 @@
 import { computed } from 'vue'
 import { useRuntimeConfig } from '#imports'
 
+import { format, useDictionary, useLocalizePath } from '@/shared/i18n'
 import { usePageSeo } from '@/shared/seo'
 
 import { PAGE_SIZE } from '@/modules/catalog/domain/catalog'
@@ -26,20 +27,24 @@ export const useCatalogSeo = (
   rootMeta: () => CatalogPageMeta | undefined,
 ) => {
   const { siteUrl } = useRuntimeConfig().public
+  const t = useDictionary()
+  const localizePath = useLocalizePath()
+  const withPage = (value: string) =>
+    currentPage.value > 1
+      ? format(t.catalog.pageTitle, { title: value, page: currentPage.value })
+      : value
   const currentPage = computed(() => page.value?.page ?? 1)
   // Les métadonnées saisies ne visent que la racine du catalogue, pas ses catégories
   const meta = computed(() => (path.value === CATALOG_ROOT.href ? rootMeta() : undefined))
 
   usePageSeo({
-    title: () =>
-      currentPage.value > 1 ? `${title.value}, page ${currentPage.value}` : title.value,
+    title: () => withPage(title.value),
     adminTitle: () => {
       const saisi = meta.value?.title ?? ''
-      return saisi && currentPage.value > 1 ? `${saisi}, page ${currentPage.value}` : saisi
+      return saisi && withPage(saisi)
     },
     description: () =>
-      meta.value?.description ||
-      `${title.value} : plantes tropicales de la jardinerie de démonstration, filtrables par exposition, taille, prix et disponibilité.`,
+      meta.value?.description || format(t.catalog.description, { title: title.value }),
     canonicalPath: () =>
       currentPage.value > 1 ? `${path.value}?page=${currentPage.value}` : path.value,
     noindex: () => isRefined(query.value),
@@ -58,7 +63,7 @@ export const useCatalogSeo = (
           '@type': 'ListItem',
           position: (currentPage.value - 1) * PAGE_SIZE + index + 1,
           name: product.name,
-          url: `${new URL(path.value, siteUrl).href}#produit-${product.slug}`,
+          url: `${new URL(localizePath(path.value), siteUrl).href}#produit-${product.slug}`,
         })),
       },
     ],

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue'
 
+import { format, useDictionary } from '@/shared/i18n'
 import { largestWebp } from '@/shared/ui/kit'
 
 import type { ResponsiveImage } from '@/shared/ui/kit'
@@ -11,7 +12,9 @@ const { images } = defineProps<{ images: ResponsiveImage[]; sizes: string }>()
 const current = ref(0)
 const thumbs = useTemplateRef<HTMLUListElement>('thumbs')
 
-const thumbLabel = (index: number) => `Voir l’image ${index + 1} sur ${images.length}`
+const t = useDictionary()
+const thumbLabel = (index: number) =>
+  format(t.product.galleryImage, { position: index + 1, total: images.length })
 
 const STEPS: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1 }
 

@@ -1,29 +1,30 @@
 <script setup lang="ts">
 import { useRuntimeConfig } from '#imports'
 
+import { useDictionary, useLocalizePath } from '@/shared/i18n'
 import { usePageSeo } from '@/shared/seo'
 
 import { BlogView } from '@/modules/blog'
 import { usePageMeta } from '@/modules/identity'
 
 const { siteUrl } = useRuntimeConfig().public
-const DESCRIPTION =
-  'Tous les articles du blog, du plus récent au plus ancien : accessibilité, performance, composants et retours d’expérience front-end.'
 const meta = await usePageMeta('blog')
-const description = () => meta.value.description || DESCRIPTION
+const t = useDictionary()
+const localizePath = useLocalizePath()
+const description = () => meta.value.description || t.meta.blog.description
 
 usePageSeo({
-  title: 'Blog',
+  title: t.meta.blog.title,
   adminTitle: () => meta.value.title,
   description,
   jsonLd: () => [
     {
       '@context': 'https://schema.org',
       '@type': 'Blog',
-      name: 'Blog',
+      name: t.blog.title,
       description: description(),
-      url: new URL('/blog', siteUrl).href,
-      inLanguage: 'fr-FR',
+      url: new URL(localizePath('/blog'), siteUrl).href,
+      inLanguage: t.language.tag,
     },
   ],
 })

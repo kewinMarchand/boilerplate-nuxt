@@ -1,7 +1,9 @@
 import { computed, toValue } from 'vue'
-import { useHead, useRoute, useRuntimeConfig, useSeoMeta, useState } from '#imports'
+import { useHead, useRuntimeConfig, useSeoMeta, useState } from '#imports'
 
-import { SITE } from '@/shared/config'
+import { ALL_NAVIGATION, labelNavigation, SITE } from '@/shared/config'
+import { localizePath, ogLocale, useDictionary, useLocale, usePageAlternates } from '@/shared/i18n'
+import { usePagePath } from '@/shared/i18n/route'
 
 import { buildBreadcrumb, toBreadcrumbJsonLd } from './breadcrumb'
 
@@ -22,10 +24,12 @@ export interface PageSeoInput {
   description: MaybeRefOrGetter<string>
   image?: MaybeRefOrGetter<SeoImage | undefined>
   noindex?: MaybeRefOrGetter<boolean>
+  /** Chemin sans préfixe de langue ; la page courante sans lui. */
   canonicalPath?: MaybeRefOrGetter<string>
   breadcrumbLabel?: string
   breadcrumbTrail?: MaybeRefOrGetter<Breadcrumb.Item[] | null>
   jsonLd?: MaybeRefOrGetter<Record<string, unknown>[]>
+  /** Adresses des pages voisines, préfixe de langue compris. */
   pagination?: MaybeRefOrGetter<{ prev?: string; next?: string }>
   /** Page d'article : `og:type` article et date de publication (AAAA-MM-JJ). */
   publishedTime?: MaybeRefOrGetter<string | undefined>
@@ -45,24 +49,48 @@ const DEFAULT_IMAGE: SeoImage = {
 export const useDefaultSeoImage = () => useState<SeoImage>('default-seo-image', () => DEFAULT_IMAGE)
 
 export const usePageSeo = (input: PageSeoInput) => {
-  const route = useRoute()
+  const pagePath = usePagePath()
   const defaultImage = useDefaultSeoImage()
   const { siteUrl } = useRuntimeConfig().public
+  const t = useDictionary()
+  const locale = useLocale()
+  const alternates = usePageAlternates()
+  const isMultilingual = locale.locales.length > 1
+  const localize = (path: string, code = locale.locale) =>
+    localizePath(path, code, locale.defaultLocale)
   const absolute = (path: string) => new URL(path, siteUrl).href
 
   const adminTitle = computed(() => toValue(input.adminTitle) ?? '')
   const title = computed(() => adminTitle.value || toValue(input.title))
-  const canonical = computed(() => absolute(toValue(input.canonicalPath) ?? route.path))
+  const canonical = computed(() =>
+    absolute(localize(toValue(input.canonicalPath) ?? pagePath.value)),
+  )
   const image = computed(() => toValue(input.image) ?? defaultImage.value)
   const prevHref = computed(() => toValue(input.pagination)?.prev)
   const nextHref = computed(() => toValue(input.pagination)?.next)
   const breadcrumb = computed(() =>
-    buildBreadcrumb(route.path, input.breadcrumbLabel, toValue(input.breadcrumbTrail)),
+    buildBreadcrumb(
+      pagePath.value,
+      labelNavigation(ALL_NAVIGATION, t),
+      input.breadcrumbLabel,
+      toValue(input.breadcrumbTrail),
+    ).map((item) => ({ ...item, href: localize(item.href) })),
   )
   const jsonLd = computed(() => [
     ...(breadcrumb.value.length ? [toBreadcrumbJsonLd(breadcrumb.value, siteUrl)] : []),
     ...(toValue(input.jsonLd) ?? []),
   ])
+  // `hreflang` de chaque langue où la page existe, plus `x-default` vers la langue par défaut
+  const languageLinks = computed(() => {
+    if (!isMultilingual) return []
+    const links = alternates.value.map(({ locale: code, path }) => ({
+      rel: 'alternate' as const,
+      hreflang: code,
+      href: absolute(localize(path, code)),
+    }))
+    const fallback = links.find((link) => link.hreflang === locale.defaultLocale)
+    return fallback ? [...links, { ...fallback, hreflang: 'x-default' }] : links
+  })
 
   // Titre saisi : le modèle « · nom du site » posé par l'identité est retiré
   useHead(() => (adminTitle.value ? { titleTemplate: null } : {}))
@@ -71,6 +99,7 @@ export const usePageSeo = (input: PageSeoInput) => {
       { rel: 'canonical', href: canonical.value },
       ...(prevHref.value ? [{ rel: 'prev' as const, href: absolute(prevHref.value) }] : []),
       ...(nextHref.value ? [{ rel: 'next' as const, href: absolute(nextHref.value) }] : []),
+      ...languageLinks.value,
     ],
     script: () =>
       jsonLd.value.map((data, index) => ({
@@ -86,7 +115,13 @@ export const usePageSeo = (input: PageSeoInput) => {
     robots: () => (toValue(input.noindex) ? 'noindex, follow' : 'index, follow'),
     ogType: () => (toValue(input.publishedTime) ? 'article' : 'website'),
     articlePublishedTime: () => toValue(input.publishedTime),
-    ogLocale: SITE.locale,
+    ogLocale: ogLocale(locale.locale),
+    ogLocaleAlternate: () =>
+      isMultilingual
+        ? alternates.value
+            .filter((alternate) => alternate.locale !== locale.locale)
+            .map((alternate) => ogLocale(alternate.locale))
+        : undefined,
     ogTitle: () => title.value,
     ogDescription: () => toValue(input.description),
     ogUrl: () => canonical.value,

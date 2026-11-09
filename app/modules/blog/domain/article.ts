@@ -1,3 +1,4 @@
+import type { LanguageAlternate } from '@/shared/i18n'
 import type { ResponsiveImage } from '@/shared/ui/kit'
 
 export declare namespace Article {
@@ -35,7 +36,13 @@ export declare namespace Article {
     /** Vides si non saisis : la fiche garde son titre et son extrait. */
     metaTitle: string
     metaDescription: string
+    /** Slug de l'article dans chaque langue activée (vide sur un site monolingue). */
+    alternates: { locale: string; slug: string }[]
   }
 }
 
 export const articleHref = (slug: string) => `/blog/${slug}`
+
+/** L'article dans chaque langue où il a un slug (`alternates` de l'API). */
+export const articleAlternates = (article: Article.Detail): LanguageAlternate[] =>
+  article.alternates.map(({ locale, slug }) => ({ locale, path: articleHref(slug) }))

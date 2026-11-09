@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDictionary } from '@/shared/i18n'
 import { usePageSeo } from '@/shared/seo'
 
 import { usePageMeta } from '@/modules/identity'
@@ -6,13 +7,12 @@ import { usePageMeta } from '@/modules/identity'
 import { PersonalDataView } from '@/views/legal'
 
 const meta = await usePageMeta('privacy')
+const t = useDictionary()
 
 usePageSeo({
-  title: 'Données personnelles',
+  title: t.meta.privacy.title,
   adminTitle: () => meta.value.title,
-  description: () =>
-    meta.value.description ||
-    'Traitement des données personnelles : responsable, finalité du formulaire de contact, base légale, conservation et droits.',
+  description: () => meta.value.description || t.meta.privacy.description,
 })
 </script>
 

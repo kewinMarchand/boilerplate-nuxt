@@ -2,8 +2,6 @@ import { computed, ref } from 'vue'
 
 import type { NavigationNode } from '@/shared/config'
 
-const ROOT_TITLE = 'Menu'
-
 const findChain = (root: NavigationNode, ids: string[]): NavigationNode[] => {
   const chain: NavigationNode[] = []
   let level = root.children
@@ -16,7 +14,8 @@ const findChain = (root: NavigationNode, ids: string[]): NavigationNode[] => {
   return chain
 }
 
-export const useMenuDrillDown = (menu: () => NavigationNode) => {
+/** `rootTitle` : titre du premier niveau (« Menu »), dans la langue de la page. */
+export const useMenuDrillDown = (menu: () => NavigationNode, rootTitle: string) => {
   const level = ref<string[] | null>(null)
 
   const trail = computed(() => (level.value ? findChain(menu(), level.value) : []))
@@ -24,11 +23,11 @@ export const useMenuDrillDown = (menu: () => NavigationNode) => {
     level.value === null ? [] : (trail.value.at(-1)?.children ?? menu().children),
   )
   const title = computed(() => {
-    if (level.value === null) return ROOT_TITLE
+    if (level.value === null) return rootTitle
     return trail.value.at(-1)?.label ?? menu().label
   })
   const parentTitle = computed(() => {
-    if (!level.value?.length) return ROOT_TITLE
+    if (!level.value?.length) return rootTitle
     return trail.value.at(-2)?.label ?? menu().label
   })
   const currentHref = computed(() => trail.value.at(-1)?.href ?? menu().href)

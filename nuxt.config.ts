@@ -1,5 +1,6 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
+import { LOCALE_PATTERN, LOCALE_ROUTE_SUFFIX } from './app/shared/i18n/locale'
 import { PRIMARY_COLOR } from './app/shared/theme/tokens'
 import { A11Y_MODE_BOOT_SCRIPT, JS_FLAG_SCRIPT } from './app/shared/ui/a11y-mode/a11yModeBootScript'
 import { COLOR_SCHEME_BOOT_SCRIPT } from './app/shared/ui/color-scheme/colorSchemeBootScript'
@@ -14,6 +15,17 @@ export default defineNuxtConfig({
         if (!chunk.isEntry) chunk.preload = false
       }
     },
+    // Chaque page existe aussi sous un préfixe de langue (`/en/...`), vérifié contre les langues du
+    // site par `app.vue` : un préfixe de langue non activée répond 404.
+    'pages:extend': (pages) => {
+      pages.push(
+        ...pages.map((page) => ({
+          ...page,
+          name: `${page.name}${LOCALE_ROUTE_SUFFIX}`,
+          path: `/:locale(${LOCALE_PATTERN})${page.path === '/' ? '' : page.path}`,
+        })),
+      )
+    },
   },
   modules: ['@nuxt/eslint', '@nuxt/fonts'],
   imports: { autoImport: false },
@@ -26,6 +38,7 @@ export default defineNuxtConfig({
   },
   plugins: [
     '@/shared/providers/vueQuery',
+    '@/shared/providers/i18n',
     { src: '@/shared/providers/hydrated', mode: 'client' },
     { src: '@/shared/providers/errorReporting', mode: 'client' },
     { src: '@/shared/providers/matomo', mode: 'client' },

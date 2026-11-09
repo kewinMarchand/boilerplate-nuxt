@@ -11,6 +11,7 @@ describe('toLegalPage', () => {
           { title: 'Éditeur', html: '<p>Exemple SAS.</p>' },
           { title: 'Hébergeur', html: '<p>Hébergeur Exemple.</p>' },
         ],
+        alternates: [],
       }),
     ).toEqual({
       title: 'Mentions légales',

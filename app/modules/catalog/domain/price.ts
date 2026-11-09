@@ -24,6 +24,6 @@ export const Price = {
 
 export const eurosToCents = (euros: number): Price => Price.fromCents(Math.round(euros * 100))
 
-const PRICE_FORMAT = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' })
-
-export const formatPrice = (price: Price) => PRICE_FORMAT.format(price / 100)
+/** `tag` : langue de la page (BCP 47, `fr-FR`). */
+export const formatPrice = (price: Price, tag: string) =>
+  new Intl.NumberFormat(tag, { style: 'currency', currency: 'EUR' }).format(price / 100)

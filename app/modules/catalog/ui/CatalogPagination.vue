@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import { useDictionary } from '@/shared/i18n'
 import { Icon } from '@/shared/ui/kit'
 
 import { paginationWindow } from './pagination'
@@ -11,13 +12,14 @@ const { page, pageCount, hrefFor } = defineProps<{
   hrefFor: (page: number) => string
 }>()
 
+const t = useDictionary()
 const entries = computed(() => paginationWindow(page, pageCount))
 </script>
 
 <template>
   <nav
     v-if="pageCount > 1"
-    aria-label="Pagination"
+    :aria-label="t.catalog.pagination"
     class="pagination a11y-chrome"
     data-testid="catalog-pagination"
   >
@@ -31,17 +33,18 @@ const entries = computed(() => paginationWindow(page, pageCount))
           data-testid="catalog-pagination-prev"
         >
           <Icon name="chevron-left" />
-          Précédent
+          {{ t.catalog.previous }}
         </NuxtLink>
         <span v-else class="page-link is-disabled">
           <Icon name="chevron-left" />
-          Précédent
+          {{ t.catalog.previous }}
         </span>
       </li>
       <li v-for="(entry, index) in entries" :key="`${entry}-${index}`">
         <span v-if="entry === 'ellipsis'" class="page-link">…</span>
         <span v-else-if="entry === page" class="page-link is-current" aria-current="page">
-          <span class="bui-visually-hidden">Page </span>{{ entry }}
+          <span class="bui-visually-hidden">{{ t.catalog.page }}</span
+          >{{ entry }}
         </span>
         <NuxtLink
           v-else
@@ -49,7 +52,8 @@ const entries = computed(() => paginationWindow(page, pageCount))
           class="page-link"
           :data-testid="`catalog-pagination-page-${entry}`"
         >
-          <span class="bui-visually-hidden">Page </span>{{ entry }}
+          <span class="bui-visually-hidden">{{ t.catalog.page }}</span
+          >{{ entry }}
         </NuxtLink>
       </li>
       <li>
@@ -60,11 +64,11 @@ const entries = computed(() => paginationWindow(page, pageCount))
           class="page-link"
           data-testid="catalog-pagination-next"
         >
-          Suivant
+          {{ t.catalog.next }}
           <Icon name="chevron-right" />
         </NuxtLink>
         <span v-else class="page-link is-disabled">
-          Suivant
+          {{ t.catalog.next }}
           <Icon name="chevron-right" />
         </span>
       </li>

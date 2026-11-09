@@ -1,4 +1,6 @@
-import { render, screen } from '@testing-library/vue'
+import { screen } from '@testing-library/vue'
+
+import { renderWithProviders } from '@/shared/testing/renderWithProviders'
 
 import BlogGrid from './BlogGrid.vue'
 
@@ -17,7 +19,7 @@ const article = (id: number) => ({
 
 describe('BlogGrid', () => {
   it('limite la grille de l’accueil aux trois articles les plus récents', () => {
-    render(BlogGrid, {
+    renderWithProviders(BlogGrid, {
       props: { status: 'success', articles: [1, 2, 3, 4].map(article) },
       global: { stubs: { NuxtLink: { template: '<a><slot /></a>' } } },
     })
@@ -27,7 +29,7 @@ describe('BlogGrid', () => {
   })
 
   it('pose la rubrique en sur-titre de la carte seulement quand elle existe', () => {
-    render(BlogGrid, {
+    renderWithProviders(BlogGrid, {
       props: {
         status: 'success',
         articles: [{ ...article(1), section: { slug: 'conseils', name: 'Conseils' } }, article(2)],

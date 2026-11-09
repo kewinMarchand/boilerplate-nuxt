@@ -1,4 +1,5 @@
 import { SITE } from '@/shared/config'
+import { FALLBACK_LOCALE } from '@/shared/i18n'
 
 import type { SiteIdentity } from '../domain/siteIdentity'
 
@@ -12,4 +13,5 @@ export const FALLBACK_IDENTITY: SiteIdentity.Entity = {
   defaultColorScheme: 'auto',
   theme: null,
   salesEnabled: SITE.salesEnabled,
+  locales: [FALLBACK_LOCALE],
 }

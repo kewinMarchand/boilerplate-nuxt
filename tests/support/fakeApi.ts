@@ -41,7 +41,10 @@ const startFakeApi = (port: number, overrides: ApiOverrides) =>
       },
       ...(body && { body }),
     })
-    const override = overrides[request.url ?? '']
+    // Le front passe la langue de la page à chaque lecture : la réponse remplacée vaut pour toutes
+    const path = new URL(request.url ?? '/', REAL_API)
+    path.searchParams.delete('locale')
+    const override = overrides[`${path.pathname}${path.search}`]
     if (override) {
       response
         .writeHead(200, { ...cors, 'content-type': 'application/json' })

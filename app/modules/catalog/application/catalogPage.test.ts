@@ -9,7 +9,8 @@ const TREE: Catalog.Category[] = [
   {
     slug: 'plantes-interieur',
     label: 'Plantes d’intérieur',
-    children: [{ slug: 'feuillages', label: 'Feuillages', children: [] }],
+    children: [{ slug: 'feuillages', label: 'Feuillages', children: [], alternates: [] }],
+    alternates: [],
   },
 ]
 
@@ -27,7 +28,7 @@ const repository = (findCatalogPage: CatalogRepository['findCatalogPage']): Cata
   findProduct: async () => null,
   findFeaturedProducts: async () => [],
   findSimilarProducts: async () => [],
-  findAllProductSlugs: async () => [],
+  findAllProductEntries: async () => [],
 })
 
 describe('resolveCatalogCategory', () => {

@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { useDictionary, useLocalizePath } from '@/shared/i18n'
+
 import { articleHref } from '@/modules/blog/domain/article'
 import { formatPublishedAt } from '@/modules/blog/domain/formatPublishedAt'
 
 import type { Article } from '../domain/article'
 
 defineProps<{ article: Article.Entity; sizes: string; heading: 'h2' | 'h3' }>()
+const t = useDictionary()
+const localizePath = useLocalizePath()
 </script>
 
 <template>
@@ -33,13 +37,13 @@ defineProps<{ article: Article.Entity; sizes: string; heading: 'h2' | 'h3' }>()
           {{ article.section.name }}
         </p>
         <component :is="heading" class="type-h3">
-          <NuxtLink :to="articleHref(article.slug)" class="blog-card-link">{{
+          <NuxtLink :to="localizePath(articleHref(article.slug))" class="blog-card-link">{{
             article.title
           }}</NuxtLink>
         </component>
         <p>{{ article.excerpt }}</p>
         <time :datetime="article.publishedAt" class="blog-card-date">
-          {{ formatPublishedAt(article.publishedAt) }}
+          {{ formatPublishedAt(article.publishedAt, t.language.tag) }}
         </time>
       </div>
     </div>

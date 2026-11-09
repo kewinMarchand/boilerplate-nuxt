@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import { useDictionary } from '@/shared/i18n'
 import { ScrollCarousel } from '@/shared/ui/carousel'
 
 import { productHref } from '../domain/catalog'
@@ -16,11 +17,12 @@ const { categorySlug, productSlug, salesEnabled } = defineProps<{
 
 const { data } = await useSimilarProducts(categorySlug, productSlug)
 
+const t = useDictionary()
 const slides = computed(() =>
   (data.value ?? []).map((product) => ({
     id: product.id,
     title: product.name,
-    text: salesEnabled ? formatPrice(product.price) : '',
+    text: salesEnabled ? formatPrice(product.price, t.language.tag) : '',
     image: product.image,
     href: productHref(product.slug),
   })),
@@ -34,6 +36,6 @@ const slides = computed(() =>
     labelledby="product-similar-title"
     data-testid="product-similar"
   >
-    <h2 id="product-similar-title">Produits similaires</h2>
+    <h2 id="product-similar-title">{{ t.product.similar }}</h2>
   </ScrollCarousel>
 </template>

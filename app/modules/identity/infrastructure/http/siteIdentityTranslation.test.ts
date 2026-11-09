@@ -32,6 +32,7 @@ const BASE = {
   defaultColorScheme: 'auto' as const,
   theme: null,
   salesEnabled: true,
+  locales: ['fr'],
 }
 
 describe('toSiteIdentity', () => {
@@ -70,6 +71,16 @@ describe('toSiteIdentity', () => {
       ...BASE,
       salesEnabled: false,
     })
+  })
+
+  it('garde les langues dans leur ordre, la langue par défaut en premier', () => {
+    expect(toSiteIdentity({ ...BASE, locales: ['en', 'fr'] }).locales).toEqual(['en', 'fr'])
+  })
+
+  it('tient le site pour monolingue en français sans langues dans la réponse', () => {
+    const { locales: _, ...withoutLocales } = BASE
+    // Réponse d'une API antérieure aux langues, hors du contrat généré
+    expect(toSiteIdentity(withoutLocales as typeof BASE).locales).toEqual(['fr'])
   })
 
   it('refuse une couleur hors du format #rrggbb', () => {

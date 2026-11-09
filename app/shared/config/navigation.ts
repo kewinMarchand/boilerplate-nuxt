@@ -1,5 +1,15 @@
+import { format } from '@/shared/i18n/format'
+
 import { getComplianceLevel } from './complianceLevel'
 import { SITE } from './site'
+
+import type { Dictionary } from '@/shared/i18n'
+
+/** Entrée de navigation : son libellé est lu dans le dictionnaire de la page (`nav`). */
+export interface NavigationEntry {
+  href: string
+  key: keyof Dictionary['nav']
+}
 
 export interface NavigationItem {
   href: string
@@ -15,22 +25,30 @@ export interface NavigationNode {
   children: NavigationNode[]
 }
 
-export const MAIN_NAVIGATION: NavigationItem[] = [
-  { href: '/', label: 'Accueil' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/taches', label: 'Tâches' },
-  { href: '/contact', label: 'Contact' },
+export const MAIN_NAVIGATION: NavigationEntry[] = [
+  { href: '/', key: 'home' },
+  { href: '/blog', key: 'blog' },
+  { href: '/taches', key: 'tasks' },
+  { href: '/contact', key: 'contact' },
 ]
 
-export const LEGAL_NAVIGATION: NavigationItem[] = [
-  { href: '/mentions-legales', label: 'Mentions légales' },
-  { href: '/donnees-personnelles', label: 'Données personnelles' },
-  {
-    href: '/accessibilite',
-    label: 'Déclaration d’accessibilité',
-    footerLabel: `Accessibilité : ${getComplianceLevel(SITE.accessibility)}`,
-  },
-  { href: '/plan-du-site', label: 'Plan du site' },
+export const LEGAL_NAVIGATION: NavigationEntry[] = [
+  { href: '/mentions-legales', key: 'legalNotice' },
+  { href: '/donnees-personnelles', key: 'privacy' },
+  { href: '/accessibilite', key: 'accessibility' },
+  { href: '/plan-du-site', key: 'sitemap' },
 ]
 
-export const ALL_NAVIGATION: NavigationItem[] = [...MAIN_NAVIGATION, ...LEGAL_NAVIGATION]
+export const ALL_NAVIGATION: NavigationEntry[] = [...MAIN_NAVIGATION, ...LEGAL_NAVIGATION]
+
+/** Entrées libellées dans la langue de la page ; la déclaration d'accessibilité porte son état dans le footer. */
+export const labelNavigation = (entries: NavigationEntry[], t: Dictionary): NavigationItem[] =>
+  entries.map(({ href, key }) => ({
+    href,
+    label: t.nav[key],
+    ...(key === 'accessibility' && {
+      footerLabel: format(t.layout.accessibilityStatus, {
+        status: t.compliance[getComplianceLevel(SITE.accessibility)],
+      }),
+    }),
+  }))

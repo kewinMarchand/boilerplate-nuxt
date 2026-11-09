@@ -31,5 +31,8 @@ export const createArticleRepository = (api: ApiClient) => ({
 })
 
 /** Dépôt d'une route serveur Nitro, hors application Vue. */
-export const serverArticleRepository = (apiUrl: string, scenario?: string | null) =>
-  createArticleRepository(createApiClient(apiUrl, scenario))
+export const serverArticleRepository = (
+  apiUrl: string,
+  scenario: string | null | undefined,
+  locale: string,
+) => createArticleRepository(createApiClient(apiUrl, scenario, locale))

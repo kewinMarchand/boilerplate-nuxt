@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { useDictionary } from '@/shared/i18n'
+
 import { useTasks } from './composables/useTasks'
 import TaskList from './TaskList.vue'
 
 const { status, data, error, refetch } = useTasks()
+const t = useDictionary()
 </script>
 
 <template>
@@ -10,7 +13,7 @@ const { status, data, error, refetch } = useTasks()
     <TaskList
       :status="status"
       :tasks="data"
-      v-bind="error ? { errorMessage: error.message } : {}"
+      v-bind="error ? { errorMessage: t.tasks.loadError } : {}"
       @retry="refetch()"
     />
   </div>

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 
+import { categoryAlternates, slugsFromPath } from '@/modules/catalog/domain/categoryPath'
 import {
   catalogLinksFor,
   catalogTrailFor,
@@ -31,5 +32,7 @@ export const useCatalogNavigation = async () => {
     categoryMenu: computed(() => categoryMenuFor(tree.value)),
     catalogLinks: computed(() => catalogLinksFor(tree.value)),
     trailFor: (path: string) => catalogTrailFor(tree.value, path),
+    /** Une catégorie (chemin sans préfixe de langue) dans chaque langue où elle existe. */
+    alternatesFor: (path: string) => categoryAlternates(tree.value, slugsFromPath(path) ?? []),
   }
 }

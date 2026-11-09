@@ -117,6 +117,11 @@ const ARCHITECTURE_POLICIES = [
     allow: { to: sameModule('infrastructure') },
   })),
   policy('shared', 'shared', 'Socle : n’importe ni module, ni vue, ni routage.'),
+  policy(
+    'shared-api',
+    { element: { type: 'shared', captured: { area: 'i18n' } } },
+    'Client HTTP : seulement la langue de la page, dans le socle.',
+  ),
 ]
 
 export default withNuxt(

@@ -1,17 +1,22 @@
 <script setup lang="ts">
+import { format, useDictionary, useLocalizePath } from '@/shared/i18n'
+
 /** Remplace « Ajouter au panier » quand la vente en ligne est coupée ; présent sans JavaScript et en rupture de stock. */
 const { slug, name } = defineProps<{ slug: string; name: string }>()
+const t = useDictionary()
+const localizePath = useLocalizePath()
 </script>
 
 <template>
   <p class="inquiry">
     <!-- Nom accessible « Demande de renseignement sur <produit> » : texte visible complété, sans aria-label -->
     <NuxtLink
-      :to="{ path: '/contact', query: { produit: slug } }"
+      :to="{ path: localizePath('/contact'), query: { produit: slug } }"
       class="bui-button inquiry-link"
       data-testid="product-inquiry"
     >
-      Demande de renseignement<span class="bui-visually-hidden"> sur {{ name }}</span>
+      {{ t.contact.inquiry
+      }}<span class="bui-visually-hidden">{{ format(t.contact.inquiryAbout, { name }) }}</span>
     </NuxtLink>
   </p>
 </template>

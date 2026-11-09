@@ -3,7 +3,6 @@ import type { Compliance } from './complianceLevel'
 export interface SiteConfig {
   name: string
   description: string
-  locale: string
   publisher: {
     companyName: string
     email: string
@@ -17,7 +16,6 @@ export const SITE: SiteConfig = {
   name: 'Boilerplate Nuxt',
   description:
     'Boilerplate Nuxt 4 avec boilerplates-ui, TanStack Query, vee-validate et zod, outillé pour la QA, l’accessibilité et les tests end-to-end.',
-  locale: 'fr_FR',
   publisher: {
     companyName: 'Exemple SAS (société fictive)',
     email: 'contact@exemple.fr',

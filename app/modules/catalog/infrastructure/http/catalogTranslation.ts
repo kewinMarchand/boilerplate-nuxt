@@ -35,6 +35,7 @@ export const toCategory = (dto: CategoryDto): Catalog.Category => ({
   slug: dto.slug,
   label: dto.name,
   children: dto.children.map(toCategory),
+  alternates: dto.alternates.map(({ locale, slug }) => ({ locale, slug })),
 })
 
 export const toProduct = (dto: ProductDto): Catalog.Product => ({
@@ -68,6 +69,7 @@ export const toProductDetail = (dto: ProductDetailDto): Catalog.ProductDetail =>
     .map((paragraph) => paragraph.trim())
     .filter((paragraph) => paragraph !== ''),
   gallery: dto.gallery,
+  alternates: dto.alternates.map(({ locale, slug }) => ({ locale, slug })),
   metaTitle: dto.metaTitle,
   metaDescription: dto.metaDescription,
 })

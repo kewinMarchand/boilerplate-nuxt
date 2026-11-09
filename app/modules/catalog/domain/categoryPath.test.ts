@@ -1,4 +1,5 @@
 import {
+  categoryAlternates,
   categoryHref,
   categoryTrail,
   listCategoryLinks,
@@ -13,6 +14,7 @@ const node = (slug: string, children: Catalog.Category[] = []): Catalog.Category
   slug,
   label: slug.toUpperCase(),
   children,
+  alternates: [],
 })
 
 const TREE = [
@@ -74,5 +76,32 @@ describe('chemin de catégorie', () => {
         },
       ],
     })
+  })
+})
+
+describe('categoryAlternates', () => {
+  const translated = (fr: string, en: string, children: Catalog.Category[] = []) => ({
+    slug: fr,
+    label: fr,
+    children,
+    alternates: [
+      { locale: 'fr', slug: fr },
+      { locale: 'en', slug: en },
+    ],
+  })
+  const tree = [
+    translated('plantes-interieur', 'indoor-plants', [translated('feuillages', 'foliage-plants')]),
+  ]
+
+  it('construit le chemin de la catégorie dans chaque langue', () => {
+    expect(categoryAlternates(tree, ['plantes-interieur', 'feuillages'])).toEqual([
+      { locale: 'fr', path: '/catalogue/plantes-interieur/feuillages' },
+      { locale: 'en', path: '/catalogue/indoor-plants/foliage-plants' },
+    ])
+  })
+
+  it('n’en donne aucune pour un chemin inconnu ou un site monolingue', () => {
+    expect(categoryAlternates(tree, ['inconnue'])).toEqual([])
+    expect(categoryAlternates(TREE, ['a', 'a1'])).toEqual([])
   })
 })

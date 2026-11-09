@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Alert, Button, Skeleton } from '@kewinmarchand/boilerplates-ui/vue'
 
+import { useDictionary } from '@/shared/i18n'
 import { Icon } from '@/shared/ui/kit'
 
 import ProductCard from './ProductCard.vue'
@@ -19,6 +20,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{ retry: [] }>()
+const t = useDictionary()
 </script>
 
 <template>
@@ -26,7 +28,7 @@ const emit = defineEmits<{ retry: [] }>()
     v-if="status === 'pending'"
     role="status"
     aria-busy="true"
-    aria-label="Chargement des produits"
+    :aria-label="t.catalog.loadingProducts"
     class="product-grid"
   >
     <Skeleton v-for="key in 4" :key="key" height="320px" />
@@ -37,14 +39,16 @@ const emit = defineEmits<{ retry: [] }>()
     <template #action>
       <Button variant="ghost" data-testid="catalog-retry" @click="emit('retry')">
         <Icon name="rotate-cw" />
-        Réessayer
+        {{ t.catalog.retry }}
       </Button>
     </template>
   </Alert>
 
   <div v-else-if="!products?.length" class="catalog-empty" data-testid="catalog-empty">
-    <p>Aucun produit ne correspond à ces filtres.</p>
-    <NuxtLink :to="clearHref" class="bui-button bui-button--outline">Tout effacer</NuxtLink>
+    <p>{{ t.catalog.empty }}</p>
+    <NuxtLink :to="clearHref" class="bui-button bui-button--outline">{{
+      t.catalog.clearFilters
+    }}</NuxtLink>
   </div>
 
   <div v-else class="product-grid" :class="{ 'is-list': view === 'liste' }">

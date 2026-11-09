@@ -32,4 +32,5 @@ export const toArticleDetail = (dto: ArticleDetailDto): Article.Detail => ({
   html: dto.html,
   metaTitle: dto.metaTitle,
   metaDescription: dto.metaDescription,
+  alternates: dto.alternates.map(({ locale, slug }) => ({ locale, slug })),
 })

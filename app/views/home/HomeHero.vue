@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { useHead } from '#imports'
 
+import { useDictionary, useLocalizePath } from '@/shared/i18n'
 import { buildSources, buildSrcset } from '@/shared/ui/kit/imageSources'
 
 const { siteName, tagline } = defineProps<{ siteName: string; tagline: string }>()
+
+const t = useDictionary()
+const localizePath = useLocalizePath()
 
 const HERO_WIDTHS = [640, 828, 960, 1280, 1920]
 const HERO_SIZES = '100vw'
@@ -44,19 +48,23 @@ useHead({
     </picture>
     <div class="hero-veil" />
     <div class="hero-content app-container">
-      <p class="hero-eyebrow">Boilerplate Nuxt 4 · boilerplates-ui · TanStack Query</p>
+      <p class="hero-eyebrow">{{ t.home.overline }}</p>
       <h1>{{ siteName }}</h1>
       <p v-if="tagline" class="hero-text">{{ tagline }}</p>
       <div class="hero-actions">
-        <NuxtLink to="/taches" class="bui-button bui-button--lg" data-testid="home-tasks-link">
-          Voir la démo TanStack Query
+        <NuxtLink
+          :to="localizePath('/taches')"
+          class="bui-button bui-button--lg"
+          data-testid="home-tasks-link"
+        >
+          {{ t.home.tasksLink }}
         </NuxtLink>
         <NuxtLink
-          to="/contact"
+          :to="localizePath('/contact')"
           class="bui-button bui-button--outline-light bui-button--lg"
           data-testid="home-contact-link"
         >
-          Voir le formulaire
+          {{ t.home.contactLink }}
         </NuxtLink>
       </div>
     </div>

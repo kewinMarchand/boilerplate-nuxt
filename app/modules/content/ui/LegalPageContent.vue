@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Alert } from '@kewinmarchand/boilerplates-ui/vue'
 
+import { useDictionary } from '@/shared/i18n'
 import { RichHtml } from '@/shared/ui/kit'
 
 import { useLegalPage } from './composables/useLegalPage'
@@ -13,13 +14,14 @@ const { slug } = defineProps<{
   fallbackTitle: string
 }>()
 
-const { status, data: page, error } = useLegalPage(slug)
+const { status, data: page } = useLegalPage(slug)
+const t = useDictionary()
 </script>
 
 <template>
   <h1>{{ page?.title ?? fallbackTitle }}</h1>
   <Alert v-if="status === 'error'" variant="error" data-testid="legal-error">
-    {{ error?.message }}
+    {{ t.legal.loadError }}
   </Alert>
   <template v-else-if="page">
     <RichHtml v-if="page.introduction" :html="page.introduction" />

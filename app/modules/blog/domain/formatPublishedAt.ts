@@ -1,3 +1,3 @@
-const DATE_FORMAT = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeZone: 'UTC' })
-
-export const formatPublishedAt = (isoDate: string) => DATE_FORMAT.format(new Date(isoDate))
+/** `tag` : langue de la page (BCP 47, `fr-FR`). */
+export const formatPublishedAt = (isoDate: string, tag: string) =>
+  new Intl.DateTimeFormat(tag, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(isoDate))

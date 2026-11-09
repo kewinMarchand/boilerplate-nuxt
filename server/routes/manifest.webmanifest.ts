@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   return {
     name: identity.name,
     short_name: identity.name,
-    lang: 'fr',
+    lang: identity.locales[0],
     start_url: '/',
     display: 'standalone',
     theme_color: identity.theme?.light.primary ?? PRIMARY_COLOR,

@@ -1,4 +1,5 @@
 import type { Price } from './price'
+import type { LanguageAlternate } from '@/shared/i18n'
 import type { ResponsiveImage } from '@/shared/ui/kit'
 
 export const PAGE_SIZE = 12
@@ -9,16 +10,27 @@ export const SIMILAR_LIMIT = 8
 
 export const productHref = (slug: string) => `/produit/${slug}`
 
+/** La fiche dans chaque langue où le produit a un slug (`alternates` de l'API). */
+export const productAlternates = (product: Catalog.ProductDetail): LanguageAlternate[] =>
+  product.alternates.map(({ locale, slug }) => ({ locale, path: productHref(slug) }))
+
 export declare namespace Catalog {
   type Exposure = 'soleil' | 'mi-ombre' | 'ombre'
   type Size = 'S' | 'M' | 'L'
   type Sort = 'pertinence' | 'prix-asc' | 'prix-desc' | 'nom'
   type View = 'grille' | 'liste'
 
+  /** Slug d'un élément dans une langue activée (`alternates` de l'API, vide sur un site monolingue). */
+  interface Alternate {
+    locale: string
+    slug: string
+  }
+
   interface Category {
     slug: string
     label: string
     children: Category[]
+    alternates: Alternate[]
   }
 
   interface CategoryLink {
@@ -58,6 +70,7 @@ export declare namespace Catalog {
     description: string[]
     /** Images supplémentaires, dans l'ordre, vide si aucune. */
     gallery: ResponsiveImage[]
+    alternates: Alternate[]
     /** Vides si non saisis : la fiche garde son titre et sa description calculés. */
     metaTitle: string
     metaDescription: string

@@ -1,6 +1,9 @@
 import type { ColorScheme } from '@/shared/ui/color-scheme/colorSchemeBootScript'
 import type { ResponsiveImage } from '@/shared/ui/kit'
 
+/** Langues d'un site dont l'API ne les donne pas (contrat antérieur aux langues) : le français seul. */
+export const DEFAULT_LOCALES = ['fr']
+
 export const BRAND_COLOR_KEYS = [
   'primary',
   'primary-dark',
@@ -47,5 +50,7 @@ export declare namespace SiteIdentity {
     theme: Theme | null
     /** `false` : ni prix ni panier, une demande de renseignement sur chaque produit. */
     salesEnabled: boolean
+    /** Langues du site (codes BCP 47 courts), la première étant la langue par défaut. */
+    locales: string[]
   }
 }

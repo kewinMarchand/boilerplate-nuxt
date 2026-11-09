@@ -3,6 +3,7 @@ import { useForm } from 'vee-validate'
 import { computed, ref, toValue } from 'vue'
 
 import { toTypedSchema } from '@/shared/forms'
+import { useDictionary, useLocale } from '@/shared/i18n'
 
 import { contactSchema } from '@/modules/contact/domain/contactSchema'
 import { useContactRepository } from '@/modules/contact/infrastructure/contactRepository'
@@ -22,8 +23,10 @@ const FIELD_CONFIG = {
 /** `product` : slug d'une demande de renseignement, envoyé avec le message ; `null` pour un message simple. */
 export const useContactForm = (product: MaybeRefOrGetter<string | null>) => {
   const repository = useContactRepository()
+  const t = useDictionary()
+  const { locale } = useLocale()
   const { defineField, handleSubmit, resetForm, setFieldError } = useForm({
-    validationSchema: toTypedSchema(contactSchema),
+    validationSchema: toTypedSchema(contactSchema(t.contact.validation)),
     initialValues: DEFAULT_VALUES,
   })
 
@@ -35,7 +38,8 @@ export const useContactForm = (product: MaybeRefOrGetter<string | null>) => {
   const productError = ref<string>()
 
   const { mutate, isPending, isError, data } = useMutation({
-    mutationFn: repository.send,
+    // Les messages de validation de l'API suivent la langue de la page
+    mutationFn: (body: Contact.Message) => repository.send(body, locale),
     onMutate: () => {
       productError.value = undefined
     },

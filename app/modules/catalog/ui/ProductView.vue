@@ -4,6 +4,7 @@ import { useHead, useRoute, useRuntimeConfig } from '#imports'
 
 import { Alert } from '@kewinmarchand/boilerplates-ui/vue'
 
+import { format, useDictionary, useLocalizePath } from '@/shared/i18n'
 import { usePageSeo } from '@/shared/seo'
 import { largestWebp } from '@/shared/ui/kit'
 import { AppBreadcrumb } from '@/shared/ui/layout'
@@ -12,7 +13,6 @@ import { productHref } from '../domain/catalog'
 import { categoryTrail } from '../domain/categoryPath'
 import { formatPrice } from '../domain/price'
 import { useProduct } from './composables/useProduct'
-import { EXPOSURE_LABELS } from './labels'
 import ProductGallery from './ProductGallery.vue'
 import SimilarProducts from './SimilarProducts.vue'
 
@@ -27,11 +27,13 @@ const IMAGE_SIZES = '(min-width: 1440px) 680px, (min-width: 768px) 50vw, calc(10
 
 const route = useRoute()
 const slug = String(route.params['slug'])
-const { status, data: product, error } = await useProduct(slug)
+const { status, data: product } = await useProduct(slug)
+const t = useDictionary()
+const localizePath = useLocalizePath()
 const { siteUrl } = useRuntimeConfig().public
 
 const path = productHref(slug)
-const title = computed(() => product.value?.name ?? 'Produit')
+const title = computed(() => product.value?.name ?? t.product.fallbackTitle)
 const category = computed(() => product.value?.categoryPath.at(-1))
 const galleryImages = computed(() =>
   product.value?.gallery.length
@@ -50,8 +52,14 @@ usePageSeo({
     const value = product.value
     if (!value) return title.value
     if (value.metaDescription) return value.metaDescription
-    const price = salesEnabled ? `, ${formatPrice(value.price)}` : ''
-    return `${value.name} : exposition ${EXPOSURE_LABELS[value.exposure].toLowerCase()}, taille ${value.size}${price}. ${value.inStock ? 'En stock' : 'En rupture de stock'}, rayon ${category.value?.label ?? 'catalogue'}.`
+    return format(t.product.description, {
+      name: value.name,
+      exposure: t.catalog.exposures[value.exposure].toLowerCase(),
+      size: value.size,
+      price: salesEnabled ? `, ${formatPrice(value.price, t.language.tag)}` : '',
+      stock: value.inStock ? t.product.descriptionInStock : t.product.descriptionOutOfStock,
+      category: category.value?.label ?? t.product.noCategory,
+    })
   },
   noindex: () => !product.value,
   breadcrumbTrail: trail,
@@ -77,13 +85,13 @@ usePageSeo({
               description: product.value.description.join(' '),
             }),
             sku: product.value.slug,
-            url: new URL(path, siteUrl).href,
+            url: new URL(localizePath(path), siteUrl).href,
             ...(category.value && { category: category.value.label }),
             ...(product.value.image && { image: largestWebp(product.value.image) }),
             ...(salesEnabled && {
               offers: {
                 '@type': 'Offer',
-                url: new URL(path, siteUrl).href,
+                url: new URL(localizePath(path), siteUrl).href,
                 priceCurrency: 'EUR',
                 price: (product.value.price / 100).toFixed(2),
                 availability: `https://schema.org/${product.value.inStock ? 'InStock' : 'OutOfStock'}`,
@@ -115,10 +123,10 @@ useHead({
 </script>
 
 <template>
-  <AppBreadcrumb :trail="[{ label: 'Accueil', href: '/' }, ...trail]" />
+  <AppBreadcrumb :trail="[{ label: t.nav.home, href: '/' }, ...trail]" />
   <template v-if="status === 'error'">
-    <h1>Produit</h1>
-    <Alert variant="error" data-testid="product-error">{{ error?.message }}</Alert>
+    <h1>{{ t.product.fallbackTitle }}</h1>
+    <Alert variant="error" data-testid="product-error">{{ t.product.loadError }}</Alert>
   </template>
   <article v-else-if="product" class="product" data-testid="product-page">
     <ProductGallery v-if="galleryImages.length > 0" :images="galleryImages" :sizes="IMAGE_SIZES" />
@@ -143,7 +151,7 @@ useHead({
     <div>
       <h1 class="product-title" data-testid="product-title">{{ product.name }}</h1>
       <p v-if="salesEnabled" class="product-price" data-testid="product-price">
-        {{ formatPrice(product.price) }}
+        {{ formatPrice(product.price, t.language.tag) }}
       </p>
       <div v-if="product.description.length > 0" data-testid="product-description">
         <p v-for="paragraph in product.description" :key="paragraph" class="product-paragraph">
@@ -151,14 +159,14 @@ useHead({
         </p>
       </div>
       <dl class="product-features">
-        <dt>Exposition</dt>
-        <dd>{{ EXPOSURE_LABELS[product.exposure] }}</dd>
-        <dt>Taille</dt>
+        <dt>{{ t.product.exposure }}</dt>
+        <dd>{{ t.catalog.exposures[product.exposure] }}</dd>
+        <dt>{{ t.product.size }}</dt>
         <dd>{{ product.size }}</dd>
-        <dt>Disponibilité</dt>
+        <dt>{{ t.product.availability }}</dt>
         <dd>
-          <template v-if="product.inStock">En stock</template>
-          <span v-else class="product-badge">Rupture de stock</span>
+          <template v-if="product.inStock">{{ t.product.inStock }}</template>
+          <span v-else class="product-badge">{{ t.product.outOfStock }}</span>
         </dd>
       </dl>
       <dl
@@ -173,8 +181,8 @@ useHead({
       </dl>
       <slot name="purchase" :product="product" />
       <p v-if="category">
-        <NuxtLink :to="category.href" class="bui-link">
-          Voir les autres produits : {{ category.label }}
+        <NuxtLink :to="localizePath(category.href)" class="bui-link">
+          {{ format(t.product.otherProducts, { category: category.label }) }}
         </NuxtLink>
       </p>
     </div>

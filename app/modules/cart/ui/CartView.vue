@@ -3,6 +3,7 @@ import { computed } from 'vue'
 
 import { Button } from '@kewinmarchand/boilerplates-ui/vue'
 
+import { format, useDictionary, useLocalizePath } from '@/shared/i18n'
 import { AppBreadcrumb } from '@/shared/ui/layout'
 
 import { MAX_QUANTITY, totalPrice } from '../domain/cart'
@@ -16,7 +17,10 @@ const CATALOG_PATH = '/catalogue'
 const productHref = (slug: string) => `/produit/${slug}`
 
 const { lines, changeQuantity, remove } = useCart()
-const total = computed(() => formatPrice(totalPrice(lines.value)))
+const t = useDictionary()
+const localizePath = useLocalizePath()
+const price = (cents: number) => formatPrice(cents, t.language.tag)
+const total = computed(() => price(totalPrice(lines.value)))
 const { markRemoved } = useFocusAfterRemoval(() => lines.value.length)
 
 const removeLine = (index: number, slug: string) => {
@@ -34,16 +38,20 @@ const onQuantityInput = (slug: string, event: Event) => {
 <template>
   <AppBreadcrumb
     :trail="[
-      { label: 'Accueil', href: '/' },
-      { label: 'Panier', href: CART_PATH },
+      { label: t.nav.home, href: '/' },
+      { label: t.cart.title, href: CART_PATH },
     ]"
   />
-  <h1>Panier</h1>
-  <noscript data-allow-mismatch="children"><p>Le panier demande JavaScript.</p></noscript>
+  <h1>{{ t.cart.title }}</h1>
+  <noscript data-allow-mismatch="children"
+    ><p>{{ t.cart.noScript }}</p></noscript
+  >
   <ClientOnly>
     <p v-if="lines.length === 0" ref="cartEmpty" tabindex="-1" data-testid="cart-empty">
-      Votre panier est vide.
-      <NuxtLink :to="CATALOG_PATH" class="bui-link">Parcourir le catalogue</NuxtLink>
+      {{ t.cart.empty }}
+      <NuxtLink :to="localizePath(CATALOG_PATH)" class="bui-link">{{
+        t.cart.browseCatalog
+      }}</NuxtLink>
     </p>
     <template v-else>
       <ul ref="cartLines" class="cart-lines">
@@ -53,12 +61,14 @@ const onQuantityInput = (slug: string, event: Event) => {
           class="cart-line"
           data-testid="cart-line"
         >
-          <NuxtLink :to="productHref(line.slug)" class="bui-link cart-line-name">
+          <NuxtLink :to="localizePath(productHref(line.slug))" class="bui-link cart-line-name">
             {{ line.name }}
           </NuxtLink>
-          <span>{{ formatPrice(line.price) }} l’unité</span>
+          <span>{{ format(t.cart.unitPrice, { price: price(line.price) }) }}</span>
           <label class="bui-field cart-quantity">
-            <span class="bui-field__label">Quantité de {{ line.name }}</span>
+            <span class="bui-field__label">{{
+              format(t.cart.quantityOf, { name: line.name })
+            }}</span>
             <input
               type="number"
               min="1"
@@ -69,21 +79,21 @@ const onQuantityInput = (slug: string, event: Event) => {
               @input="onQuantityInput(line.slug, $event)"
             />
           </label>
-          <span class="cart-line-subtotal">{{ formatPrice(line.price * line.quantity) }}</span>
+          <span class="cart-line-subtotal">{{ price(line.price * line.quantity) }}</span>
           <Button
             variant="outline"
-            :aria-label="`Retirer ${line.name}`"
+            :aria-label="format(t.cart.removeItem, { name: line.name })"
             data-testid="cart-remove"
             @click="removeLine(index, line.slug)"
           >
-            Retirer
+            {{ t.cart.remove }}
           </Button>
         </li>
       </ul>
       <p class="cart-total">
-        Total : <span data-testid="cart-total">{{ total }}</span>
+        {{ t.cart.total }} <span data-testid="cart-total">{{ total }}</span>
       </p>
-      <p>La commande en ligne arrive bientôt.</p>
+      <p>{{ t.cart.soon }}</p>
     </template>
   </ClientOnly>
 </template>

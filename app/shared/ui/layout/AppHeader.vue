@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { MAIN_NAVIGATION } from '@/shared/config'
+import { labelNavigation, MAIN_NAVIGATION } from '@/shared/config'
+import { useDictionary, useLocalizePath } from '@/shared/i18n'
 
 import A11yModeToggle from '../a11y-mode/A11yModeToggle.vue'
 import ColorSchemeToggle from '../color-scheme/ColorSchemeToggle.vue'
 import CategoryMenu from './CategoryMenu.vue'
+import LanguageSwitcher from './LanguageSwitcher.vue'
 import MobileMenu from './MobileMenu.vue'
 import NavLink from './NavLink.vue'
 
@@ -24,13 +26,16 @@ const logoSizes = computed(() =>
   logo ? `${Math.round((LOGO_HEIGHT * logo.width) / logo.height)}px` : undefined,
 )
 
-const [HOME, ...SECONDARY_NAVIGATION] = MAIN_NAVIGATION
+const t = useDictionary()
+const localizePath = useLocalizePath()
+const [HOME, ...SECONDARY_NAVIGATION] = labelNavigation(MAIN_NAVIGATION, t)
 </script>
 
 <template>
   <header class="app-header">
+    <LanguageSwitcher />
     <div class="app-container header-bar">
-      <NuxtLink to="/" class="header-logo" data-testid="layout-logo">
+      <NuxtLink :to="localizePath('/')" class="header-logo" data-testid="layout-logo">
         <picture v-if="logo">
           <source
             v-for="source in logo.sources"
@@ -54,7 +59,7 @@ const [HOME, ...SECONDARY_NAVIGATION] = MAIN_NAVIGATION
           <span>{{ siteName }}</span>
         </template>
       </NuxtLink>
-      <nav aria-label="Navigation principale" class="header-nav">
+      <nav :aria-label="t.layout.mainNavigation" class="header-nav">
         <ul class="header-nav-list">
           <li v-if="HOME"><NavLink v-bind="HOME" /></li>
           <li class="header-nav-menu"><CategoryMenu :menu="categoryMenu" /></li>

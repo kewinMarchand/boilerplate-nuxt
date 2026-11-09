@@ -21,8 +21,8 @@ export interface CatalogRepository {
   findFeaturedProducts: () => Promise<Catalog.Product[]>
   /** Produits de la catégorie, sans celui affiché : le carrousel de la fiche. */
   findSimilarProducts: (categorySlug: string, excludedSlug: string) => Promise<Catalog.Product[]>
-  /** Slugs de tous les produits, page après page jusqu'à une page incomplète (sitemap). */
-  findAllProductSlugs: () => Promise<string[]>
+  /** Identifiant et slug de tous les produits, page après page jusqu'à une page incomplète (sitemap). */
+  findAllProductEntries: () => Promise<{ id: string; slug: string }[]>
 }
 
 export const createCatalogRepository = (api: ApiClient): CatalogRepository => ({
@@ -63,19 +63,22 @@ export const createCatalogRepository = (api: ApiClient): CatalogRepository => ({
       .filter((product) => product.slug !== excludedSlug)
       .slice(0, SIMILAR_LIMIT)
   },
-  findAllProductSlugs: async () => {
-    const slugs: string[] = []
+  findAllProductEntries: async () => {
+    const entries: { id: string; slug: string }[] = []
     for (let page = 1; ; page += 1) {
       const { data, response } = await api.GET('/api/products', {
         params: { query: { page, itemsPerPage: MAX_PAGE_SIZE } },
       })
       if (!data) throw new ApiError(response)
-      slugs.push(...data.map((item) => item.slug))
-      if (data.length < MAX_PAGE_SIZE) return slugs
+      entries.push(...data.map((item) => ({ id: String(item.id), slug: item.slug })))
+      if (data.length < MAX_PAGE_SIZE) return entries
     }
   },
 })
 
 /** Dépôt d'une route serveur Nitro, hors application Vue. */
-export const serverCatalogRepository = (apiUrl: string, scenario?: string | null) =>
-  createCatalogRepository(createApiClient(apiUrl, scenario))
+export const serverCatalogRepository = (
+  apiUrl: string,
+  scenario: string | null | undefined,
+  locale: string,
+) => createCatalogRepository(createApiClient(apiUrl, scenario, locale))

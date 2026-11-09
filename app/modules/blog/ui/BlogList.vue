@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Alert, Button, Skeleton } from '@kewinmarchand/boilerplates-ui/vue'
 
+import { useDictionary } from '@/shared/i18n'
 import { Icon } from '@/shared/ui/kit'
 
 import BlogCard from './BlogCard.vue'
@@ -14,6 +15,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{ retry: [] }>()
+const t = useDictionary()
 
 const CARD_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
 </script>
@@ -23,7 +25,7 @@ const CARD_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
     v-if="status === 'pending'"
     role="status"
     aria-busy="true"
-    aria-label="Chargement des articles"
+    :aria-label="t.blog.loading"
     class="blog-list"
     data-testid="blog-loading"
   >
@@ -35,13 +37,13 @@ const CARD_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
     <template #action>
       <Button variant="ghost" data-testid="blog-retry" @click="emit('retry')">
         <Icon name="rotate-cw" />
-        Réessayer
+        {{ t.blog.retry }}
       </Button>
     </template>
   </Alert>
 
   <Alert v-else-if="!articles?.length" data-testid="blog-empty">
-    Aucun article pour l'instant. Revenez bientôt.
+    {{ t.blog.empty }}
   </Alert>
 
   <div v-else class="blog-list" data-testid="blog-list">

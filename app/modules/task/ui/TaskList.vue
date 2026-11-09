@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Alert, Button, Skeleton } from '@kewinmarchand/boilerplates-ui/vue'
 
+import { useDictionary } from '@/shared/i18n'
 import { Icon } from '@/shared/ui/kit'
 
 import type { Task } from '../domain/task'
@@ -12,6 +13,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{ retry: [] }>()
+const t = useDictionary()
 </script>
 
 <template>
@@ -19,7 +21,7 @@ const emit = defineEmits<{ retry: [] }>()
     v-if="status === 'pending'"
     role="status"
     aria-busy="true"
-    aria-label="Chargement des tâches"
+    :aria-label="t.tasks.loading"
     class="tasks-loading"
     data-testid="tasks-loading"
   >
@@ -31,13 +33,13 @@ const emit = defineEmits<{ retry: [] }>()
     <template #action>
       <Button variant="ghost" data-testid="tasks-retry" @click="emit('retry')">
         <Icon name="rotate-cw" />
-        Réessayer
+        {{ t.tasks.retry }}
       </Button>
     </template>
   </Alert>
 
   <Alert v-else-if="!tasks?.length" data-testid="tasks-empty">
-    Aucune tâche pour l'instant. Tout est à jour.
+    {{ t.tasks.empty }}
   </Alert>
 
   <ul v-else class="tasks-list" data-testid="tasks-list">
@@ -45,7 +47,7 @@ const emit = defineEmits<{ retry: [] }>()
       <Icon :name="task.done ? 'circle-check' : 'circle'" />
       <div>
         <p class="tasks-title">{{ task.title }}</p>
-        <p class="tasks-status">{{ task.done ? 'Terminée' : 'À faire' }}</p>
+        <p class="tasks-status">{{ task.done ? t.tasks.done : t.tasks.todo }}</p>
       </div>
     </li>
   </ul>

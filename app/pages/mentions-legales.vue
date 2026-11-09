@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDictionary } from '@/shared/i18n'
 import { usePageSeo } from '@/shared/seo'
 
 import { usePageMeta } from '@/modules/identity'
@@ -6,13 +7,12 @@ import { usePageMeta } from '@/modules/identity'
 import { LegalNoticeView } from '@/views/legal'
 
 const meta = await usePageMeta('legal-notice')
+const t = useDictionary()
 
 usePageSeo({
-  title: 'Mentions légales',
+  title: t.meta.legalNotice.title,
   adminTitle: () => meta.value.title,
-  description: () =>
-    meta.value.description ||
-    'Mentions légales du site : éditeur, directeur de la publication, hébergeur et propriété intellectuelle des contenus publiés.',
+  description: () => meta.value.description || t.meta.legalNotice.description,
 })
 </script>
 

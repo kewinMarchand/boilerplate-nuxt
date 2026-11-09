@@ -3,14 +3,15 @@ import { computed } from 'vue'
 
 import { Menu } from '@kewinmarchand/boilerplates-ui/vue'
 
+import { format, useDictionary } from '@/shared/i18n'
+
 import { COLOR_SCHEMES } from './colorSchemeBootScript'
 import { useColorScheme } from './useColorScheme'
 
-import type { ColorScheme } from './colorSchemeBootScript'
-
-const LABELS: Record<ColorScheme, string> = { auto: 'système', light: 'clair', dark: 'sombre' }
 const ICONS = { auto: 'monitor', light: 'sun', dark: 'moon' } as const
 
+const t = useDictionary()
+const LABELS = t.colorScheme.choices
 const ITEMS = COLOR_SCHEMES.map((scheme) => ({
   id: scheme,
   label: LABELS[scheme].charAt(0).toUpperCase() + LABELS[scheme].slice(1),
@@ -22,7 +23,8 @@ const { colorScheme, isEnhanced, choose } = useColorScheme()
 // Le mode renforcé impose le clair : un autre choix reste mémorisé mais suspendu.
 const label = computed(
   () =>
-    `Thème : ${LABELS[colorScheme.value]}${isEnhanced.value && colorScheme.value !== 'light' ? ", suspendu par l'accessibilité renforcée" : ''}`,
+    format(t.colorScheme.label, { choice: LABELS[colorScheme.value] }) +
+    (isEnhanced.value && colorScheme.value !== 'light' ? t.colorScheme.suspended : ''),
 )
 
 const onSelect = (id: string) => {

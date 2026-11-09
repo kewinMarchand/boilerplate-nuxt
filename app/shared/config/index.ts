@@ -1,6 +1,6 @@
 export type { Compliance } from './complianceLevel'
 export { getComplianceLevel } from './complianceLevel'
-export type { NavigationItem, NavigationNode } from './navigation'
-export { ALL_NAVIGATION, LEGAL_NAVIGATION, MAIN_NAVIGATION } from './navigation'
+export type { NavigationEntry, NavigationItem, NavigationNode } from './navigation'
+export { ALL_NAVIGATION, labelNavigation, LEGAL_NAVIGATION, MAIN_NAVIGATION } from './navigation'
 export type { SiteConfig } from './site'
 export { SITE } from './site'

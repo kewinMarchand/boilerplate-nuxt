@@ -1,5 +1,6 @@
 import { productHref } from '@/modules/catalog/domain/catalog'
 import {
+  categoryAlternates,
   categoryTrail,
   listCategoryLinks,
   resolveCategoryPath,
@@ -9,20 +10,35 @@ import {
 
 import type { Catalog } from '@/modules/catalog/domain/catalog'
 import type { CatalogRepository } from '@/modules/catalog/infrastructure/catalogRepository'
+import type { LanguageAlternate } from '@/shared/i18n'
 
 export const categoryMenuFor = (tree: Catalog.Category[]) => toCategoryMenu(tree)
 
 export const catalogLinksFor = (tree: Catalog.Category[]) => listCategoryLinks(tree)
 
-/** Liens du catalogue pour le sitemap, lus dans l'arbre servi par l'API. */
-export const fetchCatalogLinks = async (repository: CatalogRepository) =>
-  listCategoryLinks(await repository.findCategoryTree())
+/**
+ * Catégories pour le sitemap, lues dans l'arbre de la langue par défaut : chacune dans chaque langue
+ * où elle existe, sa seule adresse sur un site monolingue.
+ */
+export const fetchCatalogAlternates = async (
+  repository: CatalogRepository,
+  defaultLocale: string,
+): Promise<LanguageAlternate[][]> => {
+  const tree = await repository.findCategoryTree()
+  return listCategoryLinks(tree).map(({ href }) => {
+    const alternates = categoryAlternates(tree, slugsFromPath(href) ?? [])
+    return alternates.length > 0 ? alternates : [{ locale: defaultLocale, path: href }]
+  })
+}
 
-/** Liens des fiches produit pour le sitemap ; aucun si l'API ne répond pas. */
-export const fetchProductLinks = async (repository: CatalogRepository) =>
-  (await repository.findAllProductSlugs().catch(() => [])).map((slug) => ({
-    href: productHref(slug),
-  }))
+/** Fiches produit d'une langue pour le sitemap, par identifiant ; aucune si l'API ne répond pas. */
+export const fetchProductEntries = async (repository: CatalogRepository, locale: string) => ({
+  locale,
+  entries: (await repository.findAllProductEntries().catch(() => [])).map(({ id, slug }) => ({
+    key: id,
+    path: productHref(slug),
+  })),
+})
 
 /** Piste du fil d'Ariane d'une URL du catalogue, ou null hors du catalogue ou pour un slug inconnu. */
 export const catalogTrailFor = (tree: Catalog.Category[], path: string) => {

@@ -64,6 +64,10 @@ describe('toArticleDetail', () => {
         html: '<p>Texte</p>\n',
         metaTitle: 'Mode renforcé',
         metaDescription: '',
+        alternates: [
+          { locale: 'fr', slug: 'le-mode-accessibilite-renforcee' },
+          { locale: 'en', slug: 'enhanced-accessibility-mode' },
+        ],
       }),
     ).toMatchObject({
       id: '3',
@@ -71,6 +75,10 @@ describe('toArticleDetail', () => {
       html: '<p>Texte</p>\n',
       metaTitle: 'Mode renforcé',
       metaDescription: '',
+      alternates: [
+        { locale: 'fr', slug: 'le-mode-accessibilite-renforcee' },
+        { locale: 'en', slug: 'enhanced-accessibility-mode' },
+      ],
     })
   })
 })

@@ -13,8 +13,12 @@ export type ContactSendResult =
 export const useContactRepository = () => {
   const api = useApiClient()
   return {
-    send: async (body: Contact.Message): Promise<ContactSendResult> => {
-      const { error, response } = await api.POST('/api/contact_messages', { body })
+    /** `locale` : langue de la page, envoyée en `Accept-Language`. */
+    send: async (body: Contact.Message, locale: string): Promise<ContactSendResult> => {
+      const { error, response } = await api.POST('/api/contact_messages', {
+        body,
+        headers: { 'Accept-Language': locale },
+      })
       if (response.status === 422) return { status: 'invalid', fieldErrors: toFieldErrors(error) }
       if (!response.ok) throw new ApiError(response)
       return { status: 'sent' }

@@ -1,4 +1,4 @@
-import { BRAND_COLOR_KEYS } from '@/modules/identity/domain/siteIdentity'
+import { BRAND_COLOR_KEYS, DEFAULT_LOCALES } from '@/modules/identity/domain/siteIdentity'
 
 import type { SiteIdentity } from '@/modules/identity/domain/siteIdentity'
 import type { components } from '@/shared/api/client'
@@ -30,4 +30,6 @@ export const toSiteIdentity = (dto: SiteIdentityDto): SiteIdentity.Entity => ({
   defaultColorScheme: dto.defaultColorScheme,
   theme: dto.theme ? { light: toPalette(dto.theme.light), dark: toPalette(dto.theme.dark) } : null,
   salesEnabled: dto.salesEnabled,
+  // Absente d'une API antérieure aux langues : site monolingue en français
+  locales: dto.locales?.length ? dto.locales : DEFAULT_LOCALES,
 })

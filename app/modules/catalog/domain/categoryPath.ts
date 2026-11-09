@@ -2,6 +2,7 @@ import { findCategoryChain } from './categoryTree'
 
 import type { Catalog } from './catalog'
 import type { NavigationItem, NavigationNode } from '@/shared/config'
+import type { LanguageAlternate } from '@/shared/i18n'
 
 export const CATALOG_ROOT = { href: '/catalogue', label: 'Catalogue' } as const
 export const MAX_CATEGORY_DEPTH = 3
@@ -66,3 +67,24 @@ export const toCategoryMenu = (tree: Catalog.Category[]): NavigationNode => ({
   href: CATALOG_ROOT.href,
   children: toNavigationNodes(tree, []),
 })
+
+/**
+ * Une catégorie dans chaque langue où toute sa chaîne a un slug (`alternates` de chaque nœud) ;
+ * aucune pour un chemin inconnu ou un site monolingue.
+ */
+export const categoryAlternates = (
+  tree: Catalog.Category[],
+  slugs: string[],
+): LanguageAlternate[] => {
+  const chain = findCategoryChain(tree, slugs)
+  const [first] = chain ?? []
+  if (!chain || !first) return []
+  return first.alternates.flatMap(({ locale }) => {
+    const localized = chain.map(
+      (category) => category.alternates.find((alternate) => alternate.locale === locale)?.slug,
+    )
+    return localized.every((slug): slug is string => slug !== undefined)
+      ? [{ locale, path: categoryHref(localized) }]
+      : []
+  })
+}

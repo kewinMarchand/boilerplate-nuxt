@@ -3,7 +3,8 @@ import { ref, useId, watch } from 'vue'
 
 import { Drawer } from '@kewinmarchand/boilerplates-ui/vue'
 
-import { MAIN_NAVIGATION } from '@/shared/config'
+import { labelNavigation, MAIN_NAVIGATION } from '@/shared/config'
+import { format, useDictionary, useLocalizePath } from '@/shared/i18n'
 import { Icon } from '@/shared/ui/kit'
 
 import { useMenuDrillDown } from './composables/useMenuDrillDown'
@@ -12,6 +13,9 @@ import type { NavigationNode } from '@/shared/config'
 
 const { menu } = defineProps<{ menu: NavigationNode }>()
 
+const t = useDictionary()
+const localizePath = useLocalizePath()
+const navigation = labelNavigation(MAIN_NAVIGATION, t)
 const isOpen = ref(false)
 const panelId = useId()
 
@@ -25,7 +29,7 @@ const {
   descend,
   back,
   reset,
-} = useMenuDrillDown(() => menu)
+} = useMenuDrillDown(() => menu, t.layout.menu)
 
 const close = () => {
   isOpen.value = false
@@ -40,7 +44,7 @@ watch(isOpen, (open) => {
   <button
     type="button"
     class="bui-button bui-button--nav bui-button--icon mobile-menu-toggle requires-js"
-    aria-label="Menu"
+    :aria-label="t.layout.menu"
     aria-haspopup="dialog"
     :aria-expanded="isOpen ? 'true' : 'false'"
     :aria-controls="panelId"
@@ -54,16 +58,16 @@ watch(isOpen, (open) => {
     :id="panelId"
     :title="levelTitle"
     :open="isOpen"
-    close-label="Fermer le menu"
+    :close-label="t.layout.closeMenu"
     focus-title
     data-testid="layout-mobile-menu"
     @close="close"
   >
-    <nav v-if="level === null" aria-label="Navigation principale">
+    <nav v-if="level === null" :aria-label="t.layout.mainNavigation">
       <ul class="side-panel-list">
-        <li v-for="item in MAIN_NAVIGATION" :key="item.href">
+        <li v-for="item in navigation" :key="item.href">
           <NuxtLink
-            :to="item.href"
+            :to="localizePath(item.href)"
             class="side-panel-link"
             data-testid="layout-mobile-menu-link"
             @click="close"
@@ -84,7 +88,7 @@ watch(isOpen, (open) => {
       </ul>
     </nav>
 
-    <nav v-else :aria-label="`Catalogue : ${levelTitle}`">
+    <nav v-else :aria-label="format(t.layout.catalogLevel, { level: levelTitle })">
       <button
         type="button"
         class="side-panel-link side-panel-back"
@@ -92,15 +96,15 @@ watch(isOpen, (open) => {
         @click="back"
       >
         <Icon name="chevron-left" />
-        Retour à {{ parentTitle }}
+        {{ format(t.layout.back, { parent: parentTitle }) }}
       </button>
       <NuxtLink
-        :to="currentHref"
+        :to="localizePath(currentHref)"
         class="side-panel-link side-panel-all"
         data-testid="layout-mobile-menu-all"
         @click="close"
       >
-        {{ level.length ? 'Voir toute la catégorie' : 'Tout le catalogue' }}
+        {{ level.length ? t.layout.wholeCategory : t.layout.wholeCatalog }}
       </NuxtLink>
       <ul class="side-panel-list">
         <li v-for="node in nodes" :key="node.id">
@@ -116,7 +120,7 @@ watch(isOpen, (open) => {
           </button>
           <NuxtLink
             v-else
-            :to="node.href"
+            :to="localizePath(node.href)"
             class="side-panel-link"
             data-testid="layout-category-link"
             @click="close"

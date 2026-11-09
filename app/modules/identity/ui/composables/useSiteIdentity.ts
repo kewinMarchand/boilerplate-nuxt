@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 import { useHead, useRequestEvent, useSeoMeta } from '#imports'
 
+import { useRequestedLocale } from '@/shared/i18n/route'
 import { useDefaultSeoImage } from '@/shared/seo'
 import { largestWebp } from '@/shared/ui/kit'
 
@@ -14,8 +15,6 @@ import type { PageMeta } from '@/modules/identity/domain/pageMeta'
 import type { SiteIdentity } from '@/modules/identity/domain/siteIdentity'
 import type { Ref } from 'vue'
 
-export const SITE_IDENTITY_QUERY_KEY = ['identity'] as const
-
 const FRONT_ICON_LINKS = [
   { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
   { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
@@ -23,18 +22,22 @@ const FRONT_ICON_LINKS = [
 ] as const
 
 /**
- * Identité du site, lue une fois par requête serveur puis réhydratée. API en erreur : la configuration
- * du front, la page reste servie. À attendre dans le `setup`, comme l'arbre des catégories.
+ * Identité du site, lue une fois par requête serveur puis réhydratée, jamais relue par le navigateur :
+ * sans préfixe de langue, elle est demandée sans langue, et le navigateur enverrait la sienne
+ * (`Accept-Language`). API en erreur : la configuration du front, la page reste servie. À attendre
+ * dans le `setup`, comme l'arbre des catégories.
  */
 export const useSiteIdentity = async () => {
   const repository = useSiteIdentityRepository()
+  const requestedLocale = useRequestedLocale()
   const query = useQuery({
-    queryKey: SITE_IDENTITY_QUERY_KEY,
+    queryKey: ['identity', requestedLocale],
     queryFn: () =>
-      repository.find().catch((error: unknown) => {
+      repository.find(requestedLocale).catch((error: unknown) => {
         console.error(error)
         return FALLBACK_IDENTITY
       }),
+    staleTime: Infinity,
   })
   await (import.meta.server ? query.suspense() : Promise.resolve())
   return computed(() => query.data.value ?? FALLBACK_IDENTITY)

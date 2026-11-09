@@ -1,13 +1,12 @@
 <script setup lang="ts">
+import { useDictionary } from '@/shared/i18n'
 import { usePageSeo } from '@/shared/seo'
 
 import { TasksView } from '@/modules/task'
 
-usePageSeo({
-  title: 'Tâches',
-  description:
-    'Démo TanStack Query : liste de tâches chargée côté client avec gestion du chargement, des erreurs et de la liste vide.',
-})
+const t = useDictionary()
+
+usePageSeo({ title: t.meta.tasks.title, description: t.meta.tasks.description })
 </script>
 
 <template>
