@@ -1,3 +1,4 @@
+import { dictionarySections, isDictionarySection } from './dictionaries'
 import { en } from './dictionaries/en'
 import { fr } from './dictionaries/fr'
 import { format, plural } from './format'
@@ -28,6 +29,20 @@ describe('dictionnaires', () => {
   it('ne contiennent que des données sérialisables', () => {
     expect(JSON.parse(JSON.stringify(en))).toEqual(en)
     expect(JSON.parse(JSON.stringify(fr))).toEqual(fr)
+  })
+
+  it('ne donnent au navigateur que les sections demandées, métadonnées page par page', () => {
+    expect(dictionarySections(en, ['cart', 'meta.contact', 'meta.blog'])).toEqual({
+      cart: en.cart,
+      meta: { contact: en.meta.contact, blog: en.meta.blog },
+    })
+  })
+
+  it('refusent une section inconnue ou le bloc entier des métadonnées', () => {
+    expect(['catalog', 'meta.contact'].every(isDictionarySection)).toBe(true)
+    for (const section of ['meta', 'meta.inconnue', 'catalog.filters', 'toString', 'inconnue']) {
+      expect(isDictionarySection(section)).toBe(false)
+    }
   })
 })
 

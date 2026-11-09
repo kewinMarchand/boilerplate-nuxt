@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useDictionary } from '@/shared/i18n'
+import { usePageDictionary } from '@/shared/i18n/route'
 import { usePageSeo } from '@/shared/seo'
 
 import { usePageMeta } from '@/modules/identity'
 
 import { PersonalDataView } from '@/views/legal'
 
+await usePageDictionary(['legal', 'opposition', 'meta.privacy'])
 const meta = await usePageMeta('privacy')
 const t = useDictionary()
 

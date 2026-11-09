@@ -2,14 +2,14 @@ import { computed, inject } from 'vue'
 
 import { localizePath } from './locale'
 
-import type { Dictionary } from './dictionaries/dictionary'
+import type { Dictionary, PartialDictionary } from './dictionaries/dictionary'
 import type { LanguageAlternate, LocaleContext } from './locale'
 import type { InjectionKey, Ref } from 'vue'
 
 export interface I18n {
   locale: Readonly<Ref<LocaleContext>>
-  /** Dictionnaire de la page, posé au rendu serveur et transmis par le payload : le navigateur ne charge pas les autres. */
-  dictionary: Ref<Dictionary | null>
+  /** Sections du dictionnaire lues par le document et la page, posées au rendu serveur et transmises par le payload. */
+  dictionary: Ref<PartialDictionary>
 }
 
 export const I18N: InjectionKey<I18n> = Symbol('i18n')
@@ -24,11 +24,10 @@ const useI18n = () => {
 export const useLocale = (): LocaleContext => useI18n().locale.value
 
 /** Libellés de l'interface dans la langue de la page. */
-export const useDictionary = (): Dictionary => {
-  const dictionary = useI18n().dictionary.value
-  if (!dictionary) throw new Error('Dictionnaire absent : useSiteLocale le pose avant le rendu.')
-  return dictionary
-}
+export const useDictionary = (): Dictionary =>
+  // Contrat vérifié par le rendu serveur de chaque page (e2e) : une section que la page n'a pas
+  // demandée (`usePageDictionary`) manque et casse le rendu
+  useI18n().dictionary.value as Dictionary
 
 /** Préfixe de la langue de la page sur un chemin interne : le seul point qui préfixe les liens. */
 export const useLocalizePath = () => {

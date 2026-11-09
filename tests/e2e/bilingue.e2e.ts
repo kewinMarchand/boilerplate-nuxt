@@ -277,6 +277,8 @@ test.describe('Site bilingue fr, en (X-Scenario: bilingual fixé au démarrage)'
     await expect(page).toHaveURL(`${appUrl}/en/taches`)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Tasks')
     await expect(page.getByTestId('tasks-list')).toBeVisible()
+    // Sections de la page demandées au serveur dans la langue de la page
+    await expect(page).toHaveTitle(new RegExp(`^${en.meta.tasks.title}`))
   })
 
   test('hreflang, x-default, canonique et og:locale suivent la langue de la page', async ({

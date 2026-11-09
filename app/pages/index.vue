@@ -3,6 +3,7 @@ import { definePageMeta, useRuntimeConfig } from '#imports'
 
 import { SITE } from '@/shared/config'
 import { useDictionary, useLocale, useLocalizePath } from '@/shared/i18n'
+import { usePageDictionary } from '@/shared/i18n/route'
 import { organizationJsonLd, usePageSeo, websiteJsonLd } from '@/shared/seo'
 
 import { usePageMeta, useSiteIdentity } from '@/modules/identity'
@@ -11,6 +12,7 @@ import { HomeView } from '@/views/home'
 
 definePageMeta({ fullBleed: true })
 
+await usePageDictionary(['home', 'catalog', 'carousel', 'blog', 'meta.home'])
 const { siteUrl } = useRuntimeConfig().public
 const identity = await useSiteIdentity()
 const meta = await usePageMeta('home')

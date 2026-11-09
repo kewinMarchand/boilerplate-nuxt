@@ -163,7 +163,7 @@ Chaque réponse porte un en-tête `Content-Security-Policy-Report-Only` construi
 
 ### Ajouter un libellé ou une langue
 
-Les langues du site viennent de l'API (`locales` de l'identité, administrées dans l'admin) : rien à changer dans le front pour activer l'anglais. Un libellé s'ajoute dans `app/shared/i18n/dictionaries/fr.ts` puis dans `en.ts` (le type et `locale.test.ts` exigent les mêmes clés) et se lit par `useDictionary()` ; un lien interne passe par `useLocalizePath()`. Une nouvelle langue demande son dictionnaire, déclaré dans `dictionaries/index.ts`, et sa forme Open Graph dans `ogLocale` (`locale.ts`) ; sans dictionnaire, elle prend les libellés français.
+Les langues du site viennent de l'API (`locales` de l'identité, administrées dans l'admin) : rien à changer dans le front pour activer l'anglais. Un libellé s'ajoute dans `app/shared/i18n/dictionaries/fr.ts` puis dans `en.ts` (le type et `locale.test.ts` exigent les mêmes clés) et se lit par `useDictionary()` ; une section nouvelle s'ajoute à `DOCUMENT_SECTIONS` (`shared/i18n/route.ts`) si l'en-tête, le pied ou la page d'erreur la lisent, sinon à l'appel `usePageDictionary([...])` de chaque page qui l'affiche (sans quoi le rendu de la page casse) ; un lien interne passe par `useLocalizePath()`. Une nouvelle langue demande son dictionnaire, déclaré dans `dictionaries/index.ts`, et sa forme Open Graph dans `ogLocale` (`locale.ts`) ; sans dictionnaire, elle prend les libellés français.
 
 ### Ajouter une icône
 
