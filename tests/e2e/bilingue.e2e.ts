@@ -2,11 +2,10 @@ import { spawn } from 'node:child_process'
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
-import { REAL_API } from '../support/fakeApi'
 import { enableDarkMode, enableEnhancedMode, gotoHydrated } from '../support/page'
 import { BILINGUAL_PORT } from '../support/ports'
 
-import type { BrowserContext, Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import type { ChildProcess } from 'node:child_process'
 
 // Libellés anglais écrits en clair : le projet Node des tests ne résout pas l'alias `@/` des dictionnaires.
@@ -95,30 +94,7 @@ test.describe('Site bilingue fr, en (X-Scenario: bilingual fixé au démarrage)'
     app?.kill()
   })
 
-  // L'API n'autorise pas l'origine de ce serveur : le navigateur du test ajoute l'en-tête CORS
-  // aux réponses de l'API appelée depuis la page (tâches, envoi du contact).
-  const allowApiFromApp = (context: BrowserContext) =>
-    context.route(`${REAL_API}/**`, async (route) => {
-      const response = await route.fetch()
-      await route.fulfill({
-        response,
-        headers: {
-          ...response.headers(),
-          'access-control-allow-origin': appUrl,
-          'access-control-allow-headers': 'content-type, accept, accept-language, x-scenario',
-        },
-      })
-    })
-
-  test.beforeEach(async ({ context }) => {
-    await allowApiFromApp(context)
-  })
-
-  // Une requête encore en vol à la fin du test (tâches chargées dans le navigateur) ne fait pas échouer le suivant
-  test.afterEach(async ({ context }) => {
-    await context.unrouteAll({ behavior: 'ignoreErrors' })
-  })
-
+  // Les deux API autorisent l'origine de ce serveur (3118, mobile 3119) : le navigateur les appelle directement.
   const goto = (page: Page, path: string) => gotoHydrated(page, `${appUrl}${path}`)
 
   test('l’accueil anglais est préfixé, en anglais, et ses liens internes gardent le préfixe', async ({
