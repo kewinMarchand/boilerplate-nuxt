@@ -12,4 +12,4 @@ export const SALES_OFF_FAKE_API_PORT = 3141
 /** Build servi avec `NUXT_PUBLIC_API_SCENARIO=bilingual` (site en français et en anglais) ; mobile : port suivant. */
 export const BILINGUAL_PORT = 3118
 /** Même build, bilingue, servi avec `MAINTENANCE=1` ; mobile : port suivant. */
-export const BILINGUAL_MAINTENANCE_PORT = 3120
+export const BILINGUAL_MAINTENANCE_PORT = 3146

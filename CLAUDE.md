@@ -59,7 +59,7 @@ Boilerplate personnel, transposition Nuxt de `boilerplate-next`. Les conventions
 | e2e vente coupée, build servi (mobile : 3142)           | 3140 |
 | e2e vente coupée, API factice (mobile : 3143)           | 3141 |
 | e2e site bilingue, build servi (mobile : 3119)          | 3118 |
-| e2e site bilingue en maintenance (mobile : 3121)        | 3120 |
+| e2e site bilingue en maintenance (mobile : 3147)        | 3146 |
 
 Le conteneur partage le réseau de la machine : ces ports doivent y être libres.
 
