@@ -57,6 +57,8 @@ export default defineNuxtConfig({
     public: {
       siteUrl: 'http://localhost:3010',
       apiUrl: 'http://localhost:8090',
+      // Scénario de l'API (`X-Scenario`) fixé pour tous les appels, serveur et navigateur ; vide en production
+      apiScenario: '',
       devTools: process.env.NODE_ENV !== 'production',
       glitchtipDsn: '',
       glitchtipEnvironment: '',

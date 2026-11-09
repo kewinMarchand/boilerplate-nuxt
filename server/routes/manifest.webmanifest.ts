@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
   const identity = await serverSiteIdentityRepository(
     config.apiUrl || config.public.apiUrl,
-    getHeader(event, 'x-scenario'),
+    getHeader(event, 'x-scenario') ?? (config.public.apiScenario || null),
   )
     .find()
     .catch((error: unknown) => {

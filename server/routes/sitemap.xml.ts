@@ -11,7 +11,7 @@ import {
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
   const apiUrl = config.apiUrl || config.public.apiUrl
-  const scenario = getHeader(event, 'x-scenario')
+  const scenario = getHeader(event, 'x-scenario') ?? (config.public.apiScenario || null)
   const catalog = serverCatalogRepository(apiUrl, scenario)
   const [catalogLinks, productLinks, articles] = await Promise.all([
     fetchCatalogLinks(catalog),
