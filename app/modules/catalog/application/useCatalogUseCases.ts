@@ -1,5 +1,6 @@
 import { useCatalogRepository } from '../infrastructure/useCatalogRepository'
 import { loadCatalogPage } from './catalogPage'
+import { loadProductTranslations } from './productTranslations'
 
 import type { Catalog } from '../domain/catalog'
 
@@ -11,6 +12,8 @@ export const useCatalogUseCases = () => {
     loadCatalogPage: (slugs: string[], query: Catalog.Query) =>
       loadCatalogPage(repository, slugs, query),
     loadProduct: (slug: string) => repository.findProduct(slug),
+    loadProductTranslations: (product: Catalog.ProductDetail, locale: string) =>
+      loadProductTranslations(repository, product, locale),
     loadFeaturedProducts: () => repository.findFeaturedProducts(),
     /** Aucun produit si l'API ne répond pas : la fiche reste l'essentiel. */
     loadSimilarProducts: (categorySlug: string, excludedSlug: string) =>

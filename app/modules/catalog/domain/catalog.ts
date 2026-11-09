@@ -63,6 +63,13 @@ export declare namespace Catalog {
     attributes: ProductAttribute[]
   }
 
+  /** Slug et nom d'un produit dans une langue du site. */
+  interface ProductTranslation {
+    locale: string
+    slug: string
+    name: string
+  }
+
   /** Fiche : le produit, sa description et le chemin de sa catégorie, de la racine à elle (fil d'Ariane). */
   interface ProductDetail extends Product {
     categoryPath: CategoryPath

@@ -17,7 +17,8 @@ export interface CatalogRepository {
   findCategoryTree: () => Promise<Catalog.Category[]>
   findCatalogPage: (slugs: string[], query: Catalog.Query) => Promise<Catalog.Page>
   /** `null` si l'API ne connaît pas le produit (404). */
-  findProduct: (slug: string) => Promise<Catalog.ProductDetail | null>
+  /** `locale` : une autre langue que celle de la page (panier dans chaque langue). */
+  findProduct: (slug: string, locale?: string) => Promise<Catalog.ProductDetail | null>
   findFeaturedProducts: () => Promise<Catalog.Product[]>
   /** Produits de la catégorie, sans celui affiché : le carrousel de la fiche. */
   findSimilarProducts: (categorySlug: string, excludedSlug: string) => Promise<Catalog.Product[]>
@@ -40,9 +41,9 @@ export const createCatalogRepository = (api: ApiClient): CatalogRepository => ({
     if (!facets.data) throw new ApiError(facets.response)
     return toCatalogPage(products.data, facets.data, query.page, slugs)
   },
-  findProduct: async (slug) => {
+  findProduct: async (slug, locale) => {
     const { data, response } = await api.GET('/api/products/{slug}', {
-      params: { path: { slug } },
+      params: { path: { slug }, query: locale ? { locale } : {} },
     })
     if (response.status === 404) return null
     if (!data) throw new ApiError(response)

@@ -12,7 +12,7 @@ import { AppBreadcrumb } from '@/shared/ui/layout'
 import { productHref } from '../domain/catalog'
 import { categoryTrail } from '../domain/categoryPath'
 import { formatPrice } from '../domain/price'
-import { useProduct } from './composables/useProduct'
+import { useProduct, useProductTranslations } from './composables/useProduct'
 import ProductGallery from './ProductGallery.vue'
 import SimilarProducts from './SimilarProducts.vue'
 
@@ -20,14 +20,23 @@ import type { Catalog } from '../domain/catalog'
 
 const { salesEnabled } = defineProps<{ salesEnabled: boolean }>()
 
-/** Bouton d'achat ou lien de demande de renseignement, fourni par la couche de routage. */
-defineSlots<{ purchase?: (props: { product: Catalog.ProductDetail }) => unknown }>()
+/**
+ * Bouton d'achat ou lien de demande de renseignement, fourni par la couche de routage ; `translations` :
+ * slug et nom de la fiche dans chaque langue du site, pour le panier.
+ */
+defineSlots<{
+  purchase?: (props: {
+    product: Catalog.ProductDetail
+    translations: Catalog.ProductTranslation[]
+  }) => unknown
+}>()
 
 const IMAGE_SIZES = '(min-width: 1440px) 680px, (min-width: 768px) 50vw, calc(100vw - 32px)'
 
 const route = useRoute()
 const slug = String(route.params['slug'])
 const { status, data: product } = await useProduct(slug)
+const translations = await useProductTranslations(product, salesEnabled)
 const t = useDictionary()
 const localizePath = useLocalizePath()
 const { siteUrl } = useRuntimeConfig().public
@@ -181,7 +190,7 @@ useHead({
           <dd>{{ attribute.unit ? `${attribute.value} ${attribute.unit}` : attribute.value }}</dd>
         </template>
       </dl>
-      <slot name="purchase" :product="product" />
+      <slot name="purchase" :product="product" :translations="translations" />
       <p v-if="category">
         <NuxtLink :to="localizePath(category.href)" class="bui-link">
           {{ format(t.product.otherProducts, { category: category.label }) }}

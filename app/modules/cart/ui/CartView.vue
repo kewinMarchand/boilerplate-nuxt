@@ -3,10 +3,10 @@ import { computed } from 'vue'
 
 import { Button } from '@kewinmarchand/boilerplates-ui/vue'
 
-import { format, useDictionary, useLocalizePath } from '@/shared/i18n'
+import { format, useDictionary, useLocale, useLocalizePath } from '@/shared/i18n'
 import { AppBreadcrumb } from '@/shared/ui/layout'
 
-import { MAX_QUANTITY, totalPrice } from '../domain/cart'
+import { lineIn, MAX_QUANTITY, totalPrice } from '../domain/cart'
 import { formatPrice } from '../domain/price'
 import { CART_PATH } from './cartPath'
 import { useCart } from './composables/useCart'
@@ -18,20 +18,24 @@ const productHref = (slug: string) => `/produit/${slug}`
 
 const { lines, changeQuantity, remove } = useCart()
 const t = useDictionary()
+const { locale } = useLocale()
 const localizePath = useLocalizePath()
 const price = (cents: number) => formatPrice(cents, t.language.tag)
 const total = computed(() => price(totalPrice(lines.value)))
+const localizedLines = computed(() =>
+  lines.value.map((line) => ({ ...line, ...lineIn(line, locale) })),
+)
 const { markRemoved } = useFocusAfterRemoval(() => lines.value.length)
 
-const removeLine = (index: number, slug: string) => {
+const removeLine = (index: number, id: string) => {
   markRemoved(index)
-  remove(slug)
+  remove(id)
 }
 
-const onQuantityInput = (slug: string, event: Event) => {
+const onQuantityInput = (id: string, event: Event) => {
   if (!(event.currentTarget instanceof HTMLInputElement)) return
   const quantity = event.currentTarget.valueAsNumber
-  if (!Number.isNaN(quantity)) changeQuantity(slug, quantity)
+  if (!Number.isNaN(quantity)) changeQuantity(id, quantity)
 }
 </script>
 
@@ -56,8 +60,8 @@ const onQuantityInput = (slug: string, event: Event) => {
     <template v-else>
       <ul ref="cartLines" class="cart-lines">
         <li
-          v-for="(line, index) in lines"
-          :key="line.slug"
+          v-for="(line, index) in localizedLines"
+          :key="line.id"
           class="cart-line"
           data-testid="cart-line"
         >
@@ -76,7 +80,7 @@ const onQuantityInput = (slug: string, event: Event) => {
               :value="line.quantity"
               class="bui-field__input"
               data-testid="cart-quantity"
-              @input="onQuantityInput(line.slug, $event)"
+              @input="onQuantityInput(line.id, $event)"
             />
           </label>
           <span class="cart-line-subtotal">{{ price(line.price * line.quantity) }}</span>
@@ -84,7 +88,7 @@ const onQuantityInput = (slug: string, event: Event) => {
             variant="outline"
             :aria-label="format(t.cart.removeItem, { name: line.name })"
             data-testid="cart-remove"
-            @click="removeLine(index, line.slug)"
+            @click="removeLine(index, line.id)"
           >
             {{ t.cart.remove }}
           </Button>

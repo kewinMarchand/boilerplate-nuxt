@@ -31,8 +31,8 @@ export const useCart = () => {
   return {
     lines,
     add: (item: Cart.Item) => update((current) => addItem(current, item)),
-    changeQuantity: (slug: string, quantity: number) =>
-      update((current) => setQuantity(current, slug, quantity)),
-    remove: (slug: string) => update((current) => removeItem(current, slug)),
+    changeQuantity: (id: string, quantity: number) =>
+      update((current) => setQuantity(current, id, quantity)),
+    remove: (id: string) => update((current) => removeItem(current, id)),
   }
 }

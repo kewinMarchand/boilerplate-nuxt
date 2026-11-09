@@ -2,11 +2,14 @@ import { useQuery } from '@tanstack/vue-query'
 import { computed, toValue, watch } from 'vue'
 import { createError, showError } from '#imports'
 
+import { useLocale } from '@/shared/i18n'
+
 import { productAlternates } from '@/modules/catalog/domain/catalog'
 import { ProductLoadError } from '@/modules/catalog/application/ProductLoadError'
 import { useCatalogUseCases } from '@/modules/catalog/application/useCatalogUseCases'
 
-import type { MaybeRefOrGetter } from 'vue'
+import type { Catalog } from '@/modules/catalog/domain/catalog'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 const NOT_FOUND = { statusCode: 404, fatal: true }
 
@@ -59,4 +62,26 @@ export const useProductAlternates = async (slug: MaybeRefOrGetter<string | undef
     ? query.suspense().catch(() => null)
     : Promise.resolve())
   return computed(() => (query.data.value ? productAlternates(query.data.value) : []))
+}
+
+/**
+ * Slug et nom de la fiche dans chaque langue du site, pour une ligne du panier affichée dans une autre
+ * langue ; lus au rendu serveur et transmis par le payload, aucune lecture sans vente ni sur un site
+ * monolingue. À attendre dans le `setup`.
+ */
+export const useProductTranslations = async (
+  product: Readonly<Ref<Catalog.ProductDetail | null | undefined>>,
+  salesEnabled: boolean,
+) => {
+  const { loadProductTranslations } = useCatalogUseCases()
+  const { locale } = useLocale()
+  const enabled = computed(() => salesEnabled && (product.value?.alternates.length ?? 0) > 0)
+  const query = useQuery({
+    queryKey: ['product-translations', computed(() => product.value?.slug)],
+    queryFn: () => (product.value ? loadProductTranslations(product.value, locale) : []),
+    enabled,
+  })
+  // Requête désactivée : `suspense()` ne rendrait jamais la main
+  await (import.meta.server && enabled.value ? query.suspense() : Promise.resolve())
+  return computed(() => query.data.value ?? [])
 }

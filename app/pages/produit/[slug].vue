@@ -9,10 +9,16 @@ const identity = await useSiteIdentity()
 
 <template>
   <ProductView :sales-enabled="identity.salesEnabled">
-    <template #purchase="{ product }">
+    <template #purchase="{ product, translations }">
       <AddToCartButton
         v-if="identity.salesEnabled"
-        :item="{ slug: product.slug, name: product.name, price: product.price }"
+        :item="{
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          price: product.price,
+          translations,
+        }"
         :is-available="product.inStock"
       />
       <InquiryLink v-else :slug="product.slug" :name="product.name" />
