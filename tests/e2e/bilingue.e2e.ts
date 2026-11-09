@@ -169,7 +169,7 @@ test.describe('Site bilingue fr, en (X-Scenario: bilingual fixé au démarrage)'
     app?.kill()
   })
 
-  // Les deux API autorisent l'origine de ce serveur (3118, mobile 3119) : le navigateur les appelle directement.
+  // Les deux API autorisent l'origine de ce serveur (4022, mobile 4023) : le navigateur les appelle directement.
   const goto = (page: Page, path: string) => gotoHydrated(page, `${appUrl}${path}`)
 
   test('l’accueil anglais est préfixé, en anglais, et ses liens internes gardent le préfixe', async ({

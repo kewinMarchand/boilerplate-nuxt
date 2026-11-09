@@ -51,6 +51,8 @@ make up        # http://localhost:3010, rechargement à chaud
 
 Le port vient de `DEV_PORT` (3010 par défaut), pour `make up` comme pour `make start`. Le conteneur partage le réseau de la machine. Le navigateur appelle l'API directement : un autre port doit être autorisé par la configuration CORS de l'API.
 
+Ports : registre unique de la section 7 de la spec commune (`~/Applications/boilerplates-commun/SPEC-COMMUNE.md`). Bloc 4020-4039 : 4020 e2e principal (build avec outils de dev), 4021 build de production stricte (404 des routes de dev), 4022 et 4023 site bilingue (desktop, mobile), 4024 et 4025 bilingue en maintenance, 4026 observabilité, 4027 faux GlitchTip, 4028 et 4029 identité saisie (site, API factice), 4030 et 4031 les mêmes en mobile, 4032 et 4033 vente coupée (site, API factice), 4034 et 4035 les mêmes en mobile, 4038 image de production (`make docker-up`, `PORT`), 4039 Lighthouse CI. 4036 et 4037 sont libres. Les ports de Playwright sont centralisés dans `tests/support/ports.ts`.
+
 Variables d'environnement (`.env`) :
 
 | Variable                            | Rôle                                                                                                                                                       |
@@ -86,7 +88,7 @@ Variables d'environnement (`.env`) :
 | `make metrics`                         | Lighthouse CI en clair puis en sombre : échoue sous 90 en performance ou sous 100 en accessibilité et SEO    |
 | `make icons` / `make icons-check`      | Génère le sprite `public/icons.svg` et le type `IconName` depuis `icons.json`, ou vérifie qu'ils sont à jour |
 | `make api-types`                       | Génère `app/shared/api/schema.d.ts` depuis `API_SCHEMA_URL`                                                  |
-| `make docker-build` / `make docker-up` | Image de production, sur le port `PORT` (3010 par défaut)                                                    |
+| `make docker-build` / `make docker-up` | Image de production, sur le port `PORT` (4038 par défaut)                                                    |
 | `make docker-down`                     | Arrête les conteneurs, dont ceux du profil de développement                                                  |
 
 ## Architecture
@@ -176,9 +178,9 @@ L'arbre vient de l'API (`GET /api/categories`) : une catégorie s'ajoute côté 
 ## Tests
 
 - **Unitaires et fonctionnels** : fichiers `*.test.ts` à côté du code testé.
-- **End-to-end** : Playwright sert le build de production sur le port 3110 (outils de dev activés) et 3111 (production stricte, pour vérifier les 404 de la charte et de la route de test). Les éléments sont ciblés par `data-testid`, préfixé par le domaine (`tasks-list`, `catalog-sort`). Chaque rendu conditionnel est testé présent et absent. Les tests attendent la fin de l'hydratation (`html[data-hydrated]`).
+- **End-to-end** : Playwright sert le build de production sur le port 4020 (outils de dev activés) et 4021 (production stricte, pour vérifier les 404 de la charte et de la route de test). Les éléments sont ciblés par `data-testid`, préfixé par le domaine (`tasks-list`, `catalog-sort`). Chaque rendu conditionnel est testé présent et absent. Les tests attendent la fin de l'hydratation (`html[data-hydrated]`).
 - **Accessibilité** : `tests/a11y/` passe axe-core sur chaque route, les pages d'erreur et le menu ouvert, en mode normal et renforcé. Axe ne couvre qu'une partie du RGAA, un audit manuel reste nécessaire.
-- **Site bilingue** : `tests/e2e/bilingue.e2e.ts` sert le même build avec `NUXT_PUBLIC_API_SCENARIO=bilingual` (port 3118, mobile 3119) : routes préfixées, libellés et contenus anglais, sélecteur, `hreflang`, sitemap, 404 d'un préfixe non activé, axe sur les pages anglaises. Il vérifie qu'aucun libellé français ne reste sur les pages anglaises (libellés des dictionnaires absents de l'anglais et défauts de boilerplates-ui) : alertes, champs obligatoires, chargement (réponses de l'API retenues par une interception limitée à `/api/**`), filtres, pagination, fil d'Ariane, page introuvable, panier et maintenance (même build servi avec `MAINTENANCE=1` sur le port 3146, mobile 3147), et qu'une ligne du panier suit la langue de la page. Le site monolingue y est vérifié sans sélecteur ni `hreflang`.
+- **Site bilingue** : `tests/e2e/bilingue.e2e.ts` sert le même build avec `NUXT_PUBLIC_API_SCENARIO=bilingual` (port 4022, mobile 4023) : routes préfixées, libellés et contenus anglais, sélecteur, `hreflang`, sitemap, 404 d'un préfixe non activé, axe sur les pages anglaises. Il vérifie qu'aucun libellé français ne reste sur les pages anglaises (libellés des dictionnaires absents de l'anglais et défauts de boilerplates-ui) : alertes, champs obligatoires, chargement (réponses de l'API retenues par une interception limitée à `/api/**`), filtres, pagination, fil d'Ariane, page introuvable, panier et maintenance (même build servi avec `MAINTENANCE=1` sur le port 4024, mobile 4025), et qu'une ligne du panier suit la langue de la page. Le site monolingue y est vérifié sans sélecteur ni `hreflang`.
 - **Captures** : `tests/e2e/captures.e2e.ts` enregistre l'accueil et le catalogue à 375, 768 et 1280 px dans les deux modes, dans `test-results/`.
 
 ## Intégration continue
@@ -226,22 +228,22 @@ git cherry-pick <sha>
 
 ### Personnaliser
 
-| Quoi                             | Fichiers                                                                                                                                                                                                   |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Nom du paquet et titre           | `package.json` (`name`), titre de ce README et du `CLAUDE.md`, titulaire dans `LICENSE`                                                                                                                    |
-| Identité du site                 | `app/shared/config/site.ts` : nom, description, langue, éditeur (SEO), résultat d'audit d'accessibilité (lien du footer). Les valeurs fournies sont fictives                                               |
-| Nom affiché dans les tests       | `tests/e2e/home.e2e.ts` (h1 du hero) et `tests/e2e/layout.e2e.ts` (nom accessible du logo), à aligner sur `SITE.name`                                                                                      |
-| Couleur principale               | jetons de `@kewinmarchand/boilerplates-ui` (`tokens.json`), lus par `app/shared/theme/tokens.ts` (`PRIMARY_COLOR`), repris par la balise `theme-color`. Reporter la valeur dans `theme_color` du manifeste |
-| Manifeste                        | `public/manifest.webmanifest` : `name`, `short_name`, `theme_color`                                                                                                                                        |
-| URL publique                     | `NUXT_PUBLIC_SITE_URL` dans `.env.example`, `compose.yaml` et la valeur par défaut de `nuxt.config.ts`                                                                                                     |
-| Port de développement (3010)     | script `dev` de `package.json`, `.env.example`, `compose.yaml`, `nuxt.config.ts`, aides de `make up` et `make docker-up` dans le `Makefile`                                                                |
-| Ports de test (3110, 3111, 3210) | `tests/support/ports.ts` pour Playwright, `.lighthouserc.json` pour Lighthouse. À changer seulement s'ils entrent en conflit avec un autre projet                                                          |
-| Logo                             | `public/images/logo-mark.svg`, affiché par le header, le footer et la charte graphique                                                                                                                     |
-| Favicons et partage              | `public/favicon.ico`, `public/favicon.svg`, `public/apple-touch-icon.png`, `public/icon-192.png`, `public/icon-512.png`, `public/og-image.jpg`                                                             |
-| Accueil                          | `app/views/home/` : hero (`HomeHero.vue`), images `public/images/hero-*` et `slide-*`. Les diapositives du carrousel viennent de l'API (`GET /api/slides`), administrées dans son `/admin`                 |
-| Pages légales                    | Texte lu dans l'API (`GET /api/legal_pages/{slug}`), à modifier dans son `/admin` (Pages légales). Restent dans `app/views/legal/` la section « Mesure d'audience » et le bouton d'opposition              |
-| URL Lighthouse                   | `ci.url` de `.lighthouserc.json`, une entrée par route à mesurer                                                                                                                                           |
-| Intégration continue             | `.github/workflows/ci.yml` : branche surveillée (`main`), puis `make qa`, `make test-e2e test-a11y` et `make metrics`                                                                                      |
+| Quoi                                       | Fichiers                                                                                                                                                                                                        |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nom du paquet et titre                     | `package.json` (`name`), titre de ce README et du `CLAUDE.md`, titulaire dans `LICENSE`                                                                                                                         |
+| Identité du site                           | `app/shared/config/site.ts` : nom, description, langue, éditeur (SEO), résultat d'audit d'accessibilité (lien du footer). Les valeurs fournies sont fictives                                                    |
+| Nom affiché dans les tests                 | `tests/e2e/home.e2e.ts` (h1 du hero) et `tests/e2e/layout.e2e.ts` (nom accessible du logo), à aligner sur `SITE.name`                                                                                           |
+| Couleur principale                         | jetons de `@kewinmarchand/boilerplates-ui` (`tokens.json`), lus par `app/shared/theme/tokens.ts` (`PRIMARY_COLOR`), repris par la balise `theme-color`. Reporter la valeur dans `theme_color` du manifeste      |
+| Manifeste                                  | `public/manifest.webmanifest` : `name`, `short_name`, `theme_color`                                                                                                                                             |
+| URL publique                               | `NUXT_PUBLIC_SITE_URL` dans `.env.example`, `compose.yaml` et la valeur par défaut de `nuxt.config.ts`                                                                                                          |
+| Port de développement (3010)               | script `dev` de `package.json`, `.env.example`, `nuxt.config.ts`, aide de `make up` dans le `Makefile`                                                                                                          |
+| Ports de test et d'outils (bloc 4020-4039) | `tests/support/ports.ts` pour Playwright, `.lighthouserc.json` pour Lighthouse, `compose.yaml` et aide de `make docker-up` pour l'image de production. Pris dans le bloc du dépôt, section 7 de la spec commune |
+| Logo                                       | `public/images/logo-mark.svg`, affiché par le header, le footer et la charte graphique                                                                                                                          |
+| Favicons et partage                        | `public/favicon.ico`, `public/favicon.svg`, `public/apple-touch-icon.png`, `public/icon-192.png`, `public/icon-512.png`, `public/og-image.jpg`                                                                  |
+| Accueil                                    | `app/views/home/` : hero (`HomeHero.vue`), images `public/images/hero-*` et `slide-*`. Les diapositives du carrousel viennent de l'API (`GET /api/slides`), administrées dans son `/admin`                      |
+| Pages légales                              | Texte lu dans l'API (`GET /api/legal_pages/{slug}`), à modifier dans son `/admin` (Pages légales). Restent dans `app/views/legal/` la section « Mesure d'audience » et le bouton d'opposition                   |
+| URL Lighthouse                             | `ci.url` de `.lighthouserc.json`, une entrée par route à mesurer                                                                                                                                                |
+| Intégration continue                       | `.github/workflows/ci.yml` : branche surveillée (`main`), puis `make qa`, `make test-e2e test-a11y` et `make metrics`                                                                                           |
 
 ### Retirer les modules d'exemple
 
