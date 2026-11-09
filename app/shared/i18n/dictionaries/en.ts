@@ -70,6 +70,10 @@ export const en: Dictionary = {
     catalog: 'Browse the catalogue',
     retry: 'Try again',
   },
+  maintenance: {
+    title: 'Site under maintenance',
+    text: 'The site is temporarily unavailable for maintenance. Please come back in about an hour.',
+  },
   home: {
     overline: 'Boilerplate Nuxt 4 · boilerplates-ui · TanStack Query',
     tasksLink: 'See the TanStack Query demo',

@@ -74,6 +74,10 @@ export const fr = {
     catalog: 'Parcourir le catalogue',
     retry: 'Réessayer',
   },
+  maintenance: {
+    title: 'Site en maintenance',
+    text: 'Le site est momentanément indisponible pour une opération de maintenance. Merci de revenir dans une heure environ.',
+  },
   home: {
     overline: 'Boilerplate Nuxt 4 · boilerplates-ui · TanStack Query',
     tasksLink: 'Voir la démo TanStack Query',
