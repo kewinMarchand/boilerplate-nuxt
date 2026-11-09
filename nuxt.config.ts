@@ -10,9 +10,20 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   telemetry: false,
   hooks: {
+    // Préchargés : l'entrée et ses imports statiques, de proche en proche (sans eux, le navigateur les
+    // découvre après l'entrée, et la page attend une vague de plus) ; jamais les chunks des pages.
     'build:manifest': (manifest) => {
-      for (const chunk of Object.values(manifest)) {
-        if (!chunk.isEntry) chunk.preload = false
+      const statics = new Set<string>()
+      const visit = (key: string) => {
+        for (const dependency of manifest[key]?.imports ?? []) {
+          if (statics.has(dependency)) continue
+          statics.add(dependency)
+          visit(dependency)
+        }
+      }
+      for (const [key, chunk] of Object.entries(manifest)) if (chunk.isEntry) visit(key)
+      for (const [key, chunk] of Object.entries(manifest)) {
+        if (!chunk.isEntry && !statics.has(key)) chunk.preload = false
       }
     },
     // Chaque page existe aussi sous un préfixe de langue (`/en/...`), vérifié contre les langues du
