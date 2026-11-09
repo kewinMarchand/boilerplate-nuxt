@@ -28,7 +28,12 @@ const t = useDictionary()
     <Skeleton v-for="key in 3" :key="key" height="48px" />
   </div>
 
-  <Alert v-else-if="status === 'error'" variant="error" data-testid="tasks-error">
+  <Alert
+    v-else-if="status === 'error'"
+    variant="error"
+    :prefix="t.ui.alert.error"
+    data-testid="tasks-error"
+  >
     {{ errorMessage }}
     <template #action>
       <Button variant="ghost" data-testid="tasks-retry" @click="emit('retry')">
@@ -38,7 +43,7 @@ const t = useDictionary()
     </template>
   </Alert>
 
-  <Alert v-else-if="!tasks?.length" data-testid="tasks-empty">
+  <Alert v-else-if="!tasks?.length" :prefix="t.ui.alert.info" data-testid="tasks-empty">
     {{ t.tasks.empty }}
   </Alert>
 

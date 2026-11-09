@@ -38,7 +38,12 @@ const FEATURED_SIZES = '(min-width: 1024px) 66vw, 100vw'
     <Skeleton v-for="key in 3" :key="key" height="320px" />
   </div>
 
-  <Alert v-else-if="status === 'error'" variant="error" data-testid="home-blog-error">
+  <Alert
+    v-else-if="status === 'error'"
+    variant="error"
+    :prefix="t.ui.alert.error"
+    data-testid="home-blog-error"
+  >
     {{ errorMessage }}
     <template #action>
       <Button variant="ghost" data-testid="home-blog-retry" @click="emit('retry')">
@@ -48,7 +53,7 @@ const FEATURED_SIZES = '(min-width: 1024px) 66vw, 100vw'
     </template>
   </Alert>
 
-  <Alert v-else-if="!articles?.length" data-testid="home-blog-empty">
+  <Alert v-else-if="!articles?.length" :prefix="t.ui.alert.info" data-testid="home-blog-empty">
     {{ t.blog.empty }}
   </Alert>
 

@@ -34,6 +34,7 @@ const t = useDictionary()
       :label="t.contact.name"
       autocomplete="name"
       required
+      :required-label="t.ui.required"
       data-testid="contact-name"
     />
     <TextField
@@ -44,6 +45,7 @@ const t = useDictionary()
       type="email"
       autocomplete="email"
       required
+      :required-label="t.ui.required"
       data-testid="contact-email"
     />
     <TextArea
@@ -52,19 +54,36 @@ const t = useDictionary()
       v-bind="messageProps"
       :label="t.contact.message"
       required
+      :required-label="t.ui.required"
       data-testid="contact-message"
     />
-    <Button type="submit" icon="mail" :loading="isPending" data-testid="contact-submit">
+    <Button
+      type="submit"
+      icon="mail"
+      :loading="isPending"
+      :loading-label="t.ui.loading"
+      data-testid="contact-submit"
+    >
       {{ t.contact.send }}
     </Button>
     <div aria-live="polite">
-      <Alert v-if="isSuccess" variant="success" data-testid="contact-success">
+      <Alert
+        v-if="isSuccess"
+        variant="success"
+        :prefix="t.ui.alert.success"
+        data-testid="contact-success"
+      >
         {{ product ? t.contact.inquirySent : t.contact.sent }}
       </Alert>
-      <Alert v-if="productError" variant="error" data-testid="contact-product-error">
+      <Alert
+        v-if="productError"
+        variant="error"
+        :prefix="t.ui.alert.error"
+        data-testid="contact-product-error"
+      >
         {{ productError }}
       </Alert>
-      <Alert v-if="isError" variant="error" data-testid="contact-error">
+      <Alert v-if="isError" variant="error" :prefix="t.ui.alert.error" data-testid="contact-error">
         {{ t.contact.sendError }}
       </Alert>
     </div>

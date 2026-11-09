@@ -27,7 +27,12 @@ const slides = computed(() =>
 </script>
 
 <template>
-  <Alert v-if="status === 'error'" variant="error" data-testid="home-carousel-error">
+  <Alert
+    v-if="status === 'error'"
+    variant="error"
+    :prefix="t.ui.alert.error"
+    data-testid="home-carousel-error"
+  >
     {{ t.catalog.featuredError }}
   </Alert>
   <ScrollCarousel

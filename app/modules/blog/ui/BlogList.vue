@@ -32,7 +32,12 @@ const CARD_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
     <Skeleton v-for="key in 3" :key="key" height="320px" />
   </div>
 
-  <Alert v-else-if="status === 'error'" variant="error" data-testid="blog-error">
+  <Alert
+    v-else-if="status === 'error'"
+    variant="error"
+    :prefix="t.ui.alert.error"
+    data-testid="blog-error"
+  >
     {{ errorMessage }}
     <template #action>
       <Button variant="ghost" data-testid="blog-retry" @click="emit('retry')">
@@ -42,7 +47,7 @@ const CARD_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
     </template>
   </Alert>
 
-  <Alert v-else-if="!articles?.length" data-testid="blog-empty">
+  <Alert v-else-if="!articles?.length" :prefix="t.ui.alert.info" data-testid="blog-empty">
     {{ t.blog.empty }}
   </Alert>
 

@@ -20,7 +20,12 @@ const t = useDictionary()
 
 <template>
   <h1>{{ page?.title ?? fallbackTitle }}</h1>
-  <Alert v-if="status === 'error'" variant="error" data-testid="legal-error">
+  <Alert
+    v-if="status === 'error'"
+    variant="error"
+    :prefix="t.ui.alert.error"
+    data-testid="legal-error"
+  >
     {{ t.legal.loadError }}
   </Alert>
   <template v-else-if="page">

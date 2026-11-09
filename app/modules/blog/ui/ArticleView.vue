@@ -91,7 +91,9 @@ useHead({
   <AppBreadcrumb :trail="[{ label: t.nav.home, href: '/' }, ...trail]" />
   <template v-if="status === 'error'">
     <h1>{{ t.blog.articleFallbackTitle }}</h1>
-    <Alert variant="error" data-testid="article-error">{{ t.blog.articleError }}</Alert>
+    <Alert variant="error" :prefix="t.ui.alert.error" data-testid="article-error">{{
+      t.blog.articleError
+    }}</Alert>
   </template>
   <article v-else-if="article" class="article" data-testid="article-page">
     <h1 data-testid="article-title">{{ article.title }}</h1>
