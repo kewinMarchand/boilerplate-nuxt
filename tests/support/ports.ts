@@ -9,3 +9,5 @@ export const FAKE_API_PORT = 3115
 /** Build servi avec une API factice, vente en ligne coupée ; le projet mobile prend les deux ports suivants. */
 export const SALES_OFF_PORT = 3140
 export const SALES_OFF_FAKE_API_PORT = 3141
+/** Build servi avec `NUXT_PUBLIC_API_SCENARIO=bilingual` (site en français et en anglais) ; mobile : port suivant. */
+export const BILINGUAL_PORT = 3118
