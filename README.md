@@ -53,19 +53,20 @@ Le port vient de `DEV_PORT` (3010 par défaut), pour `make up` comme pour `make 
 
 Variables d'environnement (`.env`) :
 
-| Variable                            | Rôle                                                                                                                                 |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `NUXT_PUBLIC_SITE_URL`              | URL publique, utilisée pour les URL canoniques, Open Graph, le sitemap et le JSON-LD                                                 |
-| `API_URL`                           | Origine de l'API : `http://localhost:8090` (API Platform, défaut) ou `http://localhost:8091` (Hono), même contrat. Lue à l'exécution |
-| `NUXT_API_URL`                      | Origine de l'API pour le serveur seul, quand il ne joint pas celle du navigateur (conteneur). Vide : `API_URL`                       |
-| `API_SCHEMA_URL`                    | Schéma OpenAPI de l'API consommée, lu par `make api-types`                                                                           |
-| `MAINTENANCE`                       | `1` pour servir la page de maintenance (503) sur toutes les routes                                                                   |
-| `NUXT_GLITCHTIP_DSN`                | DSN GlitchTip du serveur. Vide : aucun SDK chargé, aucune requête                                                                    |
-| `NUXT_PUBLIC_GLITCHTIP_DSN`         | DSN GlitchTip du navigateur, SDK chargé après l'affichage. Vide : rien                                                               |
-| `NUXT_PUBLIC_GLITCHTIP_ENVIRONMENT` | Environnement des erreurs (défaut : `development` en dev, `production` sinon)                                                        |
-| `NUXT_PUBLIC_MATOMO_URL`            | URL de l'instance Matomo, mesure d'audience sans cookie. Vide : aucun script, aucune requête                                         |
-| `NUXT_PUBLIC_MATOMO_SITE_ID`        | Identifiant du site dans Matomo                                                                                                      |
-| `NUXT_PUBLIC_DEV_TOOLS`             | `true` pour ouvrir la charte graphique et la route de test de la 500 hors dev                                                        |
+| Variable                            | Rôle                                                                                                                                                       |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NUXT_PUBLIC_SITE_URL`              | URL publique, utilisée pour les URL canoniques, Open Graph, le sitemap et le JSON-LD                                                                       |
+| `API_URL`                           | Origine de l'API : `http://localhost:8090` (API Platform, défaut) ou `http://localhost:8091` (Hono), même contrat. Lue à l'exécution                       |
+| `NUXT_API_URL`                      | Origine de l'API pour le serveur seul, quand il ne joint pas celle du navigateur (conteneur). Vide : `API_URL`                                             |
+| `API_SCHEMA_URL`                    | Schéma OpenAPI de l'API consommée, lu par `make api-types`                                                                                                 |
+| `MAINTENANCE`                       | `1` pour servir la page de maintenance (503) sur toutes les routes                                                                                         |
+| `NUXT_GLITCHTIP_DSN`                | DSN GlitchTip du serveur. Vide : aucun SDK chargé, aucune requête                                                                                          |
+| `NUXT_PUBLIC_GLITCHTIP_DSN`         | DSN GlitchTip du navigateur, SDK chargé après l'affichage. Vide : rien                                                                                     |
+| `NUXT_PUBLIC_GLITCHTIP_ENVIRONMENT` | Environnement des erreurs (défaut : `development` en dev, `production` sinon)                                                                              |
+| `NUXT_PUBLIC_MATOMO_URL`            | URL de l'instance Matomo, mesure d'audience sans cookie. Vide : aucun script, aucune requête                                                               |
+| `NUXT_PUBLIC_MATOMO_SITE_ID`        | Identifiant du site dans Matomo                                                                                                                            |
+| `NUXT_PUBLIC_DEV_TOOLS`             | `true` pour ouvrir la charte graphique et la route de test de la 500 hors dev                                                                              |
+| `NUXT_PUBLIC_API_SCENARIO`          | Scénario de l'API (`X-Scenario`) fixé pour tous les appels, en dev et en test seulement (`bilingual` : site en français et en anglais). Vide en production |
 
 ## Commandes
 
@@ -99,6 +100,7 @@ app/
     home/        accueil : hero, carrousel, articles du blog
     legal/       mentions, données personnelles, déclaration d'accessibilité, plan du site
     errors/      contenu des pages 404 et 500
+    document/    la page dans chaque langue (sélecteur de langue, hreflang), lue par app.vue
     styleguide/  charte graphique (développement uniquement)
   modules/      un dossier par sous-domaine métier
     catalog/
@@ -108,7 +110,7 @@ app/
       ui/                composants, composables, vue rendue par la page
       index.ts           seul export public du module
     blog/, contact/, content/, task/   même découpage, sans application/
-  shared/       socle sans métier : config, thème, providers, SEO, formulaires,
+  shared/       socle sans métier : config, thème, providers, SEO, formulaires, langues (i18n),
                 kit d'interface, layout, carrousel, mode renforcé
 server/         robots.txt, sitemap.xml, maintenance, compression du HTML (routage)
 tests/
@@ -159,6 +161,10 @@ Chaque réponse porte un en-tête `Content-Security-Policy-Report-Only` construi
 - **Autoriser une origine** : l'ajouter à sa directive (le nom est entre parenthèses dans la ligne) dans `siteCsp()` de `app/shared/security/csp.ts`. L'API (`NUXT_PUBLIC_API_URL`), Matomo et GlitchTip y sont déjà, quand leur variable est renseignée. L'en-tête est calculé à l'exécution, comme le reste de `runtimeConfig`.
 - **Pourquoi Report-Only et `'unsafe-inline'`** : on collecte d'abord ce que le site charge vraiment avant de bloquer quoi que ce soit ; l'hydratation de Nuxt et les attributs `style` écrivent du code en ligne, et un nonce par réponse rendrait toutes les pages dynamiques.
 
+### Ajouter un libellé ou une langue
+
+Les langues du site viennent de l'API (`locales` de l'identité, administrées dans l'admin) : rien à changer dans le front pour activer l'anglais. Un libellé s'ajoute dans `app/shared/i18n/dictionaries/fr.ts` puis dans `en.ts` (le type et `locale.test.ts` exigent les mêmes clés) et se lit par `useDictionary()` ; un lien interne passe par `useLocalizePath()`. Une nouvelle langue demande son dictionnaire, déclaré dans `dictionaries/index.ts`, et sa forme Open Graph dans `ogLocale` (`locale.ts`) ; sans dictionnaire, elle prend les libellés français.
+
 ### Ajouter une icône
 
 Ajouter son nom Lucide dans `icons.json`, puis lancer `make icons` : le sprite `public/icons.svg` et le type `IconName` sont régénérés, à versionner tous les deux. `make qa` échoue s'ils sont périmés. Les outils d'icônes (`@iconify-json/lucide`, `svgstore`) ne s'importent que dans `tools/icons.ts`, ESLint le refuse ailleurs.
@@ -172,6 +178,7 @@ L'arbre vient de l'API (`GET /api/categories`) : une catégorie s'ajoute côté 
 - **Unitaires et fonctionnels** : fichiers `*.test.ts` à côté du code testé.
 - **End-to-end** : Playwright sert le build de production sur le port 3110 (outils de dev activés) et 3111 (production stricte, pour vérifier les 404 de la charte et de la route de test). Les éléments sont ciblés par `data-testid`, préfixé par le domaine (`tasks-list`, `catalog-sort`). Chaque rendu conditionnel est testé présent et absent. Les tests attendent la fin de l'hydratation (`html[data-hydrated]`).
 - **Accessibilité** : `tests/a11y/` passe axe-core sur chaque route, les pages d'erreur et le menu ouvert, en mode normal et renforcé. Axe ne couvre qu'une partie du RGAA, un audit manuel reste nécessaire.
+- **Site bilingue** : `tests/e2e/bilingue.e2e.ts` sert le même build avec `NUXT_PUBLIC_API_SCENARIO=bilingual` (port 3118, mobile 3119) : routes préfixées, libellés et contenus anglais, sélecteur, `hreflang`, sitemap, 404 d'un préfixe non activé, axe sur les pages anglaises. Le site monolingue y est vérifié sans sélecteur ni `hreflang`.
 - **Captures** : `tests/e2e/captures.e2e.ts` enregistre l'accueil et le catalogue à 375, 768 et 1280 px dans les deux modes, dans `test-results/`.
 
 ## Intégration continue
